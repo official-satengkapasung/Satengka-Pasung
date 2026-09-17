@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visual Code Diff & Bug Investigation Proof</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; }
+    pre, code { font-family: 'Fira Code', monospace; }
+  </style>
+</head>
+<body class="p-8 text-slate-100 min-h-screen space-y-10">
+
+  <!-- HEADER DOKUMENTASI DIFF -->
+  <div class="max-w-5xl mx-auto border-b border-slate-800 pb-6 flex justify-between items-center">
+    <div>
+      <div class="flex items-center space-x-2 text-emerald-400 font-bold text-xs uppercase tracking-widest mb-1">
+        <i class="fa-solid fa-code-commit"></i>
+        <span>Engineering Patch & Incident Analysis</span>
+      </div>
+      <h1 class="text-2xl font-black text-white">Visual Code Diff, Bug Investigation & Patch Verification</h1>
+      <p class="text-xs text-slate-400 mt-1">Sistem EWS Terpadu BHUPPA' BHU' GURU RATO — Puskesmas Kokop Bangkalan</p>
+    </div>
+    <div class="text-right">
+      <span class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold font-mono">100% PATCHED</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- CARD 1: BUG-01 CORS POLICY ERROR & FIX DIFF                               -->
+  <!-- ========================================================================= -->
+  <div id="diff-card-1" class="max-w-5xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-7 shadow-2xl space-y-5">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div class="flex items-center space-x-3">
+        <span class="px-2.5 py-1 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold font-mono">BUG-01</span>
+        <h2 class="text-base font-black text-white">CORS Protocol Violation saat Akses Skrip Modular via file:///</h2>
+      </div>
+      <span class="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">RESOLVED</span>
+    </div>
+
+    <!-- Error Console Simulation -->
+    <div class="space-y-1.5">
+      <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center">
+        <i class="fa-solid fa-terminal text-red-400 mr-2"></i> Log Error Konsol Asli:
+      </p>
+      <div class="bg-black/90 rounded-xl p-3.5 border border-red-900/50 text-xs font-mono text-red-300 leading-relaxed shadow-inner">
+        <p class="text-red-400 font-bold">Access to script at 'file:///C:/Users/.../js/firebase-adapter.js' from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, data, http, https.</p>
+        <p class="text-red-500 mt-1">firebase-adapter.js:1 Failed to load resource: net::ERR_FAILED</p>
+        <p class="text-red-500">test.html:41 Uncaught ReferenceError: qLogin is not defined at HTMLButtonElement.onclick</p>
+      </div>
+    </div>
+
+    <!-- Code Diff Before vs After -->
+    <div class="space-y-1.5">
+      <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center">
+        <i class="fa-solid fa-code-compare text-emerald-400 mr-2"></i> Perbandingan Kode (index.html):
+      </p>
+      <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs font-mono leading-relaxed overflow-x-auto space-y-1">
+        <div class="text-slate-500 text-[11px] pb-1 border-b border-slate-800 mb-1">@@ index.html (Baris 1176-1180) @@</div>
+        <div class="text-red-400 bg-red-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-red-500 mr-3 select-none font-bold">-</span>
+          <span>&lt;script type="module" src="./js/firebase-adapter.js"&gt;&lt;/script&gt;  <span class="text-red-300 italic">// Error: Diblokir CORS di protokol file:///</span></span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-emerald-500 mr-3 select-none font-bold">+</span>
+          <span>&lt;script src="./js/malekkas-engine.js"&gt;&lt;/script&gt;  <span class="text-emerald-300 italic">// Solusi: Standalone Universal Storage Engine (Bebas CORS)</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- CARD 2: BUG-02 LOGIKA EVALUASI RESPONS KIAI (NEED_TIME)                   -->
+  <!-- ========================================================================= -->
+  <div id="diff-card-2" class="max-w-5xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-7 shadow-2xl space-y-5">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div class="flex items-center space-x-3">
+        <span class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold font-mono">BUG-02</span>
+        <h2 class="text-base font-black text-white">Blind Spot Evaluasi Respons Kiai 'NEED_TIME' pada Stepper Nakes</h2>
+      </div>
+      <span class="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">RESOLVED</span>
+    </div>
+
+    <!-- Code Diff Before vs After -->
+    <div class="space-y-1.5">
+      <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center">
+        <i class="fa-solid fa-code-compare text-emerald-400 mr-2"></i> Perbandingan Kode (updateMonitoringStepper):
+      </p>
+      <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs font-mono leading-relaxed overflow-x-auto space-y-1">
+        <div class="text-slate-500 text-[11px] pb-1 border-b border-slate-800 mb-1">@@ index.html (Baris 2028-2048: updateMonitoringStepper) @@</div>
+        <div class="text-slate-400 px-3 py-0.5">  if (guruPart && guruPart.response === 'AGREE') {</div>
+        <div class="text-slate-400 px-3 py-0.5">    guruText.innerText = 'Siap membantu (Terkonfirmasi)';</div>
+        <div class="text-red-400 bg-red-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-red-500 mr-3 select-none font-bold">-</span>
+          <span>} else {  <span class="text-red-300 italic">// Blind spot: Respons NEED_TIME terlempar ke else seolah Kiai belum merespon!</span></span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-emerald-500 mr-3 select-none font-bold">+</span>
+          <span>} else if (guruPart && guruPart.response === 'NEED_TIME') {</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg flex items-start pl-8">
+          <span>guruIcon.className = '... bg-amber-600 animate-pulse';</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg flex items-start pl-8">
+          <span>guruIcon.innerHTML = '&lt;i class="fa-solid fa-phone-volume"&gt;&lt;/i&gt;';</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg flex items-start pl-8">
+          <span>guruText.innerText = 'Kiai Butuh Waktu (Sedang Telepon Keluarga)';</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-emerald-500 mr-3 select-none font-bold">+</span>
+          <span>} else {  <span class="text-emerald-300 italic">// Hanya aktif jika memang belum ada respon sama sekali</span></span>
+        </div>
+        <div class="text-slate-400 px-3 py-0.5">    guruText.innerText = 'Menunggu konfirmasi Kiai...';</div>
+        <div class="text-slate-400 px-3 py-0.5">  }</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- CARD 3: BUG-03 TOMBOL AKSI TERKUNCI STATIS                                -->
+  <!-- ========================================================================= -->
+  <div id="diff-card-3" class="max-w-5xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-7 shadow-2xl space-y-5">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div class="flex items-center space-x-3">
+        <span class="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-bold font-mono">BUG-03</span>
+        <h2 class="text-base font-black text-white">Tombol Aksi Detail Kasus Terkunci Statis pada 'Lanjut Validasi'</h2>
+      </div>
+      <span class="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">RESOLVED</span>
+    </div>
+
+    <!-- Code Diff Before vs After -->
+    <div class="space-y-1.5">
+      <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center">
+        <i class="fa-solid fa-code-compare text-emerald-400 mr-2"></i> Perbandingan Kode (selectCaseDetail):
+      </p>
+      <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs font-mono leading-relaxed overflow-x-auto space-y-1">
+        <div class="text-slate-500 text-[11px] pb-1 border-b border-slate-800 mb-1">@@ index.html (Baris 1916-1932: selectCaseDetail) @@</div>
+        <div class="text-red-400 bg-red-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-red-500 mr-3 select-none font-bold">-</span>
+          <span>btnMainAction.innerHTML = '&lt;span&gt;Lanjut Validasi&lt;/span&gt;';  <span class="text-red-300 italic">// Statis, tidak adaptif terhadap status SIAGA</span></span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-emerald-500 mr-3 select-none font-bold">+</span>
+          <span>const isActivated = activeSelectedCase.status === 'SIAGA' || activeSelectedCase.status === 'READY_FOR_EVACUATION';</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-emerald-500 mr-3 select-none font-bold">+</span>
+          <span>if (isActivated) {</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg flex items-start pl-8">
+          <span>btnMainAction.innerHTML = '&lt;i class="fa-solid fa-truck-medical"&gt;&lt;/i&gt; &lt;span&gt;Buka Monitoring EWS&lt;/span&gt;';</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg flex items-start pl-8">
+          <span>btnMainAction.onclick = () => switchNakesTab('monitoring');</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-emerald-500 mr-3 select-none font-bold">+</span>
+          <span>} else { btnMainAction.innerHTML = '&lt;span&gt;Lanjut Validasi&lt;/span&gt;'; }</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- CARD 4: BUG-04 SEEDER 13 DESA KOKOP BANGKALAN                             -->
+  <!-- ========================================================================= -->
+  <div id="diff-card-4" class="max-w-5xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-7 shadow-2xl space-y-5">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div class="flex items-center space-x-3">
+        <span class="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-bold font-mono">BUG-04</span>
+        <h2 class="text-base font-black text-white">Sinkronisasi 13 Desa Definitif Kecamatan Kokop Bangkalan</h2>
+      </div>
+      <span class="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">RESOLVED</span>
+    </div>
+
+    <!-- Code Diff Before vs After -->
+    <div class="space-y-1.5">
+      <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center">
+        <i class="fa-solid fa-code-compare text-emerald-400 mr-2"></i> Perbandingan Kode Basis Data (js/malekkas-engine.js):
+      </p>
+      <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs font-mono leading-relaxed overflow-x-auto space-y-1">
+        <div class="text-slate-500 text-[11px] pb-1 border-b border-slate-800 mb-1">@@ js/malekkas-engine.js (Baris 11-25: DEFAULT_SEED.villages) @@</div>
+        <div class="text-slate-400 px-3 py-0.5">  villages: [</div>
+        <div class="text-slate-400 px-3 py-0.5">    { id: 1, name: "Kokop", district: "Kokop", regency: "Bangkalan" },</div>
+        <div class="text-red-400 bg-red-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-red-500 mr-3 select-none font-bold">-</span>
+          <span>{ id: 2, name: "Bandasobah" }, { id: 3, name: "Batu Bintang" }, { id: 4, name: "Mandra'ah" }  // Salah, bukan desa Kokop</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-lg flex items-start">
+          <span class="text-emerald-500 mr-3 select-none font-bold">+</span>
+          <span>{ id: 2, name: "Amparaan" }, { id: 3, name: "Bandang Laok" }, { id: 4, name: "Banda Soleh" },</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg flex items-start pl-8">
+          <span>{ id: 5, name: "Batokorogan" }, { id: 6, name: "Dupok" }, { id: 7, name: "Durjan" },</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg flex items-start pl-8">
+          <span>{ id: 8, name: "Katol Timur" }, { id: 9, name: "Lembung Gunong" }, { id: 10, name: "Mandung" },</span>
+        </div>
+        <div class="text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg flex items-start pl-8">
+          <span>{ id: 11, name: "Mano'an" }, { id: 12, name: "Tlokoh" }, { id: 13, name: "Tramok" }</span>
+        </div>
+        <div class="text-slate-400 px-3 py-0.5">  ]</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

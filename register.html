@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SATENGKA PASUNG — Registrasi Akun Mandiri</title>
+  <!-- PWA Manifest & Theme -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./assets/logo_opt.png">
+  <meta name="theme-color" content="#2ca3ab">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #17656e url('./assets/background_opt.webp') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .btn-satengka {
+      background: linear-gradient(135deg, #2ca3ab 0%, #1f7d84 100%);
+      transition: all 0.25s ease;
+    }
+    .btn-satengka:hover {
+      background: linear-gradient(135deg, #34bcc6 0%, #2ca3ab 100%);
+      box-shadow: 0 10px 20px -5px rgba(44, 163, 171, 0.4);
+    }
+    .role-card-radio:checked + div {
+      border-color: #2ca3ab;
+      background-color: rgba(44, 163, 171, 0.08);
+      box-shadow: 0 0 0 2px #2ca3ab;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-3 sm:p-4 text-slate-800 relative antialiased">
+
+  <!-- OVERLAY GRADASI MOTIF TANJUNG BUMI (OLD TOSCA KE LIGHT CYAN) -->
+  <div class="fixed inset-0 bg-gradient-to-b from-[#134e54]/80 via-[#1a646c]/70 to-[#2ca3ab]/80 pointer-events-none"></div>
+
+  <!-- CONTAINER FORM REGISTRASI MANDIRI -->
+  <div class="max-w-[480px] w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/60 shadow-2xl overflow-hidden p-6 sm:p-8 space-y-4 relative z-10 my-4">
+    
+    <!-- BRANDING LOGO & HEADER -->
+    <div class="text-center space-y-1.5 pt-1">
+      <div class="w-20 h-20 mx-auto relative flex items-center justify-center filter drop-shadow-md">
+        <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" class="w-full h-full object-contain">
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-black text-[#17656e] tracking-tight uppercase">DAFTAR AKUN MANDIRI</h1>
+        <p class="text-[10px] sm:text-[11px] font-bold text-[#2ca3ab] uppercase tracking-wider">SATENGKA PASUNG (BHUPPA’ BHU’ GHURU RATO’)</p>
+        <p class="text-[11px] text-slate-500 font-medium mt-0.5 leading-snug">
+          Kemitraan Terpadu Kesehatan Jiwa & Evakuasi Pasung Puskesmas Kokop
+        </p>
+      </div>
+    </div>
+
+    <!-- ALERT MESSAGE -->
+    <div id="alertBox" class="hidden p-3.5 rounded-2xl text-xs font-semibold flex items-center space-x-2"></div>
+
+    <!-- FORM PENDAFTARAN -->
+    <form id="formRegister" onsubmit="handleSelfRegister(event)" class="space-y-3.5 text-xs">
+      
+      <!-- 1. NAMA LENGKAP -->
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
+        <div class="relative">
+          <input type="text" id="regFullName" required placeholder="Contoh: Siti Aisyah, S.Kep / Kiai Ahmad" 
+            class="w-full pl-9 pr-3 py-2.5 sm:py-3 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] focus:ring-2 focus:ring-[#2ca3ab]/20 outline-none transition font-medium">
+          <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400"></i>
+        </div>
+      </div>
+
+      <!-- 2. PILIHAN PERAN 4-PILAR BGR -->
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1.5">Pilih Peran Pilar Anda</label>
+        <div class="grid grid-cols-2 gap-2 text-left">
+          
+          <!-- KADER -->
+          <label class="cursor-pointer">
+            <input type="radio" name="regRole" value="KADER" checked class="hidden role-card-radio">
+            <div class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2ca3ab] transition">
+              <div class="flex items-center space-x-2">
+                <span class="text-base">🤝</span>
+                <div>
+                  <p class="font-bold text-slate-800 text-[11px]">Kader Jiwa</p>
+                  <p class="text-[9px] text-slate-500">Pendamping Warga</p>
+                </div>
+              </div>
+            </div>
+          </label>
+
+          <!-- GURU / KIAI -->
+          <label class="cursor-pointer">
+            <input type="radio" name="regRole" value="GURU" class="hidden role-card-radio">
+            <div class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2ca3ab] transition">
+              <div class="flex items-center space-x-2">
+                <span class="text-base">🕌</span>
+                <div>
+                  <p class="font-bold text-slate-800 text-[11px]">Guru / Kiai</p>
+                  <p class="text-[9px] text-slate-500">Tokoh Agama BGR</p>
+                </div>
+              </div>
+            </div>
+          </label>
+
+          <!-- RATO / KEPALA DESA -->
+          <label class="cursor-pointer">
+            <input type="radio" name="regRole" value="RATO" class="hidden role-card-radio">
+            <div class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2ca3ab] transition">
+              <div class="flex items-center space-x-2">
+                <span class="text-base">🛡️</span>
+                <div>
+                  <p class="font-bold text-slate-800 text-[11px]">Rato / Kades</p>
+                  <p class="text-[9px] text-slate-500">Pemerintah Desa</p>
+                </div>
+              </div>
+            </div>
+          </label>
+
+          <!-- NAKES PUSKESMAS -->
+          <label class="cursor-pointer">
+            <input type="radio" name="regRole" value="NAKES" class="hidden role-card-radio">
+            <div class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2ca3ab] transition">
+              <div class="flex items-center space-x-2">
+                <span class="text-base">👨‍⚕️</span>
+                <div>
+                  <p class="font-bold text-slate-800 text-[11px]">Nakes / Faskes</p>
+                  <p class="text-[9px] text-slate-500">Petugas Medis</p>
+                </div>
+              </div>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- 3. NOMOR WHATSAPP -->
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Nomor WhatsApp Aktif</label>
+        <div class="relative">
+          <input type="tel" id="regPhone" required placeholder="08xxxxxxxxxx" pattern="[0-9]{10,14}"
+            class="w-full pl-9 pr-3 py-2.5 sm:py-3 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] focus:ring-2 focus:ring-[#2ca3ab]/20 outline-none transition font-medium">
+          <i class="fa-brands fa-whatsapp absolute left-3 top-3 text-emerald-600 text-sm"></i>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-0.5">Digunakan sebagai username saat login dan nomor notifikasi darurat.</p>
+      </div>
+
+      <!-- 4. WILAYAH DESA -->
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Wilayah Desa di Kec. Kokop</label>
+        <div class="relative">
+          <select id="regVillage" required class="w-full pl-9 pr-3 py-2.5 sm:py-3 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] outline-none transition font-medium text-xs">
+            <option value="1">Kokop</option>
+            <option value="2">Amparaan</option>
+            <option value="3">Bandang Laok</option>
+            <option value="4">Banda Soleh</option>
+            <option value="5">Batokorogan</option>
+            <option value="6">Dupok</option>
+            <option value="7">Durjan</option>
+            <option value="8">Katol Timur</option>
+            <option value="9">Lembung Gunong</option>
+            <option value="10">Mandung</option>
+            <option value="11">Mano'an</option>
+            <option value="12">Tlokoh</option>
+            <option value="13">Tramok</option>
+          </select>
+          <i class="fa-solid fa-map-location-dot absolute left-3 top-3 text-slate-400"></i>
+        </div>
+      </div>
+
+      <!-- 5. KATA SANDI -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Kata Sandi</label>
+          <div class="relative">
+            <input type="password" id="regPassword" required placeholder="Minimal 6 karakter" minlength="6"
+              class="w-full pl-3 pr-8 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] outline-none transition font-medium">
+            <button type="button" onclick="togglePasswordVisibility('regPassword', 'eyeIcon1')" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600">
+              <i class="fa-solid fa-eye text-[11px]" id="eyeIcon1"></i>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Ulangi Sandi</label>
+          <div class="relative">
+            <input type="password" id="regConfirmPassword" required placeholder="Ulangi sandi" minlength="6"
+              class="w-full pl-3 pr-8 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] outline-none transition font-medium">
+            <button type="button" onclick="togglePasswordVisibility('regConfirmPassword', 'eyeIcon2')" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600">
+              <i class="fa-solid fa-eye text-[11px]" id="eyeIcon2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOMBOL SUBMIT DAFTAR -->
+      <button type="submit" id="btnRegisterSubmit"
+        class="w-full btn-satengka text-white font-bold py-3.5 rounded-xl shadow-lg shadow-[#2ca3ab]/25 transition flex items-center justify-center text-sm mt-2">
+        <i class="fa-solid fa-user-plus mr-2"></i>
+        <span>Daftar Sekarang & Masuk</span>
+      </button>
+
+      <!-- LINK KEMBALI KE LOGIN -->
+      <div class="text-center pt-2 border-t border-slate-100 flex items-center justify-center space-x-1 text-xs">
+        <span class="text-slate-500">Sudah memiliki akun terdaftar?</span>
+        <a href="login.html" class="font-bold text-[#2ca3ab] hover:text-[#17656e] hover:underline">
+          Masuk di Sini →
+        </a>
+      </div>
+
+    </form>
+
+    <!-- TOMBOL INSTALL PWA PROMINENT (JIKA BELUM TERINSTALL) -->
+    <div id="pwaInstallBanner" class="hidden p-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-[#a3f6f8]/20 border border-[#2ca3ab]/30 flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-xl bg-[#2ca3ab] text-white flex items-center justify-center text-sm shadow">
+          <i class="fa-solid fa-download"></i>
+        </div>
+        <div class="text-left">
+          <p class="font-bold text-slate-800 text-[11px]">Pasang Aplikasi PWA</p>
+          <p class="text-[10px] text-slate-500">Akses cepat offline di layar utama HP</p>
+        </div>
+      </div>
+      <button type="button" onclick="triggerPwaInstall()" class="px-3 py-1.5 rounded-xl bg-[#2ca3ab] hover:bg-[#1f7d84] text-white font-bold text-xs shadow transition">
+        Install
+      </button>
+    </div>
+
+    <!-- FOOTER RESMI PENELITIAN UTM -->
+    <div class="border-t border-slate-100 pt-2.5 text-center space-y-0.5">
+      <p class="text-[10px] text-slate-500 font-medium">
+        Kemitraan Terpadu <span class="font-semibold text-slate-700">Puskesmas Kokop & LPPM UTM</span>
+      </p>
+      <p class="text-[9px] text-slate-400 font-medium">
+        Tim Peneliti Riset Terapan Universitas Trunojoyo Madura
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT LOGIKA REGISTRASI MANDIRI & PWA INSTALL -->
+  <script src="./js/malekkas-engine.js"></script>
+  <script>
+    // Inisialisasi daftar desa dari data engine jika tersedia
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        if (window.firebaseAdapter && window.firebaseAdapter.getVillages) {
+          const res = await window.firebaseAdapter.getVillages();
+          if (res.success && res.data && res.data.length > 0) {
+            const selectEl = document.getElementById('regVillage');
+            selectEl.innerHTML = res.data.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('Gagal memuat daftar desa:', e);
+      }
+    });
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash text-[11px]';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye text-[11px]';
+      }
+    }
+
+    function showAlert(msg, isError = true) {
+      const box = document.getElementById('alertBox');
+      box.className = isError 
+        ? 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-red-50 text-red-700 border border-red-200'
+        : 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-emerald-50 text-emerald-700 border border-emerald-200';
+      box.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i><span>${msg}</span>`;
+      box.classList.remove('hidden');
+    }
+
+    async function handleSelfRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('regFullName').value.trim();
+      const role = document.querySelector('input[name="regRole"]:checked')?.value || 'KADER';
+      const phone = document.getElementById('regPhone').value.trim();
+      const villageSelect = document.getElementById('regVillage');
+      const villageId = parseInt(villageSelect.value) || 1;
+      const villageName = villageSelect.options[villageSelect.selectedIndex]?.text || 'Kokop';
+      const pass = document.getElementById('regPassword').value;
+      const confirmPass = document.getElementById('regConfirmPassword').value;
+      const btn = document.getElementById('btnRegisterSubmit');
+
+      if (pass !== confirmPass) {
+        showAlert('Konfirmasi kata sandi tidak cocok!');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mendaftarkan Akun...';
+      document.getElementById('alertBox').classList.add('hidden');
+
+      try {
+        // Cek apakah nomor HP sudah terdaftar di LocalStorage
+        const existingUsers = JSON.parse(localStorage.getItem('malekkas_users') || '[]');
+        const duplicate = existingUsers.find(u => u.phone === phone);
+        if (duplicate) {
+          showAlert(`Nomor ${phone} sudah terdaftar sebagai ${duplicate.role} (${duplicate.name}). Silakan masuk langsung.`);
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-user-plus mr-2"></i><span>Daftar Sekarang & Masuk</span>';
+          return;
+        }
+
+        // Format User Baru
+        const newUserId = existingUsers.length > 0 ? Math.max(...existingUsers.map(u => u.id || 0)) + 1 : 10;
+        const newUser = {
+          id: newUserId,
+          name: name,
+          phone: phone,
+          role: role,
+          village_id: villageId,
+          village_name: villageName,
+          password: pass,
+          created_at: new Date().toISOString()
+        };
+
+        // Simpan via window.firebaseAdapter jika ada, atau localStorage
+        if (window.firebaseAdapter && window.firebaseAdapter.createUser) {
+          await window.firebaseAdapter.createUser(newUser);
+        } else {
+          existingUsers.push(newUser);
+          localStorage.setItem('malekkas_users', JSON.stringify(existingUsers));
+        }
+
+        showAlert('Pendaftaran akun mandiri berhasil! Sedang masuk...', false);
+
+        // Auto-login sesi user baru
+        localStorage.setItem('malekkas_token', 'token_' + Date.now());
+        localStorage.setItem('malekkas_user', JSON.stringify(newUser));
+
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1000);
+
+      } catch (err) {
+        showAlert('Terjadi kesalahan saat memproses pendaftaran: ' + (err.message || 'Error'));
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-user-plus mr-2"></i><span>Daftar Sekarang & Masuk</span>';
+      }
+    }
+
+    // PWA INSTALL LOGIC
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.classList.remove('hidden');
+    });
+
+    async function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User menerima pemasangan PWA Satengka Pasung');
+        }
+        deferredPrompt = null;
+        const banner = document.getElementById('pwaInstallBanner');
+        if (banner) banner.classList.add('hidden');
+      } else {
+        alert('Untuk memasang PWA di peramban ini, klik ikon Titik Tiga (Menu) di pojok kanan atas lalu pilih "Tambahkan ke Layar Utama" / "Install Aplikasi".');
+      }
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA Satengka Pasung telah terpasang di perangkat!');
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.classList.add('hidden');
+    });
+  </script>
+</body>
+</html>

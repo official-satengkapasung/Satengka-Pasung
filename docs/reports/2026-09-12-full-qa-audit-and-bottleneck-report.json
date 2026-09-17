@@ -1,0 +1,196 @@
+{
+  "timestamp": "2026-09-12T08:39:17.729Z",
+  "networkRequests": [
+    {
+      "url": "file:///C:/Users/lenovo/Documents/APP/EWS/index.html",
+      "status": 200
+    },
+    {
+      "url": "file:///C:/Users/lenovo/Documents/APP/EWS/js/malekkas-engine.js",
+      "status": 200
+    },
+    {
+      "url": "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+      "status": 200
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+      "status": 200
+    },
+    {
+      "url": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
+      "status": 200
+    },
+    {
+      "url": "https://cdn.tailwindcss.com/",
+      "status": 302
+    },
+    {
+      "url": "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+      "status": 200
+    },
+    {
+      "url": "https://cdn.tailwindcss.com/3.4.17",
+      "status": 200
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2",
+      "status": 200
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2",
+      "status": 200
+    },
+    {
+      "url": "https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/2127/3333",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/2128/3333",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/2128/3334",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/2127/3334",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8511/13336",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8511/13335",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8512/13335",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8511/13334",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8512/13334",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8511/13337",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8512/13336",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8511/13333",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8512/13333",
+      "status": 200
+    },
+    {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8512/13337",
+      "status": 200
+    }
+  ],
+  "blockedResources": [],
+  "consoleErrors": [],
+  "consoleWarnings": [
+    {
+      "role": "NAKES",
+      "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
+    }
+  ],
+  "mapAudit": {
+    "nakesDashboard": {
+      "mapRendered": true,
+      "totalTilesRendered": 4,
+      "visibleTiles": 4,
+      "brokenTiles": 0,
+      "tileSourcesSample": [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/2127/3333",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/2127/3334",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/2128/3333",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/2128/3334"
+      ],
+      "markersCount": 4,
+      "osmBlockedRisk": false,
+      "esriUsed": true
+    },
+    "caseDetailMap": {
+      "mapRendered": true,
+      "totalTiles": 10,
+      "visibleTiles": 10,
+      "brokenTiles": 0,
+      "tileSources": [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8511/13335",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8512/13335",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8511/13334",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8511/13336",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/14/8512/13334"
+      ]
+    }
+  },
+  "roleTests": {
+    "kader": {
+      "kaderVisible": true,
+      "roleTitle": "Kader Jiwa"
+    },
+    "guru": {
+      "guruVisible": true,
+      "roleTitle": "Guru / Kiai"
+    },
+    "rato": {
+      "ratoVisible": true,
+      "roleTitle": "Pemerintah Desa (Rato)"
+    }
+  },
+  "bottleneckStressTest": {
+    "initialDomNodes": 1087,
+    "scriptCount": 4,
+    "styleCount": 5,
+    "localStorageQuotaLimitKb": "> 5120 KB",
+    "scaleSimulation": [
+      {
+        "caseCount": 10,
+        "tableRenderMs": 0,
+        "mapRenderMs": 8.2,
+        "totalDomNodes": 1095
+      },
+      {
+        "caseCount": 50,
+        "tableRenderMs": 0,
+        "mapRenderMs": 10.4,
+        "totalDomNodes": 1175
+      },
+      {
+        "caseCount": 100,
+        "tableRenderMs": 0,
+        "mapRenderMs": 21.3,
+        "totalDomNodes": 1275
+      },
+      {
+        "caseCount": 250,
+        "tableRenderMs": 0,
+        "mapRenderMs": 41.4,
+        "totalDomNodes": 1575
+      },
+      {
+        "caseCount": 500,
+        "tableRenderMs": 0,
+        "mapRenderMs": 78.1,
+        "totalDomNodes": 2075
+      }
+    ],
+    "totalSimulationDurationMs": 511
+  }
+}

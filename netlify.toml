@@ -1,0 +1,19 @@
+# Netlify Configuration for Single-Page Application & PWA
+[build]
+  publish = "."
+
+# Routing SPA: Fallback jika direct path diakses
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Cache headers untuk performa optimal PWA di pelosok
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

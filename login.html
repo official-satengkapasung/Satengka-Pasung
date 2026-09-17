@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SATENGKA PASUNG — Masuk Akun EWS</title>
+  <!-- PWA Manifest & Theme -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./assets/logo_opt.png">
+  <meta name="theme-color" content="#2ca3ab">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #17656e url('./assets/background_opt.webp') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .btn-satengka {
+      background: linear-gradient(135deg, #2ca3ab 0%, #1f7d84 100%);
+      transition: all 0.25s ease;
+    }
+    .btn-satengka:hover {
+      background: linear-gradient(135deg, #34bcc6 0%, #2ca3ab 100%);
+      box-shadow: 0 10px 20px -5px rgba(44, 163, 171, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-slate-800 relative">
+
+  <!-- OVERLAY GRADASI MOTIF TANJUNG BUMI (OLD TOSCA #2ca3ab KE LIGHT CYAN #a3f6f8) -->
+  <div class="fixed inset-0 bg-gradient-to-b from-[#134e54]/80 via-[#1a646c]/70 to-[#2ca3ab]/80 pointer-events-none"></div>
+
+  <div class="max-w-[440px] w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/60 shadow-2xl overflow-hidden p-7 md:p-8 space-y-5 relative z-10">
+    
+    <!-- BRANDING LOGO RESMI PERSIS MOCKUP BRAND IDENTITY PDF -->
+    <div class="text-center space-y-2 pt-1">
+      <!-- Logo 3D 4-Pilar & Sirine Darurat Merah -->
+      <div class="w-24 h-24 mx-auto relative flex items-center justify-center filter drop-shadow-md">
+        <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" class="w-full h-full object-contain">
+      </div>
+      <div>
+        <h1 class="text-2xl font-black text-[#17656e] tracking-tight uppercase">SATENGKA PASUNG</h1>
+        <p class="text-[11px] font-bold text-[#2ca3ab] uppercase tracking-wider">BHUPPA’ BHU’ GHURU RATO’</p>
+        <p class="text-[11px] text-slate-500 font-medium mt-1 leading-snug">
+          Sistem Komunikasi Terapeutik, Peringatan Dini,<br>& Evakuasi Pasung Puskesmas Kokop
+        </p>
+      </div>
+    </div>
+
+    <!-- ALERT MESSAGE -->
+    <div id="alertBox" class="hidden p-3.5 rounded-2xl text-xs font-semibold flex items-center space-x-2"></div>
+
+    <!-- FORM LOGIN TUNGGAL (CERDAS ROLE) -->
+    <form id="formLogin" onsubmit="handleUnifiedLogin(event)" class="space-y-3.5">
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Nomor WhatsApp / Username</label>
+        <div class="relative">
+          <input type="text" id="loginUsername" required placeholder="08xxxxxxxxxx" value="081234567890"
+            class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] focus:ring-2 focus:ring-[#2ca3ab]/20 outline-none transition font-medium">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Kata Sandi</label>
+        <div class="relative">
+          <input type="password" id="loginPassword" required placeholder="••••••••" value="password123"
+            class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] focus:ring-2 focus:ring-[#2ca3ab]/20 outline-none transition font-medium">
+          <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 text-xs">
+            <i class="fa-solid fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" id="btnSubmit"
+        class="w-full btn-satengka text-white font-bold py-3.5 rounded-xl shadow-lg shadow-[#2ca3ab]/25 transition flex items-center justify-center text-sm">
+        <span>Masuk ke Sistem</span>
+      </button>
+
+      <!-- LINK DAFTAR AKUN MANDIRI & LUPA PASSWORD -->
+      <div class="flex items-center justify-between pt-1 px-1 text-xs">
+        <a href="register.html" class="text-[#2ca3ab] hover:text-[#17656e] font-bold hover:underline flex items-center space-x-1">
+          <i class="fa-solid fa-user-plus text-[11px]"></i>
+          <span>Daftar Akun Mandiri</span>
+        </a>
+        <a href="#" onclick="alert('Silakan hubungi Administrator Puskesmas Kokop untuk reset akun.'); return false;" class="text-slate-400 hover:text-slate-600 hover:underline font-medium">
+          Lupa password?
+        </a>
+      </div>
+    </form>
+
+    <!-- BANNER INSTALASI PWA CEPAT DI HALAMAN LOGIN -->
+    <div id="pwaLoginInstallBanner" class="p-2.5 rounded-2xl bg-[#a3f6f8]/20 border border-[#2ca3ab]/30 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div class="w-7 h-7 rounded-lg bg-[#2ca3ab] text-white flex items-center justify-center text-xs shadow-sm">
+          <i class="fa-solid fa-download"></i>
+        </div>
+        <div class="text-left">
+          <p class="font-bold text-slate-800 text-[11px] leading-tight">Install Aplikasi PWA</p>
+          <p class="text-[9px] text-slate-500">Pasang di HP / Laptop (Akses Cepat)</p>
+        </div>
+      </div>
+      <button type="button" onclick="triggerPwaInstallLogin()" id="btnPwaLoginInstall" class="px-2.5 py-1 rounded-lg bg-[#2ca3ab] hover:bg-[#1f7d84] text-white font-bold text-[11px] shadow transition flex items-center space-x-1">
+        <i class="fa-solid fa-cloud-arrow-down text-[10px]"></i>
+        <span>Install</span>
+      </button>
+    </div>
+
+    <!-- QUICK ACCOUNTS PREVIEW (UNTUK KEMUDAHAN TESTING 4 ROLE) -->
+    <div class="border-t border-slate-100 pt-3.5 text-xs text-slate-500 space-y-2">
+      <p class="font-bold text-[10px] text-slate-400 uppercase tracking-wider text-center">Akun Uji Coba Cepat (Klik untuk Isi Otomatis):</p>
+      <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+        <button type="button" onclick="fillAccount('081234567890', 'NAKES')" class="p-2 rounded-xl bg-slate-50 hover:bg-[#a3f6f8]/20 hover:text-[#17656e] border border-slate-100 text-left transition truncate">
+          👨‍⚕️ <strong>Nakes:</strong> 081234567890
+        </button>
+        <button type="button" onclick="fillAccount('081234567891', 'KADER')" class="p-2 rounded-xl bg-slate-50 hover:bg-[#a3f6f8]/20 hover:text-[#17656e] border border-slate-100 text-left transition truncate">
+          🤝 <strong>Kader:</strong> 081234567891
+        </button>
+        <button type="button" onclick="fillAccount('081234567892', 'GURU')" class="p-2 rounded-xl bg-slate-50 hover:bg-[#a3f6f8]/20 hover:text-[#17656e] border border-slate-100 text-left transition truncate">
+          🕌 <strong>Guru/Kiai:</strong> 081234567892
+        </button>
+        <button type="button" onclick="fillAccount('081234567893', 'RATO')" class="p-2 rounded-xl bg-slate-50 hover:bg-[#a3f6f8]/20 hover:text-[#17656e] border border-slate-100 text-left transition truncate">
+          🛡️ <strong>Rato/Kades:</strong> 081234567893
+        </button>
+      </div>
+    </div>
+
+    <!-- FOOTER: TIM PENELITIAN UNIVERSITAS TRUNOJOYO MADURA (UTM) & PUSKESMAS KOKOP -->
+    <div class="border-t border-slate-100 pt-3 text-center space-y-1">
+      <p class="text-[11px] text-slate-500 font-medium leading-tight">
+        Masyarakat Sehat Jiwa, Desa Berdaya,<br>
+        <span class="text-[#2ca3ab] font-bold">Kecamatan Kokop • Bangkalan Madura</span>
+      </p>
+      <p class="text-[10px] text-slate-400 font-medium">
+        Riset Terapan <span class="font-semibold text-slate-600">LPPM Universitas Trunojoyo Madura (UTM)</span>
+      </p>
+    </div>
+
+  </div>
+
+  <script>
+    function togglePasswordVisibility() {
+      const pass = document.getElementById('loginPassword');
+      const icon = document.getElementById('eyeIcon');
+      if (pass.type === 'password') {
+        pass.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+      } else {
+        pass.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+      }
+    }
+
+    function fillAccount(phone, role) {
+      document.getElementById('loginUsername').value = phone;
+      document.getElementById('loginPassword').value = 'password123';
+      showAlert(`Akun demo ${role} terpasang. Klik Masuk.`, false);
+    }
+
+    function showAlert(msg, isError = true) {
+      const box = document.getElementById('alertBox');
+      box.className = isError 
+        ? 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-red-50 text-red-700 border border-red-200'
+        : 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-emerald-50 text-emerald-700 border border-emerald-200';
+      box.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i><span>${msg}</span>`;
+      box.classList.remove('hidden');
+    }
+
+    async function handleUnifiedLogin(e) {
+      e.preventDefault();
+      const phone = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const btn = document.getElementById('btnSubmit');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...';
+      document.getElementById('alertBox').classList.add('hidden');
+
+      try {
+        if (window.firebaseAdapter && window.firebaseAdapter.loginUser) {
+          const res = await window.firebaseAdapter.loginUser(phone, password);
+          if (res.success) {
+            localStorage.setItem('malekkas_token', res.data.token);
+            localStorage.setItem('malekkas_user', JSON.stringify(res.data.user));
+            window.location.href = 'index.html';
+            return;
+          } else {
+            showAlert(res.message || 'Login gagal.');
+          }
+        } else {
+          // Fallback langsung
+          let fallbackRole = 'NAKES';
+          let fallbackName = 'dr. Siti Amelia (Nakes)';
+          let fallbackId = 2;
+          if (phone === '081234567891') { fallbackRole = 'KADER'; fallbackName = 'Siti Kader Jiwa'; fallbackId = 3; }
+          if (phone === '081234567892') { fallbackRole = 'GURU'; fallbackName = 'Kiai H. Kholil (Guru)'; fallbackId = 4; }
+          if (phone === '081234567893') { fallbackRole = 'RATO'; fallbackName = 'Klebun Kokop (Rato)'; fallbackId = 5; }
+
+          const demoUser = { id: fallbackId, name: fallbackName, phone: phone, role: fallbackRole, village_name: "Kokop" };
+          localStorage.setItem('malekkas_token', 'token_' + Date.now());
+          localStorage.setItem('malekkas_user', JSON.stringify(demoUser));
+          window.location.href = 'index.html';
+        }
+      } catch (err) {
+        showAlert('Terjadi kesalahan sistem.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Masuk ke Sistem</span>';
+      }
+    }
+
+    // PWA INSTALL LOGIC UNTUK LOGIN PAGE
+    let deferredPromptLogin = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPromptLogin = e;
+      const btn = document.getElementById('btnPwaLoginInstall');
+      if (btn) {
+        btn.classList.remove('bg-[#2ca3ab]');
+        btn.classList.add('bg-emerald-600', 'animate-pulse');
+      }
+    });
+
+    async function triggerPwaInstallLogin() {
+      if (deferredPromptLogin) {
+        deferredPromptLogin.prompt();
+        const choiceResult = await deferredPromptLogin.userChoice;
+        if (choiceResult.outcome === 'accepted') {
+          console.log('PWA Satengka Pasung diterima oleh user');
+        }
+        deferredPromptLogin = null;
+      } else {
+        alert('Untuk memasang PWA Satengka Pasung:\n1. Buka menu peramban (ikon Titik Tiga ⋮ di pojok kanan atas)\n2. Pilih "Tambahkan ke Layar Utama" / "Install Aplikasi".\n\nJika menggunakan PC Chrome/Edge, klik ikon install pada bilah URL.');
+      }
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA Satengka Pasung berhasil terpasang!');
+      const banner = document.getElementById('pwaLoginInstallBanner');
+      if (banner) {
+        banner.innerHTML = '<div class="flex items-center space-x-2 text-emerald-800 text-xs font-bold py-1 w-full justify-center"><i class="fa-solid fa-circle-check"></i><span>Aplikasi PWA Sudah Terpasang di Perangkat Ini</span></div>';
+      }
+    });
+
+    // Registrasi Service Worker di login page
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('PWA Service Worker registered from login:', reg.scope))
+          .catch(err => console.warn('PWA SW register error:', err));
+      });
+    }
+  </script>
+  <script src="./js/malekkas-engine.js"></script>
+</body>
+</html>

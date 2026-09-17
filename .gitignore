@@ -1,0 +1,29 @@
+# Node & dependencies
+node_modules/
+package-lock.json
+
+# Local Dev Servers & Logs
+firebase-debug.log*
+.firebase/
+server-local.js
+start-dev.bat
+generate_pdf.py
+
+# Internal Credential & Sensitive Config
+firebase-config.js
+CREDENTIALS_HANDOVER_INTERNAL.md
+PROJECT_CONTEXT_UTM_KOKOP.md
+PRODUCTION_ARCHITECTURE_FIREBASE.md
+PANDUAN_MEET_BU_NANING_KOKOP.pdf
+*.sql
+
+# Local Test Scripts & Artifacts
+test*.js
+run-e2e-audit.js
+*.png
+test-*.png
+*.log
+
+# System & OS
+.DS_Store
+Thumbs.db

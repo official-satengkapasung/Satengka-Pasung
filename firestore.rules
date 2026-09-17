@@ -1,0 +1,31 @@
+﻿rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (request.auth.uid == userId || getUserRole() in ['NAKES', 'ADMIN']);
+    }
+    match /villages/{villageId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && getUserRole() in ['NAKES', 'ADMIN'];
+    }
+    match /reports/{reportId} {
+      allow read, create: if isAuthenticated();
+      allow update: if isAuthenticated() && getUserRole() in ['NAKES', 'ADMIN'];
+    }
+    match /cases/{caseId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && getUserRole() in ['NAKES', 'ADMIN', 'GURU', 'RATO'];
+      match /messages/{messageId} {
+        allow read, create: if isAuthenticated();
+        allow update, delete: if false;
+      }
+    }
+  }
+}

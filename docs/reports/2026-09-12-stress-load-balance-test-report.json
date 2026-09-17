@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-09-12T08:54:12.961Z",
+  "liveServerStress": {
+    "messagesSent": 100,
+    "totalDurationMs": 71,
+    "throughputMsgPerSec": 1416,
+    "messagesPersisted": 100,
+    "mutationsProcessed": 100,
+    "mutationDurationMs": 7,
+    "mutationThroughputPerSec": 14286
+  },
+  "realtimeSyncBalance": {
+    "reportCreated": true,
+    "reportNumber": "LAP-20260912-002",
+    "siagaActivated": true
+  },
+  "featureStressMatrix": {
+    "tabSwitchAverageMs": 0.14,
+    "profileModalOpenMs": 0.3,
+    "mapChooserModalOpenMs": 0,
+    "therapeuticChatOpenMs": 56.9,
+    "caseDetailAndMapSwitchMs": 0.9
+  },
+  "mapAppsChooserTest": {
+    "caseDetailTrigger": {
+      "modalTriggerSuccess": true,
+      "titleText": "Ahmad (Kokop — Kec. Kokop)",
+      "coordsText": "-7.014523, 113.023412",
+      "closeSuccess": true
+    },
+    "markerPopupTrigger": {
+      "markerPopupTriggerSuccess": true,
+      "titleText": "Puskesmas Kokop Bangkalan (Posko Induk Siaga EWS)",
+      "coordsText": "-7.014523, 113.023412"
+    }
+  },
+  "loadLimitAnalysis": {
+    "maxSafeActiveCasesBeforeClustering": 150,
+    "maxChatMessagesPerCaseLocalLimit": 2000,
+    "localStorageEstimatedTotalQuotaKb": 5120,
+    "singleReportEstimatedPayloadKb": 1.2,
+    "maxReportsStoredBeforeQuotaLimit": 3333,
+    "recommendedActionForScaling": "Gunakan IndexedDB jika jumlah riwayat kasus di Kokop melampaui 1.000 kasus."
+  }
+}

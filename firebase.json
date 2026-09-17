@@ -1,0 +1,21 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "*.sql",
+      "*.bat",
+      "*.py",
+      "server-local.js",
+      "PROJECT_CONTEXT_UTM_KOKOP.md",
+      "PRODUCTION_ARCHITECTURE_FIREBASE.md",
+      "CREDENTIALS_HANDOVER_INTERNAL.md",
+      "PANDUAN_MEET_BU_NANING_KOKOP.pdf"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}
