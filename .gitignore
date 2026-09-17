@@ -20,9 +20,15 @@ PANDUAN_MEET_BU_NANING_KOKOP.pdf
 # Local Test Scripts & Artifacts
 test*.js
 run-e2e-audit.js
-*.png
 test-*.png
+*-verified.png
 *.log
+
+# Heavy Source Raw Assets
+assets/background.PNG
+assets/logo.png
+assets/nama web.PNG
+assets/pdf_extracted/*.png
 
 # System & OS
 .DS_Store
