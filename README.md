@@ -52,13 +52,16 @@ Buka `http://localhost:8080` di browser Anda.
 
 ---
 
-## 🧪 Pengujian & Penjaminan Mutu (QA)
-Proyek ini dilengkapi skrip pengujian otomatis berbasis Playwright Core untuk verifikasi end-to-end (E2E):
+## 🧪 Pengujian, Anti-Slop & Penjaminan Mutu (QA)
+Proyek ini dilengkapi serangkaian pengujian integritas dan audit kebersihan kode:
+- `node scripts/anti-slop-audit.js` : Audit DevSecOps anti-slop (zero AI placeholders, secrets isolation, firestore RBAC integrity, PWA health).
 - `node test-register-pwa.js` : Menguji alur registrasi mandiri, auto-login, dan respon tombol PWA.
 - `node run-e2e-audit.js` : Menguji seluruh alur autentikasi, CRUD kasus, kontrol berkala, dan penanganan error konsol (0 errors).
 
 ---
 
-## 🔒 Keamanan & Lisensi
-- **DevSecOps:** Dilengkapi filter deteksi kebocoran kredensial di pipeline CI/CD GitHub Actions.
+## 🔒 DevSecOps, Keamanan & Lisensi
+- **Anti-Slop Standard:** Aturan baku kebersihan kode dan larangan placeholder/dead code didokumentasikan di [`.agents/rules/anti-slop.md`](./.agents/rules/anti-slop.md).
+- **CI/CD Quality Gate:** Filter kebocoran kredensial dan pemindaian integritas kode diaktifkan pada pipeline GitHub Actions [`.github/workflows/ci.yml`](./.github/workflows/ci.yml).
 - **Hak Cipta:** Tim Peneliti Riset Terapan LPPM Universitas Trunojoyo Madura (UTM) & Puskesmas Kokop Bangkalan.
+

@@ -26,9 +26,65 @@
       background: linear-gradient(135deg, #34bcc6 0%, #2ca3ab 100%);
       box-shadow: 0 10px 20px -5px rgba(44, 163, 171, 0.4);
     }
+    /* Splash Screen Styles */
+    #appSplashScreen {
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s ease;
+    }
+    #appSplashScreen.splash-hidden {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+    .splash-wallpaper-mobile {
+      display: block;
+    }
+    .splash-wallpaper-desktop {
+      display: none;
+    }
+    @media (min-width: 768px) {
+      .splash-wallpaper-mobile {
+        display: none !important;
+      }
+      .splash-wallpaper-desktop {
+        display: block !important;
+      }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.4)); }
+      50% { transform: scale(1.04); filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.85)); }
+    }
+    .splash-logo-pulse {
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 text-slate-800 relative">
+
+  <!-- ========================================================================= -->
+  <!-- BRAND IDENTITY SPLASH / LOADING SCREEN (PERSIS MOCKUP BRAND IDENTITY PDF) -->
+  <!-- ========================================================================= -->
+  <div id="appSplashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-between text-white select-none overflow-hidden bg-[#17656e]">
+    <!-- Mobile Wallpaper (page_3_img_2.jpeg) -->
+    <img src="./assets/pdf_extracted/page_3_img_2.jpeg" alt="Satengka Pasung Splash Screen" class="splash-wallpaper-mobile absolute inset-0 w-full h-full object-cover pointer-events-none">
+    <!-- Desktop Wallpaper (page_2_img_3.jpeg) -->
+    <img src="./assets/pdf_extracted/page_2_img_3.jpeg" alt="Satengka Pasung Splash Screen Desktop" class="splash-wallpaper-desktop absolute inset-0 w-full h-full object-cover pointer-events-none">
+
+    <!-- Top Spacer -->
+    <div class="h-10 relative z-10"></div>
+
+    <!-- Center Invisible Spacer to balance layout -->
+    <div class="relative z-10"></div>
+
+    <!-- Bottom Indicator: Elegant Loading Bar & Status -->
+    <div class="relative z-10 w-full pb-8 flex flex-col items-center space-y-2.5 px-6">
+      <div class="w-48 h-1 bg-black/25 rounded-full overflow-hidden backdrop-blur-sm border border-white/20">
+        <div class="h-full bg-gradient-to-r from-[#a3f6f8] to-white rounded-full animate-[pulse_1.5s_ease-in-out_infinite] w-3/4"></div>
+      </div>
+      <p class="text-[11px] text-[#a3f6f8]/90 font-medium tracking-wider uppercase drop-shadow">
+        Puskesmas Kokop Bangkalan
+      </p>
+    </div>
+  </div>
 
   <!-- OVERLAY GRADASI MOTIF TANJUNG BUMI (OLD TOSCA #2ca3ab KE LIGHT CYAN #a3f6f8) -->
   <div class="fixed inset-0 bg-gradient-to-b from-[#134e54]/80 via-[#1a646c]/70 to-[#2ca3ab]/80 pointer-events-none"></div>
@@ -252,6 +308,22 @@
           .catch(err => console.warn('PWA SW register error:', err));
       });
     }
+
+    // DISMISS SPLASH / LOADING SCREEN SECARA MULUS
+    function dismissSplashScreen(delay = 1400) {
+      const splash = document.getElementById('appSplashScreen');
+      if (!splash) return;
+      setTimeout(() => {
+        splash.classList.add('splash-hidden');
+        setTimeout(() => {
+          splash.style.display = 'none';
+        }, 550);
+      }, delay);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      dismissSplashScreen(1400);
+    });
   </script>
   <script src="./js/malekkas-engine.js"></script>
 </body>

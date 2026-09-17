@@ -1,5 +1,5 @@
 // Service Worker for BHUPPA' BHU' GURU RATO PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v2';
+const CACHE_NAME = 'satengka-pasung-pwa-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,6 +8,8 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './assets/logo_opt.png',
   './assets/background_opt.webp',
+  './assets/pdf_extracted/page_3_img_2.jpeg',
+  './assets/pdf_extracted/page_1_img_2.png',
   './js/malekkas-engine.js'
 ];
 

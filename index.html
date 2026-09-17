@@ -64,9 +64,65 @@
     .leaflet-popup-content { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; margin: 10px 12px !important; min-width: 170px; }
     .leaflet-popup-content-wrapper { border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
     .hidden { display: none !important; }
+    /* Splash Screen Styles */
+    #appSplashScreen {
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s ease;
+    }
+    #appSplashScreen.splash-hidden {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+    .splash-wallpaper-mobile {
+      display: block;
+    }
+    .splash-wallpaper-desktop {
+      display: none;
+    }
+    @media (min-width: 768px) {
+      .splash-wallpaper-mobile {
+        display: none !important;
+      }
+      .splash-wallpaper-desktop {
+        display: block !important;
+      }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.4)); }
+      50% { transform: scale(1.04); filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.85)); }
+    }
+    .splash-logo-pulse {
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="text-slate-800 min-h-screen relative antialiased">
+
+  <!-- ========================================================================= -->
+  <!-- BRAND IDENTITY SPLASH / LOADING SCREEN (PERSIS MOCKUP BRAND IDENTITY PDF) -->
+  <!-- ========================================================================= -->
+  <div id="appSplashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-between text-white select-none overflow-hidden bg-[#17656e]">
+    <!-- Mobile Wallpaper (page_3_img_2.jpeg) -->
+    <img src="./assets/pdf_extracted/page_3_img_2.jpeg" alt="Satengka Pasung Splash Screen" class="splash-wallpaper-mobile absolute inset-0 w-full h-full object-cover pointer-events-none">
+    <!-- Desktop Wallpaper (page_2_img_3.jpeg) -->
+    <img src="./assets/pdf_extracted/page_2_img_3.jpeg" alt="Satengka Pasung Splash Screen Desktop" class="splash-wallpaper-desktop absolute inset-0 w-full h-full object-cover pointer-events-none">
+
+    <!-- Top Spacer -->
+    <div class="h-10 relative z-10"></div>
+
+    <!-- Center Invisible Spacer to balance layout -->
+    <div class="relative z-10"></div>
+
+    <!-- Bottom Indicator: Elegant Loading Bar & Status -->
+    <div class="relative z-10 w-full pb-8 flex flex-col items-center space-y-2.5 px-6">
+      <div class="w-48 h-1 bg-black/25 rounded-full overflow-hidden backdrop-blur-sm border border-white/20">
+        <div class="h-full bg-gradient-to-r from-[#a3f6f8] to-white rounded-full animate-[pulse_1.5s_ease-in-out_infinite] w-3/4"></div>
+      </div>
+      <p class="text-[11px] text-[#a3f6f8]/90 font-medium tracking-wider uppercase drop-shadow">
+        Puskesmas Kokop Bangkalan
+      </p>
+    </div>
+  </div>
 
   <!-- OVERLAY GRADASI BACKGROUND TANJUNG BUMI (OLD TOSCA KE TRANSLUCENT SLATE UNTUK LEJIBILITAS DATA) -->
   <div class="fixed inset-0 bg-slate-900/25 backdrop-blur-[1px] pointer-events-none z-0"></div>
@@ -160,9 +216,9 @@
     </aside>
 
     <!-- CONTENT AREA UTAMA NAKES -->
-    <main class="flex-1 flex flex-col overflow-y-auto min-h-screen">
+    <main class="flex-1 flex flex-col overflow-y-auto min-h-screen bg-slate-50/85 backdrop-blur-md">
       <!-- Topbar Nakes -->
-      <header class="bg-white border-b border-slate-200 px-3 md:px-6 py-2.5 md:py-3.5 flex justify-between items-center gap-3 sticky top-0 z-20">
+      <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-3 md:px-6 py-2.5 md:py-3.5 flex justify-between items-center gap-3 sticky top-0 z-20 shadow-xs">
         <div class="flex items-center space-x-2.5 text-slate-600 text-sm shrink-0">
           <!-- Hamburger Button untuk Buka Menu di Layar Mobile/HP -->
           <button type="button" onclick="toggleNakesMobileSidebar(true)" class="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 focus:outline-none shrink-0" title="Buka Menu Navigasi">
@@ -881,7 +937,7 @@
       </div>
 
       <!-- Production Footer: Riset Terapan LPPM UTM & Puskesmas Kokop -->
-      <footer class="mt-auto border-t border-slate-200 bg-white px-4 py-3 md:px-6 md:py-4 text-xs text-slate-500 flex flex-col md:flex-row items-center justify-between gap-2 text-center md:text-left">
+      <footer class="mt-auto border-t border-slate-200/80 bg-white/90 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 text-xs text-slate-500 flex flex-col md:flex-row items-center justify-between gap-2 text-center md:text-left">
         <div class="flex flex-wrap items-center justify-center md:justify-start gap-1.5">
           <img src="./assets/logo_opt.png" alt="Logo Satengka Pasung" class="w-4 h-4 md:w-5 md:h-5 object-contain">
           <span class="font-bold text-slate-800">SATENGKA PASUNG</span>
@@ -899,180 +955,263 @@
 
 
   <!-- ========================================================================= -->
-  <!-- 2. TAMPILAN MOBILE PWA PERSIS FRAME HP UNTUK KADER, GURU, DAN RATO        -->
+  <!-- 2. TAMPILAN RESPONSIF UNTUK MITRA: KADER, GURU / KIAI, DAN RATO / KADES   -->
   <!-- ========================================================================= -->
-  <div id="viewMobilePwa" class="role-view hidden min-h-screen flex items-center justify-center p-0 md:p-6 transition-all duration-300 relative z-10">
+  <div id="viewMobilePwa" class="role-view hidden min-h-screen flex flex-col justify-start items-center p-0 md:p-6 lg:p-8 transition-all duration-300 relative z-10">
     
-    <!-- FRAME SMARTPHONE PERSIS WIREFRAME MOBILE PWA (GAMBAR BAWAH) -->
-    <div id="mobileDeviceFrame" class="w-full md:max-w-[420px] bg-white md:rounded-[40px] shadow-2xl overflow-hidden min-h-screen md:min-h-[860px] flex flex-col justify-between border-0 md:border-8 md:border-slate-800 relative transition-all duration-300">
+    <!-- CONTAINER RESPONSIF FLUID: FULLSCREEN DI HP, NATURAL CARD MODERN DI TABLET & DESKTOP -->
+    <div id="mobileDeviceFrame" class="w-full max-w-5xl bg-slate-50/90 md:bg-slate-50/85 backdrop-blur-xl md:rounded-3xl shadow-2xl overflow-hidden min-h-screen md:min-h-0 flex flex-col justify-between border-0 md:border md:border-white/50 relative transition-all duration-300">
       
-      <!-- TOP STATUS BAR HP DENGAN QUICK SWITCHER AUDIT & RESPONSIVE TOGGLE -->
-      <div class="bg-white px-4 pt-3 pb-2 flex justify-between items-center text-[11px] font-bold text-slate-700 border-b border-slate-100 shrink-0">
-        <div class="flex items-center space-x-2">
+      <!-- TOPBAR APLIKASI RESPONSIF MODERN (LOGO, PERAN, AKSI CEPAT, PROFILE) -->
+      <header class="bg-white/90 backdrop-blur-md px-4 sm:px-6 py-3.5 flex justify-between items-center border-b border-slate-200/80 shrink-0 sticky top-0 z-30 shadow-xs">
+        <div class="flex items-center space-x-3">
           <!-- Logo Resmi Satengka Pasung -->
-          <img src="./assets/logo_opt.png" alt="Logo Satengka Pasung" class="w-6 h-6 object-contain">
-          <!-- Lencana Peran Mobile Terverifikasi -->
-          <div class="flex items-center space-x-1.5 bg-[#2ca3ab]/10 text-[#17656e] border border-[#2ca3ab]/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#2ca3ab] animate-pulse"></span>
-            <span id="mobileRoleBadgeTitle">Kader Jiwa</span>
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200/60 p-1 flex items-center justify-center shrink-0 shadow-sm">
+            <img src="./assets/logo_opt.png" alt="Logo Satengka Pasung" class="w-full h-full object-contain">
           </div>
-          <!-- Tombol Switch Layar Penuh / Frame HP untuk Pengujian Desktop & Tablet -->
-          <button type="button" onclick="toggleMobileFullWidth()" id="btnToggleResponsive" class="hidden md:inline-flex items-center space-x-1 px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] text-slate-600 font-semibold border border-slate-200 transition" title="Alihkan Tampilan Layar Penuh / Frame Mobile">
-            <i class="fa-solid fa-expand text-[9px]"></i>
-            <span id="txtToggleResponsive">Layar Penuh</span>
-          </button>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-black text-slate-900 text-sm sm:text-base tracking-tight">SATENGKA PASUNG</span>
+              <!-- Lencana Peran Terverifikasi -->
+              <div class="inline-flex items-center space-x-1.5 bg-[#2ca3ab]/10 text-[#17656e] border border-[#2ca3ab]/30 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#2ca3ab] animate-pulse"></span>
+                <span id="mobileRoleBadgeTitle">Kader Jiwa</span>
+              </div>
+            </div>
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden xs:block">Puskesmas Kokop • Bhupa' Bhu' Ghuru Rato'</p>
+          </div>
         </div>
-        <div class="flex items-center space-x-2 text-xs text-slate-600">
-          <!-- Tombol Install PWA Mobile -->
-          <button type="button" onclick="triggerPwaInstallGlobal()" id="btnPwaInstallMobile" class="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-[#2ca3ab]/15 text-[#17656e] font-bold text-[10px] hover:bg-[#2ca3ab]/25 transition" title="Pasang PWA di Layar Utama HP">
-            <i class="fa-solid fa-download text-[9px]"></i>
-            <span>Install</span>
-          </button>
-          <i class="fa-solid fa-signal text-[10px]"></i>
-          <i class="fa-solid fa-wifi text-[10px]"></i>
-          <i class="fa-solid fa-battery-full text-[11px]"></i>
-        </div>
-      </div>
 
-      <!-- KONTEN CONTAINER DINAMIS SESUAI ROLE (KADER, GURU, RATO) -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <!-- Aksi Kanan & Navigasi Cepat Desktop/Tablet -->
+        <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
+          <!-- Navigasi Desktop / Tablet Pills (Hadir di Layar Lebar) -->
+          <nav class="hidden md:flex items-center bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80 font-bold text-xs text-slate-600 space-x-1">
+            <button type="button" onclick="handleMobileNavAction('home')" class="px-3 py-1.5 rounded-xl hover:bg-white hover:text-emerald-800 transition flex items-center space-x-1.5 text-emerald-800 bg-white shadow-sm" id="desktopPillHome">
+              <i class="fa-solid fa-house text-xs"></i>
+              <span>Beranda</span>
+            </button>
+            <button type="button" onclick="handleMobileNavAction('action')" class="px-3 py-1.5 rounded-xl hover:bg-white hover:text-emerald-800 transition flex items-center space-x-1.5" id="desktopPillAction">
+              <i class="fa-solid fa-bolt text-xs" id="desktopPillIconAction"></i>
+              <span id="desktopPillTextAction">Aktivitas</span>
+            </button>
+            <button type="button" onclick="handleMobileNavAction('riwayat')" class="px-3 py-1.5 rounded-xl hover:bg-white hover:text-emerald-800 transition flex items-center space-x-1.5" id="desktopPillRiwayat">
+              <i class="fa-regular fa-clock text-xs"></i>
+              <span>Riwayat</span>
+            </button>
+            <button type="button" onclick="openTherapeuticChatModal()" class="px-3 py-1.5 rounded-xl hover:bg-white hover:text-emerald-800 transition flex items-center space-x-1.5 relative" id="desktopPillChat">
+              <i class="fa-regular fa-comments text-xs"></i>
+              <span>Live Chat</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </button>
+          </nav>
+
+          <!-- Tombol Pasang PWA -->
+          <button type="button" onclick="triggerPwaInstallGlobal()" id="btnPwaInstallMobile" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#2ca3ab]/15 text-[#17656e] font-bold text-xs hover:bg-[#2ca3ab]/25 border border-[#2ca3ab]/30 transition shadow-sm" title="Pasang Aplikasi di Perangkat Anda">
+            <i class="fa-solid fa-cloud-arrow-down text-xs"></i>
+            <span class="hidden sm:inline">Install</span>
+          </button>
+
+          <!-- Profil Pengguna Avatar Trigger -->
+          <button type="button" onclick="openUserProfileModal()" class="flex items-center space-x-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold transition" title="Pengaturan Akun & Profil">
+            <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <span class="hidden sm:inline text-xs font-semibold text-slate-800" id="headerProfileDisplayName">Profil</span>
+          </button>
+
+          <!-- Tombol Keluar Langsung di Header Desktop/Tablet -->
+          <button type="button" onclick="handleLogout()" class="p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 border border-transparent hover:border-red-200 text-xs font-bold transition flex items-center space-x-1" title="Keluar dari Aplikasi">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span class="hidden md:inline">Keluar</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- KONTEN CONTAINER DINAMIS SESUAI ROLE (KADER, GURU, RATO) DENGAN LAYOUT RESPONSIF -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 bg-gradient-to-b from-transparent via-white/40 to-slate-50/60">
         
         <!-- ------------------------------------------------------------- -->
-        <!-- SCREEN KADER (PERSIS GAMBAR 1, 2, 3 BAGIAN ROLE KADER)         -->
+        <!-- SCREEN KADER (RESPONSIF MOBILE, TABLET & DESKTOP)             -->
         <!-- ------------------------------------------------------------- -->
-        <div id="mobileScreenKader" class="space-y-4 hidden">
+        <div id="mobileScreenKader" class="space-y-6 hidden">
           
-          <!-- SUB: KADER DASHBOARD (GAMBAR 1 ROLE KADER) -->
-          <div id="kaderPwaDashboard" class="space-y-4">
-            <!-- Header Profil Kader -->
-            <div class="flex justify-between items-center">
-              <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-bold">
+          <!-- SUB: KADER DASHBOARD -->
+          <div id="kaderPwaDashboard" class="space-y-6">
+            <!-- Banner Sambutan & Profil Kader Responsif -->
+            <div class="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white shadow-lg flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-emerald-300 flex items-center justify-center text-2xl font-black shrink-0 shadow-inner">
                   <i class="fa-solid fa-hand-holding-medical"></i>
                 </div>
                 <div>
-                  <p class="text-[11px] text-slate-400 font-medium">Kader Jiwa</p>
-                  <h3 id="kaderGreetingName" class="font-black text-sm text-slate-900">Budi Santoso</h3>
+                  <span class="inline-block text-[11px] uppercase tracking-wider font-bold bg-white/20 text-emerald-100 px-2.5 py-0.5 rounded-full mb-1">Kader Jiwa Wilayah</span>
+                  <h3 id="kaderGreetingName" class="font-black text-lg sm:text-2xl text-white tracking-tight leading-tight">Budi Santoso</h3>
+                  <p class="text-xs text-emerald-100/90 font-medium">Kecamatan Kokop • Wilayah Siaga Terintegrasi</p>
                 </div>
               </div>
-              <button onclick="openUserProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-700 transition" title="Pengaturan Profil">
-                <i class="fa-solid fa-gear text-xs"></i>
-              </button>
+
+              <!-- Tombol Hero CTA: Laporkan Kasus Temuan Baru -->
+              <div class="shrink-0 flex items-center space-x-3">
+                <button type="button" onclick="switchKaderPwaSub('form')" class="w-full md:w-auto px-6 py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-xl shadow-red-900/40 flex items-center justify-center space-x-2.5 transition transform hover:-translate-y-0.5">
+                  <i class="fa-solid fa-triangle-exclamation text-base animate-pulse"></i>
+                  <span>Laporkan Kasus Baru</span>
+                </button>
+                <button type="button" onclick="openUserProfileModal()" class="hidden md:flex p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition border border-white/20" title="Ubah Profil">
+                  <i class="fa-solid fa-gear text-sm"></i>
+                </button>
+              </div>
             </div>
 
-            <!-- Tombol Merah Besar: Laporkan Kasus (Persis Gambar 1) -->
-            <button onclick="switchKaderPwaSub('form')" class="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-lg shadow-red-600/30 flex items-center justify-center space-x-2 transition">
-              <i class="fa-solid fa-triangle-exclamation text-base"></i>
-              <span>Laporkan Kasus</span>
-            </button>
-
-            <!-- Laporan Saya Section (Persis Gambar 1) -->
-            <div class="space-y-3 pt-1">
-              <div class="flex justify-between items-center">
-                <h4 class="font-bold text-slate-900 text-xs">Laporan Saya</h4>
-                <a href="#" onclick="switchKaderPwaSub('status'); return false;" class="text-[11px] text-emerald-700 font-bold hover:underline">Lihat Semua</a>
+            <!-- Laporan Saya Section Responsif Grid -->
+            <div class="space-y-4">
+              <div class="flex justify-between items-center border-b border-slate-200/80 pb-3">
+                <div class="flex items-center space-x-2">
+                  <i class="fa-solid fa-clipboard-list text-emerald-700 text-base"></i>
+                  <h4 class="font-bold text-slate-900 text-sm sm:text-base">Laporan Terbaru Saya</h4>
+                </div>
+                <button type="button" onclick="switchKaderPwaSub('status')" class="text-xs sm:text-sm text-emerald-700 font-bold hover:underline flex items-center space-x-1">
+                  <span>Lihat Semua Status Laporan</span>
+                  <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
               </div>
 
-              <div id="kaderRecentReportsList" class="space-y-2.5">
+              <!-- Container Laporan Kader: 1 Kolom di HP, 2 Kolom di Tablet, 3 Kolom di Desktop -->
+              <div id="kaderRecentReportsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                 <!-- Diisi otomatis oleh JS -->
               </div>
             </div>
           </div>
 
-          <!-- SUB: FORM LAPORAN KADER (GAMBAR 2 ROLE KADER) -->
-          <div id="kaderPwaForm" class="space-y-4 hidden">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div class="flex items-center space-x-2">
-                <button onclick="switchKaderPwaSub('dashboard')" class="text-slate-600 hover:text-slate-900">
+          <!-- SUB: FORM LAPORAN KADER (RESPONSIF DESKTOP, TABLET & HP) -->
+          <div id="kaderPwaForm" class="space-y-6 hidden">
+            <div class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+              <div class="flex items-center space-x-3 sm:space-x-4">
+                <button type="button" onclick="switchKaderPwaSub('dashboard')" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                   <i class="fa-solid fa-arrow-left"></i>
                 </button>
-                <h3 class="font-bold text-sm text-slate-900">Form Laporan</h3>
+                <div>
+                  <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Form Laporan Kasus Pasung / Temuan</h3>
+                  <p class="text-[11px] sm:text-xs text-slate-500 font-medium">Kirim laporan temuan langsung ke tim medis Puskesmas Kokop</p>
+                </div>
+              </div>
+              <div class="hidden sm:flex items-center space-x-1.5 bg-red-50 text-red-700 border border-red-200 px-3 py-1 rounded-full text-xs font-bold">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Laporan Baru</span>
               </div>
             </div>
 
-            <div class="space-y-3.5 text-xs">
-              <div>
-                <label class="block font-semibold text-slate-600 mb-1">Laporkan Kasus (Nama Pasien)</label>
-                <input type="text" id="kaderFormName" placeholder="Contoh: Ahmad" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50/50 font-medium outline-none focus:border-emerald-600">
-              </div>
+            <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-3xl p-5 sm:p-7 space-y-5 shadow-sm">
+              <!-- Grid 2 Kolom di Tablet/Desktop -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-xs">
+                <!-- Kolom Kiri: Identitas Pasien & Wilayah -->
+                <div class="space-y-4">
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Nama Lengkap Pasien <span class="text-red-500">*</span></label>
+                    <input type="text" id="kaderFormName" placeholder="Contoh: Ahmad" class="w-full border border-slate-200 rounded-2xl p-3.5 bg-white font-medium outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-sm transition">
+                  </div>
 
-              <div>
-                <label class="block font-semibold text-slate-600 mb-1">Desa</label>
-                <select id="kaderFormVillage" class="w-full border border-slate-200 rounded-xl p-3 bg-white font-medium outline-none focus:border-emerald-600">
-                  <option value="1">Kokop</option>
-                  <option value="2">Bandasobah</option>
-                  <option value="3">Batu Bintang</option>
-                </select>
-              </div>
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Desa Wilayah Temuan <span class="text-red-500">*</span></label>
+                    <select id="kaderFormVillage" class="w-full border border-slate-200 rounded-2xl p-3.5 bg-white font-medium outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-sm transition">
+                      <option value="1">Kokop</option>
+                      <option value="2">Bandasobah</option>
+                      <option value="3">Batu Bintang</option>
+                    </select>
+                  </div>
 
-              <div>
-                <label class="block font-semibold text-slate-600 mb-1">Alamat Lengkap Pasien</label>
-                <input type="text" id="kaderFormAddress" placeholder="Contoh: Dusun Timur RT 01, Desa Kokop" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50/50 font-medium outline-none focus:border-emerald-600">
-              </div>
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Alamat Lengkap / Dusun</label>
+                    <input type="text" id="kaderFormAddress" placeholder="Contoh: Dusun Timur RT 01, Desa Kokop" class="w-full border border-slate-200 rounded-2xl p-3.5 bg-white font-medium outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-sm transition">
+                  </div>
 
-              <div>
-                <label class="block font-semibold text-slate-600 mb-1.5">Jenis Temuan</label>
-                <div class="space-y-2 font-medium text-slate-700">
-                  <label class="flex items-center space-x-2"><input type="radio" name="kader_form_type" value="Pasung" checked onchange="toggleKaderOtherTypeInput()" class="text-emerald-600"> <span>Pasung</span></label>
-                  <label class="flex items-center space-x-2"><input type="radio" name="kader_form_type" value="Tanda kekambuhan" onchange="toggleKaderOtherTypeInput()" class="text-emerald-600"> <span>Tanda kekambuhan</span></label>
-                  <label class="flex items-center space-x-2"><input type="radio" name="kader_form_type" value="Lainnya" onchange="toggleKaderOtherTypeInput()" class="text-emerald-600"> <span>Lainnya</span></label>
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Jenis Temuan Kasus</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium text-slate-700">
+                      <label class="flex items-center space-x-2 bg-white p-3 rounded-2xl border border-slate-200 cursor-pointer hover:border-emerald-500 transition">
+                        <input type="radio" name="kader_form_type" value="Pasung" checked onchange="toggleKaderOtherTypeInput()" class="text-emerald-600"> 
+                        <span class="text-xs font-semibold">Pasung</span>
+                      </label>
+                      <label class="flex items-center space-x-2 bg-white p-3 rounded-2xl border border-slate-200 cursor-pointer hover:border-emerald-500 transition">
+                        <input type="radio" name="kader_form_type" value="Tanda kekambuhan" onchange="toggleKaderOtherTypeInput()" class="text-emerald-600"> 
+                        <span class="text-xs font-semibold">Kekambuhan</span>
+                      </label>
+                      <label class="flex items-center space-x-2 bg-white p-3 rounded-2xl border border-slate-200 cursor-pointer hover:border-emerald-500 transition">
+                        <input type="radio" name="kader_form_type" value="Lainnya" onchange="toggleKaderOtherTypeInput()" class="text-emerald-600"> 
+                        <span class="text-xs font-semibold">Lainnya</span>
+                      </label>
+                    </div>
+                    <div id="kaderFormTypeOtherContainer" class="mt-2.5 hidden">
+                      <input type="text" id="kaderFormTypeOtherText" placeholder="Ketik jenis temuan lainnya (contoh: Mengurung diri, gaduh gelisah)..." class="w-full border border-emerald-300 rounded-2xl p-3 bg-emerald-50/40 text-xs font-medium outline-none focus:border-emerald-600">
+                    </div>
+                  </div>
                 </div>
-                <div id="kaderFormTypeOtherContainer" class="mt-2.5 hidden">
-                  <input type="text" id="kaderFormTypeOtherText" placeholder="Ketik jenis temuan lainnya (contoh: Mengurung diri, gaduh gelisah)..." class="w-full border border-emerald-300 rounded-xl p-2.5 bg-emerald-50/40 text-xs font-medium outline-none focus:border-emerald-600">
+
+                <!-- Kolom Kanan: Foto & GPS Geolocation -->
+                <div class="space-y-4">
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Foto Kondisi Warga / Bukti Pasung</label>
+                    <label class="w-full h-36 border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl flex flex-col items-center justify-center text-slate-400 cursor-pointer bg-white transition hover:bg-emerald-50/20">
+                      <i class="fa-solid fa-camera text-2xl mb-1.5 text-emerald-700"></i>
+                      <span id="kaderMobilePhotoText" class="text-xs font-bold text-slate-700">Ambil Foto Kamera / Pilih Gambar</span>
+                      <span class="text-[10px] text-slate-400 mt-0.5">JPG, PNG atau tangkapan HP</span>
+                      <input type="file" accept="image/*" class="hidden" onchange="handleMobilePhotoSelect(event)">
+                    </label>
+                  </div>
+
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Titik Koordinat Lokasi (GPS)</label>
+                    <button type="button" onclick="getMobileGps()" id="btnMobileGps" class="w-full py-3.5 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold flex items-center justify-center space-x-2 transition shadow-sm">
+                      <i class="fa-solid fa-location-dot text-emerald-600 text-sm"></i>
+                      <span id="kaderMobileGpsText" class="text-xs">Ambil Titik Lokasi GPS Otomatis</span>
+                    </button>
+                    <p class="text-[10px] text-slate-400 mt-1 text-center">Gunakan GPS akurat untuk panduan navigasi evakuasi tim faskes.</p>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label class="block font-semibold text-slate-600 mb-1.5">Foto Kondisi</label>
-                <label class="w-full py-4 border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:border-emerald-500 cursor-pointer bg-slate-50">
-                  <i class="fa-solid fa-camera text-xl mb-1 text-slate-500"></i>
-                  <span id="kaderMobilePhotoText" class="text-[11px] font-medium">Ambil Foto</span>
-                  <input type="file" accept="image/*" class="hidden" onchange="handleMobilePhotoSelect(event)">
-                </label>
-              </div>
-
-              <div>
-                <label class="block font-semibold text-slate-600 mb-1.5">Lokasi</label>
-                <button type="button" onclick="getMobileGps()" id="btnMobileGps" class="w-full py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold flex items-center justify-center space-x-1.5">
-                  <i class="fa-solid fa-location-dot text-emerald-600"></i>
-                  <span id="kaderMobileGpsText">Ambil Lokasi GPS</span>
+              <!-- Tombol Kirim Form Full Width / Elegan -->
+              <div class="pt-3 border-t border-slate-200">
+                <button type="button" onclick="submitMobileKaderReport()" id="btnKirimMobileLaporan" class="w-full py-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-900/20 flex items-center justify-center space-x-2 transition transform hover:-translate-y-0.5">
+                  <i class="fa-solid fa-paper-plane text-sm"></i>
+                  <span>Kirim Laporan Kasus ke Puskesmas</span>
                 </button>
               </div>
-
-              <button type="button" onclick="submitMobileKaderReport()" id="btnKirimMobileLaporan" class="w-full py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-lg flex items-center justify-center">
-                ✓ Kirim Laporan
-              </button>
             </div>
           </div>
 
-          <!-- SUB: STATUS LAPORAN KADER (GAMBAR 3 ROLE KADER) -->
-          <div id="kaderPwaStatus" class="space-y-4 hidden">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div class="flex items-center space-x-2">
-                <button onclick="switchKaderPwaSub('dashboard')" class="text-slate-600 hover:text-slate-900">
+          <!-- SUB: STATUS LAPORAN KADER (RESPONSIF DESKTOP, TABLET & HP) -->
+          <div id="kaderPwaStatus" class="space-y-6 hidden">
+            <div class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+              <div class="flex items-center space-x-3 sm:space-x-4">
+                <button type="button" onclick="switchKaderPwaSub('dashboard')" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                   <i class="fa-solid fa-arrow-left"></i>
                 </button>
-                <h3 class="font-bold text-sm text-slate-900">Status Laporan Saya</h3>
+                <div>
+                  <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Riwayat & Status Laporan Saya</h3>
+                  <p class="text-[11px] sm:text-xs text-slate-500 font-medium">Pantau proses penanganan dari validasi hingga evakuasi medis</p>
+                </div>
               </div>
-              <span class="text-[10px] font-semibold text-slate-400" id="kaderStatusCount"></span>
+              <span class="text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full shadow-xs" id="kaderStatusCount"></span>
             </div>
 
-            <div class="space-y-2.5">
+            <!-- Filter & Pencarian Bar Responsif -->
+            <div class="bg-white/95 backdrop-blur-md p-4 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-3">
               <!-- Search Bar Laporan Kader -->
-              <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-                <input type="text" id="kaderSearchReportInput" oninput="handleKaderSearchFilter()" placeholder="Cari nama pasien, alamat, no. laporan..." class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-xs font-medium outline-none focus:border-emerald-600 focus:bg-white transition">
+              <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+                <input type="text" id="kaderSearchReportInput" oninput="handleKaderSearchFilter()" placeholder="Cari nama pasien, alamat dusun, nomor laporan..." class="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white text-xs font-medium outline-none focus:border-emerald-600 transition">
               </div>
 
               <!-- Filter Pills Status -->
-              <div class="flex items-center space-x-1.5 text-[11px] overflow-x-auto pb-1">
-                <button type="button" onclick="setKaderStatusFilter('ALL')" id="filterKaderBtn_ALL" class="px-3 py-1 rounded-full font-bold bg-emerald-700 text-white shadow-sm transition shrink-0">Semua</button>
-                <button type="button" onclick="setKaderStatusFilter('PROCESS')" id="filterKaderBtn_PROCESS" class="px-3 py-1 rounded-full font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition shrink-0">Sedang Dikerjakan</button>
-                <button type="button" onclick="setKaderStatusFilter('DONE')" id="filterKaderBtn_DONE" class="px-3 py-1 rounded-full font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition shrink-0">Selesai</button>
+              <div class="flex items-center space-x-2 text-xs overflow-x-auto pb-1 md:pb-0 shrink-0">
+                <button type="button" onclick="setKaderStatusFilter('ALL')" id="filterKaderBtn_ALL" class="px-3.5 py-2 rounded-xl font-bold bg-emerald-700 text-white shadow-sm transition shrink-0">Semua Laporan</button>
+                <button type="button" onclick="setKaderStatusFilter('PROCESS')" id="filterKaderBtn_PROCESS" class="px-3.5 py-2 rounded-xl font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shrink-0">Sedang Dikerjakan</button>
+                <button type="button" onclick="setKaderStatusFilter('DONE')" id="filterKaderBtn_DONE" class="px-3.5 py-2 rounded-xl font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shrink-0">Selesai Bebas Pasung</button>
               </div>
             </div>
 
-            <div id="kaderStatusListContainer" class="space-y-3">
+            <!-- Grid Container Laporan: 1 Kolom di HP, 2 Kolom di Tablet, 3 Kolom di Desktop -->
+            <div id="kaderStatusListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <!-- Diisi otomatis oleh JS -->
             </div>
           </div>
@@ -1081,138 +1220,191 @@
 
 
         <!-- ------------------------------------------------------------- -->
-        <!-- SCREEN GURU / KIAI (PERSIS GAMBAR 1 & 2 ROLE GURU)            -->
+        <!-- SCREEN GURU / KIAI (RESPONSIF DESKTOP, TABLET & HP)           -->
         <!-- ------------------------------------------------------------- -->
-        <div id="mobileScreenGuru" class="space-y-4 hidden">
-          <!-- Header Profil Guru -->
-          <div class="flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-bold">
+        <div id="mobileScreenGuru" class="space-y-6 hidden">
+          <!-- Banner Profil Guru Responsif -->
+          <div class="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white shadow-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center space-x-4">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-emerald-300 flex items-center justify-center text-2xl font-black shrink-0 shadow-inner">
                 <i class="fa-solid fa-mosque"></i>
               </div>
               <div>
-                <p class="text-[11px] text-slate-400 font-medium">Guru / Kiai</p>
-                <h3 id="guruGreetingName" class="font-black text-sm text-slate-900">Kiai Abdullah</h3>
+                <span class="inline-block text-[11px] uppercase tracking-wider font-bold bg-white/20 text-emerald-100 px-2.5 py-0.5 rounded-full mb-1">Pilar Guru / Tokoh Agama</span>
+                <h3 id="guruGreetingName" class="font-black text-lg sm:text-2xl text-white tracking-tight leading-tight">Kiai Abdullah</h3>
+                <p class="text-xs text-emerald-100/90 font-medium">Kecamatan Kokop • Pendekatan Terapeutik & Rembuk Santun</p>
               </div>
             </div>
-            <button onclick="openUserProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-700 transition" title="Pengaturan Profil">
-              <i class="fa-solid fa-gear text-xs"></i>
+            <button type="button" onclick="openUserProfileModal()" class="self-start sm:self-auto p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition border border-white/20" title="Ubah Profil">
+              <i class="fa-solid fa-gear text-sm"></i>
             </button>
           </div>
 
-          <!-- Permintaan Bantuan Baru (Persis Gambar 1 Role Guru) -->
-          <div id="guruRequestsContainer" class="space-y-3">
-            <!-- Diisi otomatis oleh JS -->
+          <!-- Permintaan Bantuan Baru -->
+          <div class="space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-200/80 pb-2.5">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-hands-praying text-emerald-700 text-base"></i>
+                <h4 class="font-bold text-slate-900 text-sm sm:text-base">Permintaan Rembuk Santun & Pendampingan Baru</h4>
+              </div>
+            </div>
+
+            <!-- Grid 2 Kolom di Layar Lebar untuk Permintaan Guru -->
+            <div id="guruRequestsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Diisi otomatis oleh JS -->
+            </div>
           </div>
 
           <!-- Riwayat Selesai -->
-          <div class="pt-3 border-t border-slate-100">
-            <div class="flex justify-between items-center text-xs text-slate-500 font-semibold mb-2">
-              <span>Riwayat Dampingan</span>
-              <button onclick="openGuruRiwayatScreen()" class="text-[11px] text-emerald-700 hover:underline font-bold">Lihat Semua</button>
-            </div>
-            <div onclick="openGuruRiwayatScreen()" class="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50/50 border border-slate-200 cursor-pointer flex justify-between items-center text-xs transition">
-              <div>
-                <p class="font-bold text-slate-800">Siti</p>
-                <p class="text-[11px] text-slate-400">Desa Kokop</p>
+          <div class="pt-4 border-t border-slate-200/80 space-y-3">
+            <div class="flex justify-between items-center text-xs font-bold text-slate-700">
+              <div class="flex items-center space-x-2">
+                <i class="fa-regular fa-calendar-check text-emerald-700"></i>
+                <span class="text-sm">Riwayat Pendampingan Keagamaan</span>
               </div>
-              <span class="text-emerald-700 font-bold">✓ Selesai Bebas Pasung</span>
+              <button type="button" onclick="openGuruRiwayatScreen()" class="text-xs text-emerald-700 hover:underline font-bold">Lihat Semua Riwayat</button>
+            </div>
+            <div onclick="openGuruRiwayatScreen()" class="p-4 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 border border-slate-200 cursor-pointer flex justify-between items-center text-xs transition shadow-sm">
+              <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+                  <i class="fa-solid fa-check"></i>
+                </div>
+                <div>
+                  <p class="font-black text-slate-800 text-sm">Siti</p>
+                  <p class="text-xs text-slate-500">Desa Kokop • Rembuk Keluarga Berhasil</p>
+                </div>
+              </div>
+              <span class="text-emerald-700 font-bold bg-emerald-100/70 px-3 py-1 rounded-full">✓ Selesai Bebas Pasung</span>
             </div>
           </div>
         </div>
 
 
         <!-- ------------------------------------------------------------- -->
-        <!-- SCREEN RATO / KADES (PERSIS GAMBAR 1 & 2 ROLE RATO)           -->
+        <!-- SCREEN RATO / KADES (RESPONSIF DESKTOP, TABLET & HP)          -->
         <!-- ------------------------------------------------------------- -->
-        <div id="mobileScreenRato" class="space-y-4 hidden">
-          <!-- Header Profil Rato -->
-          <div class="flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-800 flex items-center justify-center text-lg font-bold">
+        <div id="mobileScreenRato" class="space-y-6 hidden">
+          <!-- Header Profil Rato Responsif -->
+          <div class="bg-gradient-to-r from-slate-900 to-indigo-950 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white shadow-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center space-x-4">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-indigo-300 flex items-center justify-center text-2xl font-black shrink-0 shadow-inner">
                 <i class="fa-solid fa-shield-halved"></i>
               </div>
               <div>
-                <p class="text-[11px] text-slate-400 font-medium">Pemerintah Desa</p>
-                <h3 id="ratoGreetingName" class="font-black text-sm text-slate-900">Kepala Desa Kokop</h3>
+                <span class="inline-block text-[11px] uppercase tracking-wider font-bold bg-white/20 text-indigo-100 px-2.5 py-0.5 rounded-full mb-1">Pilar Rato / Kepala Desa</span>
+                <h3 id="ratoGreetingName" class="font-black text-lg sm:text-2xl text-white tracking-tight leading-tight">Kepala Desa Kokop</h3>
+                <p class="text-xs text-indigo-100/90 font-medium">Pemerintah Desa • Pengawalan Keamanan & Evakuasi Linmas</p>
               </div>
             </div>
-            <button onclick="openUserProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-700 transition" title="Pengaturan Profil">
-              <i class="fa-solid fa-gear text-xs"></i>
+            <button type="button" onclick="openUserProfileModal()" class="self-start sm:self-auto p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition border border-white/20" title="Ubah Profil">
+              <i class="fa-solid fa-gear text-sm"></i>
             </button>
           </div>
 
-          <!-- Koordinasi Evakuasi (Persis Gambar 1 Role Rato) -->
-          <div id="ratoRequestsContainer" class="space-y-3">
-            <!-- Diisi otomatis oleh JS -->
+          <!-- Koordinasi Evakuasi -->
+          <div class="space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-200/80 pb-2.5">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-shield text-indigo-600 text-base"></i>
+                <h4 class="font-bold text-slate-900 text-sm sm:text-base">Permintaan Pengawalan Evakuasi Lapangan</h4>
+              </div>
+            </div>
+
+            <!-- Grid 2 Kolom di Layar Lebar untuk Permintaan Rato -->
+            <div id="ratoRequestsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Diisi otomatis oleh JS -->
+            </div>
           </div>
 
           <!-- Riwayat Pengawalan -->
-          <div class="pt-3 border-t border-slate-100">
-            <div class="flex justify-between items-center text-xs text-slate-500 font-semibold mb-2">
-              <span>Riwayat Pengawalan</span>
-              <button onclick="openRatoRiwayatScreen()" class="text-[11px] text-indigo-700 hover:underline font-bold">Lihat Semua</button>
-            </div>
-            <div onclick="openRatoRiwayatScreen()" class="p-3 rounded-xl bg-slate-50 hover:bg-indigo-50/50 border border-slate-200 cursor-pointer flex justify-between items-center text-xs transition">
-              <div>
-                <p class="font-bold text-slate-800">Siti</p>
-                <p class="text-[11px] text-slate-400">Desa Kokop</p>
+          <div class="pt-4 border-t border-slate-200/80 space-y-3">
+            <div class="flex justify-between items-center text-xs font-bold text-slate-700">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-shield-halved text-indigo-600"></i>
+                <span class="text-sm">Riwayat Pengawalan Wilayah</span>
               </div>
-              <span class="text-emerald-700 font-bold">✓ Selesai Bebas Pasung</span>
+              <button type="button" onclick="openRatoRiwayatScreen()" class="text-xs text-indigo-700 hover:underline font-bold">Lihat Semua Riwayat</button>
+            </div>
+            <div onclick="openRatoRiwayatScreen()" class="p-4 rounded-2xl bg-slate-50 hover:bg-indigo-50/50 border border-slate-200 cursor-pointer flex justify-between items-center text-xs transition shadow-sm">
+              <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-800 flex items-center justify-center font-bold text-sm">
+                  <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                  <p class="font-black text-slate-800 text-sm">Siti</p>
+                  <p class="text-xs text-slate-500">Desa Kokop • Evakuasi Tertib & Kondusif</p>
+                </div>
+              </div>
+              <span class="text-emerald-700 font-bold bg-emerald-100/70 px-3 py-1 rounded-full">✓ Selesai Bebas Pasung</span>
             </div>
           </div>
         </div>
 
         <!-- ------------------------------------------------------------- -->
+        <!-- ------------------------------------------------------------- -->
         <!-- SUB-SCREEN GURU DETAIL: DETAIL PERMINTAAN BANTUAN             -->
         <!-- ------------------------------------------------------------- -->
-        <div id="mobileGuruSubDetail" class="space-y-4 hidden">
-          <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
-            <button onclick="closeGuruDetailScreen()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
-              <i class="fa-solid fa-arrow-left text-xs"></i>
-            </button>
-            <h3 class="font-black text-sm text-slate-900">Detail Permintaan Rembuk</h3>
+        <div id="mobileGuruSubDetail" class="space-y-6 hidden">
+          <div class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+            <div class="flex items-center space-x-3 sm:space-x-4">
+              <button type="button" onclick="closeGuruDetailScreen()" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 flex items-center justify-center transition shadow-xs">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+              </button>
+              <div>
+                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Detail Permintaan Rembuk Santun</h3>
+                <p class="text-xs text-slate-500 font-medium">Informasi permohonan tausiyah dan panduan alamat kediaman warga</p>
+              </div>
+            </div>
+            <div class="hidden sm:flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1 rounded-full text-xs font-bold">
+              <i class="fa-solid fa-hands-praying"></i>
+              <span>Pilar Guru</span>
+            </div>
           </div>
 
-          <div class="bg-white rounded-3xl border border-slate-200 p-4 space-y-4 shadow-sm">
-            <div class="flex justify-between items-start">
-              <div>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800" id="mGuruDetailBadge">SIAGA</span>
-                <h3 class="font-black text-base text-slate-900 mt-1" id="mGuruDetailName">Nama Pasien</h3>
-                <p class="text-xs text-slate-500" id="mGuruDetailAddress">Desa Kokop</p>
-              </div>
-              <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-base font-bold">
-                <i class="fa-solid fa-hands-praying"></i>
-              </div>
-            </div>
+          <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-7 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Kolom Kiri: Ringkasan Pasien & Instruksi -->
+              <div class="space-y-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-800" id="mGuruDetailBadge">SIAGA</span>
+                    <h3 class="font-black text-lg sm:text-xl text-slate-900 mt-2" id="mGuruDetailName">Nama Pasien</h3>
+                    <p class="text-xs text-slate-500 font-medium" id="mGuruDetailAddress">Desa Kokop</p>
+                  </div>
+                  <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-hands-praying"></i>
+                  </div>
+                </div>
 
-            <div class="p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100 space-y-2 text-xs">
-              <p class="font-bold text-emerald-900 flex items-center">
-                <i class="fa-solid fa-circle-info mr-1.5 text-emerald-600"></i>
-                Permohonan Pendekatan Santun
-              </p>
-              <p class="text-slate-600 leading-relaxed" id="mGuruDetailNote">
-                Puskesmas meminta bantuan Kiai untuk memberikan tausiyah dan nasihat menenangkan kepada keluarga pasien agar tidak melakukan pasung dan berkenan dirujuk secara medis.
-              </p>
-            </div>
+                <div class="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-100 space-y-2 text-xs">
+                  <p class="font-bold text-emerald-900 flex items-center text-sm">
+                    <i class="fa-solid fa-circle-info mr-2 text-emerald-600"></i>
+                    Permohonan Pendekatan Santun
+                  </p>
+                  <p class="text-slate-700 leading-relaxed text-xs" id="mGuruDetailNote">
+                    Puskesmas meminta bantuan Kiai untuk memberikan tausiyah dan nasihat menenangkan kepada keluarga pasien agar tidak melakukan pasung dan berkenan dirujuk secara medis.
+                  </p>
+                </div>
 
-            <!-- Mini Map Preview Lokasi -->
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <p class="text-xs font-bold text-slate-700 flex items-center">
-                  <i class="fa-solid fa-map-location-dot mr-1.5 text-emerald-600"></i>
-                  Lokasi Kediaman Warga
-                </p>
-                <button type="button" id="btnGuruOpenMapsApp" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center space-x-1 shadow-sm">
-                  <i class="fa-solid fa-diamond-turn-right text-[10px]"></i>
-                  <span>Aplikasi Maps</span>
-                </button>
+                <div class="space-y-2.5 pt-2" id="mGuruDetailActionBtns">
+                  <!-- Dinamis diisi JS -->
+                </div>
               </div>
-              <div id="mGuruMiniMap" class="w-full h-36 rounded-2xl border border-slate-200 z-10"></div>
-            </div>
 
-            <div class="space-y-2 pt-2" id="mGuruDetailActionBtns">
-              <!-- Dinamis diisi JS -->
+              <!-- Kolom Kanan: Mini Map Preview Lokasi -->
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-xs font-bold text-slate-700 flex items-center">
+                    <i class="fa-solid fa-map-location-dot mr-1.5 text-emerald-600"></i>
+                    Peta Lokasi Kediaman Warga
+                  </p>
+                  <button type="button" id="btnGuruOpenMapsApp" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-200 flex items-center space-x-1.5 shadow-sm">
+                    <i class="fa-solid fa-diamond-turn-right text-xs"></i>
+                    <span>Buka Maps</span>
+                  </button>
+                </div>
+                <div id="mGuruMiniMap" class="w-full h-64 md:h-72 rounded-2xl border border-slate-200 z-10"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1220,53 +1412,67 @@
         <!-- ------------------------------------------------------------- -->
         <!-- SUB-SCREEN RATO DETAIL: DETAIL KOORDINASI PENGAWALAN          -->
         <!-- ------------------------------------------------------------- -->
-        <div id="mobileRatoSubDetail" class="space-y-4 hidden">
-          <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
-            <button onclick="closeRatoDetailScreen()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
-              <i class="fa-solid fa-arrow-left text-xs"></i>
-            </button>
-            <h3 class="font-black text-sm text-slate-900">Detail Pengawalan Aparat</h3>
+        <div id="mobileRatoSubDetail" class="space-y-6 hidden">
+          <div class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+            <div class="flex items-center space-x-3 sm:space-x-4">
+              <button type="button" onclick="closeRatoDetailScreen()" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-indigo-100 hover:text-indigo-800 text-slate-700 flex items-center justify-center transition shadow-xs">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+              </button>
+              <div>
+                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Detail Pengawalan Aparat Linmas Desa</h3>
+                <p class="text-xs text-slate-500 font-medium">Koordinasi keamanan wilayah saat penjemputan warga berlangsung</p>
+              </div>
+            </div>
+            <div class="hidden sm:flex items-center space-x-1.5 bg-indigo-50 text-indigo-800 border border-indigo-200/80 px-3 py-1 rounded-full text-xs font-bold">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Pilar Rato</span>
+            </div>
           </div>
 
-          <div class="bg-white rounded-3xl border border-slate-200 p-4 space-y-4 shadow-sm">
-            <div class="flex justify-between items-start">
-              <div>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800" id="mRatoDetailBadge">KOORDINASI</span>
-                <h3 class="font-black text-base text-slate-900 mt-1" id="mRatoDetailName">Nama Pasien</h3>
-                <p class="text-xs text-slate-500" id="mRatoDetailAddress">Desa Kokop</p>
-              </div>
-              <div class="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-800 flex items-center justify-center text-base font-bold">
-                <i class="fa-solid fa-shield-halved"></i>
-              </div>
-            </div>
+          <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-7 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Kolom Kiri: Instruksi & Aksi -->
+              <div class="space-y-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-indigo-100 text-indigo-800" id="mRatoDetailBadge">KOORDINASI</span>
+                    <h3 class="font-black text-lg sm:text-xl text-slate-900 mt-2" id="mRatoDetailName">Nama Pasien</h3>
+                    <p class="text-xs text-slate-500 font-medium" id="mRatoDetailAddress">Desa Kokop</p>
+                  </div>
+                  <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-800 flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-shield-halved"></i>
+                  </div>
+                </div>
 
-            <div class="p-3.5 bg-indigo-50/40 rounded-2xl border border-indigo-100 space-y-2 text-xs">
-              <p class="font-bold text-indigo-900 flex items-center">
-                <i class="fa-solid fa-shield mr-1.5 text-indigo-600"></i>
-                Instruksi Pengamanan Lapangan
-              </p>
-              <p class="text-slate-600 leading-relaxed">
-                Pemerintah desa dan aparat Linmas diharapkan hadir mendampingi petugas medis saat penjemputan warga untuk memastikan proses evakuasi kondusif dan tertib.
-              </p>
-            </div>
+                <div class="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 space-y-2 text-xs">
+                  <p class="font-bold text-indigo-900 flex items-center text-sm">
+                    <i class="fa-solid fa-shield mr-2 text-indigo-600"></i>
+                    Instruksi Pengamanan Lapangan
+                  </p>
+                  <p class="text-slate-700 leading-relaxed text-xs">
+                    Pemerintah desa dan aparat Linmas diharapkan hadir mendampingi petugas medis saat penjemputan warga untuk memastikan proses evakuasi kondusif, aman, dan tertib.
+                  </p>
+                </div>
 
-            <!-- Mini Map Preview Lokasi -->
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <p class="text-xs font-bold text-slate-700 flex items-center">
-                  <i class="fa-solid fa-map-location-dot mr-1.5 text-indigo-600"></i>
-                  Rute Evakuasi & Kediaman Warga
-                </p>
-                <button type="button" id="btnRatoOpenMapsApp" class="text-[11px] font-bold text-indigo-700 hover:text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200 flex items-center space-x-1 shadow-sm">
-                  <i class="fa-solid fa-diamond-turn-right text-[10px]"></i>
-                  <span>Aplikasi Maps</span>
-                </button>
+                <div class="pt-2" id="mRatoDetailActionBtns">
+                  <!-- Dinamis diisi JS -->
+                </div>
               </div>
-              <div id="mRatoMiniMap" class="w-full h-36 rounded-2xl border border-slate-200 z-10"></div>
-            </div>
 
-            <div class="pt-2" id="mRatoDetailActionBtns">
-              <!-- Dinamis diisi JS -->
+              <!-- Kolom Kanan: Rute Evakuasi & Mini Map -->
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-xs font-bold text-slate-700 flex items-center">
+                    <i class="fa-solid fa-map-location-dot mr-1.5 text-indigo-600"></i>
+                    Rute & Kediaman Warga
+                  </p>
+                  <button type="button" id="btnRatoOpenMapsApp" class="text-xs font-bold text-indigo-700 hover:text-indigo-800 bg-indigo-50 px-3 py-1 rounded-xl border border-indigo-200 flex items-center space-x-1.5 shadow-sm">
+                    <i class="fa-solid fa-diamond-turn-right text-xs"></i>
+                    <span>Buka Maps</span>
+                  </button>
+                </div>
+                <div id="mRatoMiniMap" class="w-full h-64 md:h-72 rounded-2xl border border-slate-200 z-10"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1274,17 +1480,23 @@
         <!-- ------------------------------------------------------------- -->
         <!-- SUB-SCREEN GURU: RIWAYAT DAMPINGAN KEAGAMAAN                  -->
         <!-- ------------------------------------------------------------- -->
-        <div id="mobileGuruSubRiwayat" class="space-y-4 hidden">
-          <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
-            <button onclick="closeGuruRiwayatScreen()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
-              <i class="fa-solid fa-arrow-left text-xs"></i>
-            </button>
-            <div>
-              <h3 class="font-black text-sm text-slate-900">Riwayat Dampingan Guru / Kiai</h3>
-              <p class="text-[11px] text-slate-500">Rekam jejak pendekatan doa & rembuk keluarga</p>
+        <div id="mobileGuruSubRiwayat" class="space-y-6 hidden">
+          <div class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+            <div class="flex items-center space-x-3 sm:space-x-4">
+              <button type="button" onclick="closeGuruRiwayatScreen()" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 flex items-center justify-center transition shadow-xs">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+              </button>
+              <div>
+                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Riwayat Dampingan Guru / Kiai</h3>
+                <p class="text-xs text-slate-500 font-medium">Rekam jejak pendekatan doa & rembuk keluarga santun</p>
+              </div>
+            </div>
+            <div class="hidden sm:flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1 rounded-full text-xs font-bold">
+              <i class="fa-solid fa-hands-praying"></i>
+              <span>Pilar Guru</span>
             </div>
           </div>
-          <div id="mGuruRiwayatListContainer" class="space-y-3">
+          <div id="mGuruRiwayatListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Diisi otomatis oleh JS -->
           </div>
         </div>
@@ -1292,25 +1504,31 @@
         <!-- ------------------------------------------------------------- -->
         <!-- SUB-SCREEN RATO: RIWAYAT PENGAWALAN DESA                      -->
         <!-- ------------------------------------------------------------- -->
-        <div id="mobileRatoSubRiwayat" class="space-y-4 hidden">
-          <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
-            <button onclick="closeRatoRiwayatScreen()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
-              <i class="fa-solid fa-arrow-left text-xs"></i>
-            </button>
-            <div>
-              <h3 class="font-black text-sm text-slate-900">Riwayat Pengawalan Rato / Kades</h3>
-              <p class="text-[11px] text-slate-500">Rekam jejak koordinasi linmas & evakuasi wilayah</p>
+        <div id="mobileRatoSubRiwayat" class="space-y-6 hidden">
+          <div class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+            <div class="flex items-center space-x-3 sm:space-x-4">
+              <button type="button" onclick="closeRatoRiwayatScreen()" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-indigo-100 hover:text-indigo-800 text-slate-700 flex items-center justify-center transition shadow-xs">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+              </button>
+              <div>
+                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Riwayat Pengawalan Rato / Kades</h3>
+                <p class="text-xs text-slate-500 font-medium">Rekam jejak koordinasi linmas & evakuasi wilayah aman</p>
+              </div>
+            </div>
+            <div class="hidden sm:flex items-center space-x-1.5 bg-indigo-50 text-indigo-800 border border-indigo-200/80 px-3 py-1 rounded-full text-xs font-bold">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Pilar Rato</span>
             </div>
           </div>
-          <div id="mRatoRiwayatListContainer" class="space-y-3">
+          <div id="mRatoRiwayatListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Diisi otomatis oleh JS -->
           </div>
         </div>
 
       </div>
 
-      <!-- BOTTOM NAVIGATION BAR (PERSIS GAMBAR WIREFRAME MOBILE PWA) -->
-      <div class="bg-white border-t border-slate-100 px-4 py-2 flex justify-between items-center text-[10px] font-semibold text-slate-400 sticky bottom-0 z-30">
+      <!-- BOTTOM NAVIGATION BAR: HANYA MUNCUL DI MOBILE (< 768px), DI DESKTOP MENGGUNAKAN TOPBAR PILLS -->
+      <div class="bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 py-2 flex md:hidden justify-between items-center text-[10px] font-semibold text-slate-400 sticky bottom-0 z-30">
         <button onclick="handleMobileNavAction('home')" class="flex flex-col items-center space-y-1 text-emerald-700">
           <i class="fa-solid fa-house text-base"></i>
           <span>Home</span>
@@ -1805,13 +2023,29 @@
     let mobilePhotoBase64 = null;
     let chatUnsubscribe = null;
 
+    // Dismiss Splash Screen Secara Mulus
+    function dismissSplashScreen(delay = 1400) {
+      const splash = document.getElementById('appSplashScreen');
+      if (!splash) return;
+      setTimeout(() => {
+        splash.classList.add('splash-hidden');
+        setTimeout(() => {
+          splash.style.display = 'none';
+        }, 550);
+      }, delay);
+    }
+
     // Load Inisialisasi
     window.addEventListener('DOMContentLoaded', async () => {
+      const startTime = Date.now();
       const isAuthed = await checkSession();
       if (isAuthed) {
         await loadVillages();
         await loadData();
       }
+      const elapsed = Date.now() - startTime;
+      const remainingDelay = Math.max(200, 1400 - elapsed);
+      dismissSplashScreen(remainingDelay);
     });
 
     async function checkSession() {
@@ -1890,7 +2124,7 @@
           document.getElementById('mobileNavTextAction').innerText = 'Evakuasi';
         }
 
-        // Perbarui badge judul peran mobile
+        // Perbarui badge judul peran mobile & header desktop profil
         const roleLabelMap = {
           'KADER': 'Kader Jiwa',
           'GURU': 'Guru / Kiai',
@@ -1899,6 +2133,23 @@
         };
         const badgeEl = document.getElementById('mobileRoleBadgeTitle');
         if (badgeEl) badgeEl.innerText = roleLabelMap[currentUser.role] || currentUser.role;
+
+        const headerProfileName = document.getElementById('headerProfileDisplayName');
+        if (headerProfileName) headerProfileName.innerText = currentUser.name || 'Profil';
+
+        // Sinkronkan teks pada desktop pill action
+        const desktopPillText = document.getElementById('desktopPillTextAction');
+        const desktopPillIcon = document.getElementById('desktopPillIconAction');
+        if (currentUser.role === 'KADER') {
+          if (desktopPillText) desktopPillText.innerText = 'Lapor Kasus';
+          if (desktopPillIcon) desktopPillIcon.className = 'fa-solid fa-triangle-exclamation text-xs text-red-500';
+        } else if (currentUser.role === 'GURU') {
+          if (desktopPillText) desktopPillText.innerText = 'Permintaan Bantuan';
+          if (desktopPillIcon) desktopPillIcon.className = 'fa-solid fa-hands-praying text-xs text-emerald-600';
+        } else if (currentUser.role === 'RATO') {
+          if (desktopPillText) desktopPillText.innerText = 'Pengawalan Evakuasi';
+          if (desktopPillIcon) desktopPillIcon.className = 'fa-solid fa-shield-halved text-xs text-indigo-600';
+        }
       }
     }
 
@@ -1971,13 +2222,14 @@
       if (document.getElementById('kaderGreetingName')) document.getElementById('kaderGreetingName').innerText = newName;
       if (document.getElementById('guruGreetingName')) document.getElementById('guruGreetingName').innerText = newName;
       if (document.getElementById('ratoGreetingName')) document.getElementById('ratoGreetingName').innerText = newName;
+      if (document.getElementById('headerProfileDisplayName')) document.getElementById('headerProfileDisplayName').innerText = newName;
 
       closeUserProfileModal();
       alert('✓ Profil berhasil diperbarui dan tersimpan.');
     }
 
-    // Mode Fleksibel Layar Penuh vs Bingkai HP (Responsif untuk Tablet & Desktop)
-    let isMobileFullWidthMode = false;
+    // Mode Fleksibel: Default Responsif Penuh (Tablet & Desktop) vs Simulasi HP
+    let isMobileEmulationMode = false;
     function toggleMobileFullWidth() {
       const frame = document.getElementById('mobileDeviceFrame');
       const wrapper = document.getElementById('viewMobilePwa');
@@ -1985,24 +2237,20 @@
       const btn = document.getElementById('btnToggleResponsive');
       if (!frame || !wrapper) return;
 
-      isMobileFullWidthMode = !isMobileFullWidthMode;
+      isMobileEmulationMode = !isMobileEmulationMode;
 
-      if (isMobileFullWidthMode) {
-        // Mode Layar Penuh / Tablet / Laptop
-        frame.classList.remove('md:max-w-[420px]', 'md:rounded-[40px]', 'md:border-8', 'md:border-slate-800', 'shadow-2xl');
-        frame.classList.add('w-full', 'max-w-4xl', 'md:rounded-3xl', 'md:border', 'md:border-slate-300', 'shadow-lg');
-        wrapper.classList.remove('bg-slate-200');
-        wrapper.classList.add('bg-slate-100');
-        if (btnTxt) btnTxt.innerText = 'Bingkai HP';
-        if (btn) btn.innerHTML = '<i class="fa-solid fa-mobile-screen text-[9px]"></i> <span id="txtToggleResponsive">Bingkai HP</span>';
+      if (isMobileEmulationMode) {
+        // Mode Simulasi HP Khusus Testing Mobile
+        frame.classList.remove('max-w-5xl');
+        frame.classList.add('max-w-[420px]', 'md:border-8', 'md:border-slate-800', 'shadow-2xl');
+        if (btnTxt) btnTxt.innerText = 'Responsif Lebar';
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-expand text-[9px]"></i> <span id="txtToggleResponsive">Responsif Lebar</span>';
       } else {
-        // Mode Bingkai HP Asli
-        frame.classList.remove('max-w-4xl', 'md:border', 'md:border-slate-300', 'shadow-lg');
-        frame.classList.add('md:max-w-[420px]', 'md:rounded-[40px]', 'md:border-8', 'md:border-slate-800', 'shadow-2xl');
-        wrapper.classList.remove('bg-slate-100');
-        wrapper.classList.add('bg-slate-200');
-        if (btnTxt) btnTxt.innerText = 'Layar Penuh';
-        if (btn) btn.innerHTML = '<i class="fa-solid fa-expand text-[9px]"></i> <span id="txtToggleResponsive">Layar Penuh</span>';
+        // Mode Default: Responsif Penuh Modern (Desktop & Tablet Natural)
+        frame.classList.remove('max-w-[420px]', 'md:border-8', 'md:border-slate-800', 'shadow-2xl');
+        frame.classList.add('max-w-5xl');
+        if (btnTxt) btnTxt.innerText = 'Simulasi HP';
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-mobile-screen text-[9px]"></i> <span id="txtToggleResponsive">Simulasi HP</span>';
       }
 
       // Invalidate leaf map if visible
@@ -3447,24 +3695,34 @@
       const container = document.getElementById('kaderRecentReportsList');
       if (!container) return;
       if (reports.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-center text-xs py-4">Belum ada laporan yang Anda kirim.</p>`;
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-3xl border border-slate-200">Belum ada laporan yang Anda kirim. Klik tombol "Laporkan Kasus Baru" di atas untuk mengirim temuan.</div>`;
         return;
       }
 
-      container.innerHTML = reports.slice(0, 3).map(r => `
-        <div onclick="switchKaderPwaSub('status')" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer flex justify-between items-center">
-          <div class="flex items-center space-x-2.5">
-            <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs">
-              <i class="fa-solid fa-user"></i>
+      container.innerHTML = reports.slice(0, 6).map(r => `
+        <div onclick="switchKaderPwaSub('status')" class="bg-white p-4 rounded-3xl border border-slate-200/90 hover:border-emerald-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between space-y-3 group">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-100/80 text-emerald-800 flex items-center justify-center text-sm font-bold group-hover:scale-105 transition">
+                <i class="fa-solid fa-hospital-user"></i>
+              </div>
+              <div>
+                <h5 class="font-black text-slate-900 text-sm leading-tight group-hover:text-emerald-800 transition">${r.patient_name_input}</h5>
+                <p class="text-[11px] text-slate-400 font-medium">${r.report_number}</p>
+              </div>
             </div>
-            <div>
-              <h5 class="font-bold text-slate-800 text-xs">${r.patient_name_input}</h5>
-              <p class="text-[10px] text-slate-400">${r.report_number} • ${r.address_input || 'Desa Kokop'}</p>
-            </div>
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${r.status === 'NEW' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}">
+              ${r.status === 'NEW' ? '▲ Diproses' : '✓ Selesai'}
+            </span>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${r.status === 'NEW' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
-            ${r.status === 'NEW' ? '▲ Diproses' : '✓ Selesai'}
-          </span>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+            <span class="truncate max-w-[180px]"><i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> ${r.address_input || 'Desa Kokop'}</span>
+            <span class="text-emerald-700 font-bold group-hover:translate-x-0.5 transition flex items-center space-x-1">
+              <span>Pantau</span>
+              <i class="fa-solid fa-angle-right text-[9px]"></i>
+            </span>
+          </div>
         </div>
       `).join('');
     }
@@ -3540,7 +3798,7 @@
       if (countEl) countEl.innerText = `${reports.length} laporan`;
 
       if (reports.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl">Tidak ada laporan yang sesuai dengan pencarian / filter.</div>`;
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Tidak ada laporan yang sesuai dengan pencarian / filter.</div>`;
         return;
       }
 
@@ -3571,31 +3829,34 @@
         ];
 
         return `
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 shadow-sm">
+          <div class="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/90 p-5 space-y-3.5 shadow-sm hover:shadow-md hover:border-emerald-400 transition">
             <div class="flex justify-between items-start">
               <div>
-                <h4 class="font-bold text-sm text-slate-900">${r.patient_name_input}</h4>
-                <p class="text-[11px] text-slate-400">${r.report_number} • ${r.address_input || 'Desa Kokop'}</p>
+                <h4 class="font-black text-sm sm:text-base text-slate-900">${r.patient_name_input}</h4>
+                <p class="text-[11px] text-slate-400 font-medium">${r.report_number} • ${r.address_input || 'Desa Kokop'}</p>
               </div>
-              <span class="bg-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-100 text-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-800 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-2">
+              <span class="bg-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-100 text-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-800 border border-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-200 text-[10px] font-black px-2.5 py-1 rounded-full shrink-0 ml-2">
                 ${caseStatus}
               </span>
             </div>
-            <p class="text-[11px] text-slate-600 font-medium">${caseInfo.label}</p>
-            <div class="flex items-center space-x-1 text-[10px]">
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100 font-medium">
+              <i class="fa-solid fa-circle-notch text-emerald-600 mr-1.5"></i>
+              ${caseInfo.label}
+            </p>
+            <div class="flex items-center space-x-1 text-[10px] pt-1">
               ${steps.map((s, i) => `
                 <div class="flex items-center ${i < steps.length - 1 ? 'flex-1' : ''}">
-                  <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 font-bold
-                    ${s.done ? 'bg-emerald-600 text-white' : s.active ? 'bg-amber-500 text-white animate-pulse' : 'bg-slate-200 text-slate-400'}">
-                    ${s.done ? '<i class="fa-solid fa-check" style="font-size:8px"></i>' : (i + 1)}
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-black shadow-xs
+                    ${s.done ? 'bg-emerald-600 text-white' : s.active ? 'bg-amber-500 text-white animate-pulse' : 'bg-slate-100 border border-slate-200 text-slate-400'}">
+                    ${s.done ? '<i class="fa-solid fa-check text-[10px]"></i>' : (i + 1)}
                   </div>
-                  ${i < steps.length - 1 ? `<div class="flex-1 h-0.5 mx-0.5 ${s.done ? 'bg-emerald-500' : 'bg-slate-200'}"></div>` : ''}
+                  ${i < steps.length - 1 ? `<div class="flex-1 h-1 mx-1 rounded-full ${s.done ? 'bg-emerald-500' : 'bg-slate-200'}"></div>` : ''}
                 </div>
               `).join('')}
             </div>
-            <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-50">
-              <span class="text-slate-400 font-mono text-[10px]">Laporan: ${r.report_number}</span>
-              ${(matchedCase?.case_number || r.resolved_case_number || r.case_number) ? `<span class="text-emerald-700 font-bold text-[10px]">Kasus: ${matchedCase?.case_number || r.resolved_case_number || r.case_number}</span>` : ''}
+            <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+              <span class="text-slate-400 font-mono text-[11px]">No: ${r.report_number}</span>
+              ${(matchedCase?.case_number || r.resolved_case_number || r.case_number) ? `<span class="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200 text-[11px]">Kasus: ${matchedCase?.case_number || r.resolved_case_number || r.case_number}</span>` : ''}
             </div>
           </div>
         `;
@@ -3743,7 +4004,7 @@
 
       const active = cases.filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION');
       if (active.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl">Alhamdulillah, tidak ada permintaan rembuk santun saat ini.</div>`;
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Alhamdulillah, belum ada permintaan rembuk santun baru dari Puskesmas saat ini. Kondisi wilayah terpantau aman.</div>`;
         return;
       }
 
@@ -3752,55 +4013,50 @@
         const isAgreed = myPart && myPart.response === 'AGREE';
         const isNeedTime = myPart && myPart.response === 'NEED_TIME';
 
-        let borderClass = 'border-red-200 bg-red-50/30';
-        let badgeColor = 'text-red-600';
-        let iconBg = 'bg-red-600 text-white';
+        let cardBgClass = 'bg-white/95 border-red-200/90 shadow-sm';
+        let badgeColor = 'text-red-700 bg-red-100 border-red-200';
         let iconHtml = '<i class="fa-solid fa-bell"></i>';
         let badgeLabel = 'Permintaan Bantuan Baru';
 
         if (isAgreed) {
-          borderClass = 'border-emerald-500 bg-emerald-50/20';
-          badgeColor = 'text-emerald-700';
-          iconBg = 'bg-emerald-600 text-white';
+          cardBgClass = 'bg-emerald-50/40 border-emerald-300 shadow-sm';
+          badgeColor = 'text-emerald-800 bg-emerald-100 border-emerald-200';
           iconHtml = '<i class="fa-solid fa-check"></i>';
           badgeLabel = 'Telah Disetujui (Siap Membantu)';
         } else if (isNeedTime) {
-          borderClass = 'border-amber-500 bg-amber-50/30';
-          badgeColor = 'text-amber-700';
-          iconBg = 'bg-amber-600 text-white';
+          cardBgClass = 'bg-amber-50/40 border-amber-300 shadow-sm';
+          badgeColor = 'text-amber-800 bg-amber-100 border-amber-200';
           iconHtml = '<i class="fa-solid fa-phone-volume animate-pulse"></i>';
           badgeLabel = 'Sedang Hubungi Keluarga / Butuh Waktu';
         }
 
         return `
-          <div class="p-4 rounded-3xl border ${borderClass} space-y-3">
+          <div class="${cardBgClass} backdrop-blur-md p-5 rounded-3xl border space-y-3.5 hover:shadow-md transition">
             <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2 text-xs font-bold ${badgeColor}">
-                <span class="w-5 h-5 rounded-full ${iconBg} flex items-center justify-center text-[10px]">
-                  ${iconHtml}
-                </span>
+              <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black border ${badgeColor}">
+                <span>${iconHtml}</span>
                 <span>${badgeLabel}</span>
               </div>
-              <button onclick="openGuruDetailScreen(${c.id})" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 bg-white px-2.5 py-1 rounded-full border border-emerald-200 flex items-center space-x-1 shadow-sm">
+              <button onclick="openGuruDetailScreen(${c.id})" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center space-x-1 shadow-xs transition">
                 <span>Detail</span>
-                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                <i class="fa-solid fa-angle-right text-[10px]"></i>
               </button>
             </div>
 
             <div>
               <h4 class="font-black text-base text-slate-900">${c.patient_name}</h4>
-              <p class="text-xs text-slate-500">${c.patient_address || c.village_name}</p>
+              <p class="text-xs text-slate-500 font-medium">${c.patient_address || c.village_name}</p>
             </div>
 
-            <p class="text-xs text-slate-600 leading-relaxed bg-white p-3 rounded-xl border border-slate-200">
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
               Puskesmas meminta bantuan pendekatan keagamaan & rembuk santun kepada keluarga agar berkenan dilakukan evakuasi medis.
             </p>
 
             <div class="space-y-2 pt-1">
-              <button onclick="mobileGuruRespond(${c.id}, 'AGREE')" class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow flex items-center justify-center ${isAgreed ? 'opacity-50 pointer-events-none' : ''}">
+              <button onclick="mobileGuruRespond(${c.id}, 'AGREE')" class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md shadow-emerald-900/10 flex items-center justify-center ${isAgreed ? 'opacity-50 pointer-events-none' : ''}">
                 ${isAgreed ? '✓ Sudah Konfirmasi Membantu' : 'Saya Siap Membantu'}
               </button>
-              <button onclick="mobileGuruRespond(${c.id}, 'NEED_TIME')" class="w-full py-2.5 rounded-xl border ${isNeedTime ? 'border-amber-500 bg-amber-100/70 text-amber-900 font-black ring-2 ring-amber-300' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'} font-bold text-xs flex items-center justify-center space-x-1.5">
+              <button onclick="mobileGuruRespond(${c.id}, 'NEED_TIME')" class="w-full py-2.5 rounded-xl border ${isNeedTime ? 'border-amber-500 bg-amber-100 text-amber-900 font-black ring-2 ring-amber-300' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'} font-bold text-xs flex items-center justify-center space-x-1.5 transition">
                 <i class="fa-solid fa-phone mr-1"></i>
                 <span>${isNeedTime ? '⏳ Sedang Menghubungi / Butuh Waktu' : 'Saya Butuh Waktu / Telepon Dahulu'}</span>
               </button>
@@ -3816,7 +4072,7 @@
 
       const active = cases.filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION');
       if (active.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl">Tidak ada instruksi pengawalan evakuasi saat ini.</div>`;
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Tidak ada instruksi pengawalan evakuasi aktif dari Puskesmas saat ini. Wilayah aman terkendali.</div>`;
         return;
       }
 
@@ -3825,31 +4081,29 @@
         const isReady = myPart && myPart.response === 'READY';
 
         return `
-          <div class="p-4 rounded-3xl border ${isReady ? 'border-indigo-500 bg-indigo-50/20' : 'border-red-200 bg-red-50/30'} space-y-3">
+          <div class="bg-white/95 backdrop-blur-md p-5 rounded-3xl border ${isReady ? 'border-indigo-300 bg-indigo-50/30' : 'border-red-200/90'} space-y-3.5 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2 text-xs font-bold ${isReady ? 'text-indigo-700' : 'text-red-600'}">
-                <span class="w-5 h-5 rounded-full ${isReady ? 'bg-indigo-600 text-white' : 'bg-red-600 text-white'} flex items-center justify-center text-[10px]">
-                  <i class="fa-solid ${isReady ? 'fa-shield-halved' : 'fa-triangle-exclamation'}"></i>
-                </span>
+              <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black border ${isReady ? 'bg-indigo-100 text-indigo-800 border-indigo-200' : 'bg-red-100 text-red-700 border-red-200'}">
+                <i class="fa-solid ${isReady ? 'fa-shield-halved' : 'fa-triangle-exclamation'}"></i>
                 <span>${isReady ? 'Aparat Siap Mengawal' : 'Koordinasi Evakuasi'}</span>
               </div>
-              <button onclick="openRatoDetailScreen(${c.id})" class="text-[11px] font-bold text-indigo-700 hover:text-indigo-800 bg-white px-2.5 py-1 rounded-full border border-indigo-200 flex items-center space-x-1 shadow-sm">
+              <button onclick="openRatoDetailScreen(${c.id})" class="text-xs font-bold text-indigo-700 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200 flex items-center space-x-1 shadow-xs transition">
                 <span>Detail</span>
-                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                <i class="fa-solid fa-angle-right text-[10px]"></i>
               </button>
             </div>
 
             <div>
               <h4 class="font-black text-base text-slate-900">${c.patient_name}</h4>
-              <p class="text-xs text-slate-500">${c.patient_address || c.village_name}</p>
+              <p class="text-xs text-slate-500 font-medium">${c.patient_address || c.village_name}</p>
             </div>
 
-            <p class="text-xs text-slate-600 leading-relaxed bg-white p-3 rounded-xl border border-slate-200">
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
               Puskesmas membutuhkan pengawalan keamanan aparat desa dan Linmas saat proses penjemputan warga.
             </p>
 
             <div class="pt-1">
-              <button onclick="mobileRatoRespond(${c.id}, 'READY')" class="w-full py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow flex items-center justify-center ${isReady ? 'opacity-50 pointer-events-none' : ''}">
+              <button onclick="mobileRatoRespond(${c.id}, 'READY')" class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md shadow-emerald-900/10 flex items-center justify-center ${isReady ? 'opacity-50 pointer-events-none' : ''}">
                 ${isReady ? '✓ Sudah Konfirmasi Siap Kawal' : 'Siap Mengawal'}
               </button>
             </div>
@@ -4098,7 +4352,7 @@
       });
 
       if (assistedCases.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl">Belum ada riwayat pendampingan keagamaan yang tercatat.</div>`;
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Belum ada riwayat pendampingan keagamaan yang tercatat.</div>`;
         return;
       }
 
@@ -4106,23 +4360,28 @@
         const myPart = (c.participants || []).find(p => p.participant_role === 'GURU');
         const isDone = c.status === 'CLOSED' || c.status === 'MONITORING';
         return `
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5 shadow-sm">
+          <div class="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/90 p-5 space-y-3.5 shadow-sm hover:shadow-md hover:border-emerald-400 transition">
             <div class="flex justify-between items-start">
-              <div>
-                <h4 class="font-bold text-sm text-slate-900">${c.patient_name}</h4>
-                <p class="text-[11px] text-slate-400">${c.case_number} • ${c.patient_address || c.village_name || 'Desa Kokop'}</p>
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-base font-bold shrink-0">
+                  <i class="fa-solid fa-hands-praying"></i>
+                </div>
+                <div>
+                  <h4 class="font-black text-sm sm:text-base text-slate-900">${c.patient_name}</h4>
+                  <p class="text-[11px] text-slate-400 font-medium">${c.case_number} • ${c.patient_address || c.village_name || 'Desa Kokop'}</p>
+                </div>
               </div>
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                ${isDone ? '✓ Selesai Bebas Pasung' : '▲ Dampingan Aktif'}
+              <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide shrink-0 ${isDone ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}">
+                ${isDone ? '✓ Bebas Pasung' : '▲ Dampingan Aktif'}
               </span>
             </div>
-            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-              <i class="fa-solid fa-hands-praying mr-1 text-emerald-700"></i>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
+              <i class="fa-solid fa-circle-info mr-1 text-emerald-700"></i>
               <strong>Status Rembuk Batin:</strong> ${myPart?.response === 'AGREE' ? 'Keluarga menerima nasehat & ridho evakuasi medis' : myPart?.response === 'NEED_TIME' ? 'Proses pendekatan persuasif bertahap' : 'Menunggu rembuk santun'}
             </p>
-            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-50">
+            <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-100">
               <span>Status Kasus: <strong class="text-slate-700">${c.status}</strong></span>
-              <button onclick="openGuruDetailScreen(${c.id})" class="text-emerald-700 font-bold hover:underline text-xs flex items-center space-x-1">
+              <button onclick="openGuruDetailScreen(${c.id})" class="text-emerald-700 font-bold hover:text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center space-x-1.5 shadow-xs transition">
                 <span>Buka Detail</span>
                 <i class="fa-solid fa-angle-right text-[10px]"></i>
               </button>
@@ -4159,30 +4418,35 @@
       });
 
       if (escortedCases.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl">Belum ada riwayat pengawalan desa yang tercatat.</div>`;
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Belum ada riwayat pengawalan desa yang tercatat.</div>`;
         return;
       }
 
       container.innerHTML = escortedCases.map(c => {
         const isDone = c.status === 'CLOSED' || c.status === 'MONITORING';
         return `
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5 shadow-sm">
+          <div class="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/90 p-5 space-y-3.5 shadow-sm hover:shadow-md hover:border-indigo-400 transition">
             <div class="flex justify-between items-start">
-              <div>
-                <h4 class="font-bold text-sm text-slate-900">${c.patient_name}</h4>
-                <p class="text-[11px] text-slate-400">${c.case_number} • ${c.patient_address || c.village_name || 'Desa Kokop'}</p>
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-800 flex items-center justify-center text-base font-bold shrink-0">
+                  <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                  <h4 class="font-black text-sm sm:text-base text-slate-900">${c.patient_name}</h4>
+                  <p class="text-[11px] text-slate-400 font-medium">${c.case_number} • ${c.patient_address || c.village_name || 'Desa Kokop'}</p>
+                </div>
               </div>
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}">
-                ${isDone ? '✓ Wilayah Kondusif & Bebas Pasung' : '▲ Pengawalan Berjalan'}
+              <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide shrink-0 ${isDone ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-indigo-100 text-indigo-800 border border-indigo-200'}">
+                ${isDone ? '✓ Bebas Pasung' : '▲ Siaga Kawal'}
               </span>
             </div>
-            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
               <i class="fa-solid fa-shield-halved mr-1 text-indigo-700"></i>
               <strong>Pengamanan Linmas:</strong> Koordinasi aparatur desa dan rute aman penjemputan warga telah tercatat.
             </p>
-            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-50">
+            <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-100">
               <span>Status Kasus: <strong class="text-slate-700">${c.status}</strong></span>
-              <button onclick="openRatoDetailScreen(${c.id})" class="text-indigo-700 font-bold hover:underline text-xs flex items-center space-x-1">
+              <button onclick="openRatoDetailScreen(${c.id})" class="text-indigo-700 font-bold hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200 flex items-center space-x-1.5 shadow-xs transition">
                 <span>Buka Detail</span>
                 <i class="fa-solid fa-angle-right text-[10px]"></i>
               </button>
@@ -4224,6 +4488,32 @@
         } else if (currentUser.role === 'RATO') {
           openRatoRiwayatScreen();
         }
+      }
+
+      // Perbarui style highlight pada Desktop Pills
+      const pillHome = document.getElementById('desktopPillHome');
+      const pillAction = document.getElementById('desktopPillAction');
+      const pillRiwayat = document.getElementById('desktopPillRiwayat');
+
+      const activeClasses = ['bg-white', 'text-emerald-800', 'shadow-sm'];
+      const inactiveClasses = ['hover:bg-white', 'hover:text-emerald-800'];
+
+      [pillHome, pillAction, pillRiwayat].forEach(p => {
+        if (p) {
+          p.classList.remove('bg-white', 'text-emerald-800', 'shadow-sm');
+          p.classList.add('text-slate-600');
+        }
+      });
+
+      if (type === 'home' && pillHome) {
+        pillHome.classList.add('bg-white', 'text-emerald-800', 'shadow-sm');
+        pillHome.classList.remove('text-slate-600');
+      } else if (type === 'action' && pillAction) {
+        pillAction.classList.add('bg-white', 'text-emerald-800', 'shadow-sm');
+        pillAction.classList.remove('text-slate-600');
+      } else if (type === 'riwayat' && pillRiwayat) {
+        pillRiwayat.classList.add('bg-white', 'text-emerald-800', 'shadow-sm');
+        pillRiwayat.classList.remove('text-slate-600');
       }
     }
 

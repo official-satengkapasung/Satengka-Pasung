@@ -46,25 +46,11 @@ jobs:
             console.log('✅ manifest.json valid:', manifest.short_name);
           "
 
-      - name: Security Scan (Secret Leak Detection)
+      - name: Anti-Slop & DevSecOps Hygiene Audit
         run: |
-          echo "🛡️ Scanning for committed credentials..."
-          node -e "
-            const fs = require('fs');
-            const gitignore = fs.readFileSync('.gitignore', 'utf8');
-            if (!gitignore.includes('firebase-config.js')) {
-              console.error('❌ firebase-config.js not excluded in .gitignore');
-              process.exit(1);
-            }
-            if (fs.existsSync('firebase-config.js')) {
-              const content = fs.readFileSync('firebase-config.js', 'utf8');
-              if (content.includes('AIzaSy') && !content.includes('DUMMY')) {
-                console.error('❌ Real production API key detected in git tracked file!');
-                process.exit(1);
-              }
-            }
-            console.log('✅ Secrets safety check PASSED.');
-          "
+          echo "🛡️ Menjalankan verifikasi Anti-Slop & Security Hygiene..."
+          node scripts/anti-slop-audit.js
+
 
   deploy-github-pages:
     name: Deploy to GitHub Pages (Staging Preview)
