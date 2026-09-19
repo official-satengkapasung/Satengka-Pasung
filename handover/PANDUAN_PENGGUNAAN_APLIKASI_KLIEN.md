@@ -48,12 +48,21 @@ Aplikasi ini tidak perlu diunduh dari Play Store yang memakan memori. Anda dapat
 
 ---
 
-## 3. PANDUAN MASUK AKUN (LOGIN) & DAFTAR AKUN
+## 3. PANDUAN MASUK AKUN (LOGIN) & AKUN PERCONTOHAN FASKES
+
+Untuk memudahkan pelatihan dan operasional, sistem telah dilengkapi akun resmi percontohan untuk masing-masing pilar budaya di wilayah Puskesmas Kokop:
+
+| Pilar / Peran | Nama Akun | Nomor WhatsApp (Login) | Kata Sandi Default |
+| :--- | :--- | :--- | :--- |
+| **Nakes (Petugas Faskes)** | dr. Siti Amelia | `081234567890` | `nakes123` |
+| **Bhupa' (Kader Jiwa)** | Siti Aminah (Desa Kokop) | `081234567891` | `kader123` |
+| **Bhu' Ghuru (Tokoh Agama)** | Kiai H. Kholil | `081234567892` | `guru123` |
+| **Rato (Kepala Desa)** | Klebun Kokop | `081234567893` | `rato123` |
 
 1. Buka aplikasi SATENGKA PASUNG.
-2. Masukkan **Nomor WhatsApp** atau Username yang telah didaftarkan.
+2. Masukkan **Nomor WhatsApp** akun yang terdaftar di atas.
 3. Masukkan **Kata Sandi**.
-4. Klik tombol **"Masuk"**.
+4. Klik tombol **"Masuk"**. Sistem otomatis membuka antarmuka khusus sesuai peran pilar yang Anda gunakan.
 5. *Bagi kader baru yang belum memiliki akun:* Klik tautan **"Daftar Akun Baru"**, lengkapi nama, nomor WhatsApp, desa penugasan, dan pilih peran pilar.
 
 ---
@@ -78,7 +87,7 @@ Petugas Puskesmas bertindak sebagai koordinator penanganan kasus pasung di 13 de
 4. Sistem akan menyiapkan pesan resmi ke WhatsApp tokoh terkait agar beliau membuka aplikasi dan memberikan dukungan rembuk keluarga.
 
 ### C. Mengelola Kontak Tokoh & Kader Desa
-1. Pada menu sebelah kiri (atau menu drawer di HP), buka menu **"Kader & Tokoh"**.
+1. Pada menu sebelah kiri (atau menu samping pada ponsel), buka menu **"Kader & Tokoh"** (Kontak Tokoh & Kader).
 2. Anda akan melihat tabel seluruh pilar di 13 desa.
 3. **Menambah Kontak Baru:** Klik tombol hijau **"Tambah Kontak"**, isi nama lengkap, peran, nomor WhatsApp, dan wilayah desa.
 4. **Mengubah Data Kontak:** Klik tombol **"Edit"** pada baris nama yang ingin diubah, lalu simpan perubahan.
@@ -105,8 +114,8 @@ Jika ada kader atau tokoh masyarakat yang lupa kata sandi:
 Kader jiwa menggunakan tampilan antarmuka khusus yang sederhana dan ramah ponsel.
 
 ### Melaporkan Kasus Pasung Baru
-1. Masuk menggunakan nomor WhatsApp kader.
-2. Pada layar utama, tekan tombol besar **"Lapor Kasus Baru"**.
+1. Masuk menggunakan nomor WhatsApp kader (contoh: `081234567891` / `kader123`).
+2. Pada layar utama, tekan tombol **"Form Lapor Kasus"** (ikon plus merah).
 3. Isi data pasien secara cermat:
    * Nama pasien & perkiraan usia.
    * Nama kepala keluarga atau penanggung jawab.
@@ -114,8 +123,8 @@ Kader jiwa menggunakan tampilan antarmuka khusus yang sederhana dan ramah ponsel
    * Lokasi dusun/desa pasien.
    * Lama pemasungan dan bentuk pasung (rantai, balok kayu, atau kurungan kamar).
 4. Ambil foto bukti kondisi pasien (wajah dapat disamarkan demi etika).
-5. Klik **"Kirim Laporan ke Puskesmas"**.
-6. Laporan Anda langsung diterima oleh dokter dan perawat Puskesmas Kokop.
+5. Klik **"Kirim Laporan ke Puskesmas"**. Laporan langsung masuk ke antrean dokter dan perawat Puskesmas Kokop.
+6. **Pantau Status & Diskusi:** Buka tab **"Riwayat & Status Laporan"** untuk memantau proses validasi nakes, atau tab **"Ruang Diskusi Rembuk"** untuk berkoordinasi secara langsung dengan tim faskes.
 
 ---
 
