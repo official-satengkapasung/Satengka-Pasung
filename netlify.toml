@@ -1,19 +1,63 @@
-# Netlify Configuration for Single-Page Application & PWA
+# ==============================================================================
+# SATENGKA PASUNG EWS — Netlify Deployment & Edge Routing Configuration
+# Arsitektur: 100% Free Tier Hosting (Terhubung Otomatis ke Repository GitHub)
+# ==============================================================================
+
 [build]
   publish = "."
+  # Jalankan script build pre-process untuk menjamin ketersediaan konfigurasi Firebase
+  command = "node scripts/build-netlify.js"
 
-# Routing SPA: Fallback jika direct path diakses
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
+# ------------------------------------------------------------------------------
+# SECURITY & CACHING HEADERS UNTUK PWA & SERVICE WORKER
+# ------------------------------------------------------------------------------
 
-# Cache headers untuk performa optimal PWA di pelosok
+# Service Worker wajib no-cache agar pengguna selalu menerima pembaruan versi instan
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Content-Type = "application/javascript; charset=utf-8"
+
+# Manifest PWA
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
+    Content-Type = "application/manifest+json; charset=utf-8"
+
+# Aset statis gambar dan ikon (Cache 1 tahun untuk kecepatan loading maksimal)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Security Headers Global untuk Semua Halaman
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
+    X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# ------------------------------------------------------------------------------
+# REDIRECTS & CLEAN URLS UNTUK PWA STANDALONE
+# ------------------------------------------------------------------------------
+
+# Halaman default jika mengakses root
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+# Fallback untuk URL tanpa ekstensi html
+[[redirects]]
+  from = "/login"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/register"
+  to = "/register.html"
+  status = 200

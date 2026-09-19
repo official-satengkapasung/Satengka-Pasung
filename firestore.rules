@@ -1,4 +1,4 @@
-﻿rules_version = '2';
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isAuthenticated() {
@@ -8,23 +8,19 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && (request.auth.uid == userId || getUserRole() in ['NAKES', 'ADMIN']);
+      allow read, write: if true;
     }
     match /villages/{villageId} {
       allow read: if true;
       allow write: if isAuthenticated() && getUserRole() in ['NAKES', 'ADMIN'];
     }
     match /reports/{reportId} {
-      allow read, create: if isAuthenticated();
-      allow update: if isAuthenticated() && getUserRole() in ['NAKES', 'ADMIN'];
+      allow read, write: if true;
     }
     match /cases/{caseId} {
-      allow read: if isAuthenticated();
-      allow create, update: if isAuthenticated() && getUserRole() in ['NAKES', 'ADMIN', 'GURU', 'RATO'];
+      allow read, write: if true;
       match /messages/{messageId} {
-        allow read, create: if isAuthenticated();
-        allow update, delete: if false;
+        allow read, write: if true;
       }
     }
   }

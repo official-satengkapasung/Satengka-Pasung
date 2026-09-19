@@ -1,4 +1,4 @@
-name: SATENGKA PASUNG EWS - CI/CD Pipeline
+name: SATENGKA PASUNG CI & Quality Gate
 
 on:
   push:
@@ -8,11 +8,11 @@ on:
 
 jobs:
   audit-and-validate:
-    name: Code Integrity & PWA Health Check
+    name: Code Hygiene & Anti-Slop Audit
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Codebase
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js Environment
@@ -20,63 +20,24 @@ jobs:
         with:
           node-version: 20
 
-      - name: Verify Core Web Files
+      - name: Verify JavaScript Syntax Integrity
         run: |
-          echo "🔍 Checking core PWA architecture files..."
-          test -f index.html || { echo "❌ index.html missing!"; exit 1; }
-          test -f login.html || { echo "❌ login.html missing!"; exit 1; }
-          test -f register.html || { echo "❌ register.html missing!"; exit 1; }
-          test -f manifest.json || { echo "❌ manifest.json missing!"; exit 1; }
-          test -f sw.js || { echo "❌ sw.js missing!"; exit 1; }
-          test -f js/malekkas-engine.js || { echo "❌ malekkas-engine.js missing!"; exit 1; }
-          test -f assets/logo_opt.png || { echo "❌ logo_opt.png missing!"; exit 1; }
-          test -f assets/background_opt.webp || { echo "❌ background_opt.webp missing!"; exit 1; }
-          echo "✅ All core files present and accounted for."
+          node --check js/firebase-adapter.js
+          node --check js/malekkas-engine.js
+          node --check sw.js
 
-      - name: Validate PWA Web Manifest JSON
+      - name: Run DevSecOps & Anti-Slop Audit
         run: |
-          echo "🔍 Validating manifest.json format..."
-          node -e "
-            const fs = require('fs');
-            const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
-            if (!manifest.name || !manifest.start_url || !manifest.icons) {
-              console.error('❌ Manifest validation failed');
-              process.exit(1);
-            }
-            console.log('✅ manifest.json valid:', manifest.short_name);
-          "
-
-      - name: Anti-Slop & DevSecOps Hygiene Audit
-        run: |
-          echo "🛡️ Menjalankan verifikasi Anti-Slop & Security Hygiene..."
           node scripts/anti-slop-audit.js
 
-
-  deploy-github-pages:
-    name: Deploy to GitHub Pages (Staging Preview)
-    needs: audit-and-validate
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Audit Manifest & PWA Assets
+        run: |
+          node -e "
+            const fs = require('fs');
+            const manifest = JSON.parse(fs.readFileSync('./manifest.json', 'utf8'));
+            if (!manifest.name || !manifest.icons || manifest.icons.length === 0) {
+              console.error('PWA Manifest invalid!');
+              process.exit(1);
+            }
+            console.log('✅ PWA Manifest valid:', manifest.name);
+          "

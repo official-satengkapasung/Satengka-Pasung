@@ -1,5 +1,5 @@
-// Service Worker for BHUPPA' BHU' GURU RATO PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v3';
+// Service Worker for BHUPPA' BHU' GHURU RATO PWA
+const CACHE_NAME = 'satengka-pasung-pwa-v8';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,6 +8,14 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './assets/logo_opt.png',
   './assets/background_opt.webp',
+  './assets/icons/role_bhupa.png',
+  './assets/icons/role_bhu-ghuru.png',
+  './assets/icons/role_rato.png',
+  './assets/icons/role_nakes.png',
+  './assets/icons/role_bhupa_white.png',
+  './assets/icons/role_bhu-ghuru_white.png',
+  './assets/icons/role_rato_white.png',
+  './assets/icons/role_nakes_white.png',
   './assets/pdf_extracted/page_3_img_2.jpeg',
   './assets/pdf_extracted/page_1_img_2.png',
   './js/malekkas-engine.js'

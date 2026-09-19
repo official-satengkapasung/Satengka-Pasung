@@ -9,31 +9,56 @@ import {
   getFirestore, 
   collection, 
   doc, 
-  getDoc,
-  getDocs,
-  setDoc,
+  getDoc, 
+  getDocs, 
+  setDoc, 
   onSnapshot, 
   addDoc, 
   updateDoc, 
   query, 
   orderBy, 
   limit, 
-  where,
+  where, 
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  sendPasswordResetEmail,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 import { firebaseConfig } from "../firebase-config.js";
 
 let db = null;
+let auth = null;
+let storage = null;
 export let isFirebaseActive = false;
 
-// Cek apakah kredensial Firebase sudah dimasukkan
+// Inisialisasi Firebase Cloud Firestore, Firebase Auth, & Firebase Storage
 try {
   if (firebaseConfig && firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("DUMMY")) {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
+    auth = getAuth(app);
+    if (firebaseConfig.storageBucket) {
+      storage = getStorage(app);
+    }
     isFirebaseActive = true;
-    console.log("🔥 [SATENGKA PASUNG] Terhubung langsung ke Cloud Firestore (100% Free Tier)!");
+    if (typeof window !== "undefined") {
+      window.firebaseAuth = auth;
+      window.firebaseDb = db;
+      window.firebaseStorage = storage;
+    }
+    console.log("🔥 [SATENGKA PASUNG] Terhubung ke Cloud Firestore & Firebase Auth (100% Free Tier Spark Plan)!");
   } else {
     console.log("⚡ [SATENGKA PASUNG] Menggunakan Local Client Storage Engine (Tanpa PHP/MySQL!).");
   }
@@ -54,10 +79,10 @@ const DEFAULT_SEED = {
   ],
   users: [
     { id: 1, name: "Administrator EWS", phone: "081100000001", role: "ADMIN", village_id: 1, village_name: "Kokop" },
-    { id: 2, name: "dr. Siti Amelia (Nakes)", phone: "081234567890", role: "NAKES", village_id: 1, village_name: "Kokop" },
-    { id: 3, name: "Siti Kader Jiwa", phone: "081234567891", role: "KADER", village_id: 1, village_name: "Kokop" },
-    { id: 4, name: "Kiai H. Kholil (Guru)", phone: "081234567892", role: "GURU", village_id: 1, village_name: "Kokop" },
-    { id: 5, name: "Klebun Kokop (Rato)", phone: "081234567893", role: "RATO", village_id: 1, village_name: "Kokop" }
+    { id: 2, name: "dr. Siti Amelia", phone: "081234567890", role: "NAKES", village_id: 1, village_name: "Kokop" },
+    { id: 3, name: "Siti", phone: "081234567891", role: "KADER", village_id: 1, village_name: "Kokop" },
+    { id: 4, name: "Kiai H. Kholil", phone: "081234567892", role: "GURU", village_id: 1, village_name: "Kokop" },
+    { id: 5, name: "Klebun Kokop", phone: "081234567893", role: "RATO", village_id: 1, village_name: "Kokop" }
   ],
   cases: [],
   reports: [],
@@ -101,14 +126,161 @@ export function resetDatabase() {
 // API REPLACEMENT FUNCTIONS (MENGGANTIKAN SEMUA CALL PHP)
 // =========================================================================
 
-export async function loginUser(phone, password) {
+export async function loginUser(identifier, password) {
   const users = getLocalStore("users", DEFAULT_SEED.users);
-  const user = users.find(u => u.phone === phone);
-  if (!user) {
-    return { success: false, message: "Nomor HP tidak ditemukan." };
+  const cleanId = (identifier || '').replace(/\D/g, '');
+  const matchedLocal = users.find(u => {
+    const uPhone = (u.phone || '').replace(/\D/g, '');
+    const uEmail = (u.email || '').toLowerCase();
+    return (cleanId && uPhone === cleanId) || (uEmail && uEmail === (identifier || '').toLowerCase());
+  });
+
+  // Jika Firebase Auth aktif, lakukan autentikasi Cloud Firebase
+  if (isFirebaseActive && auth) {
+    const isEmail = (identifier || '').includes("@");
+    const emailToAuth = isEmail ? identifier : `${cleanId || 'user'}@satengka-pasung.id`;
+    
+    try {
+      const cred = await signInWithEmailAndPassword(auth, emailToAuth, password);
+      const fbUser = cred.user;
+      let userRole = matchedLocal ? matchedLocal.role : "NAKES";
+      let userName = fbUser.displayName || (matchedLocal ? matchedLocal.name : identifier);
+      let userVillage = matchedLocal ? (matchedLocal.village_name || "Kokop") : "Kokop";
+      let userVillageId = matchedLocal ? (matchedLocal.village_id || 1) : 1;
+      let userPhoto = fbUser.photoURL || (matchedLocal ? matchedLocal.photoURL : null);
+
+      try {
+        if (db) {
+          const userDoc = await getDoc(doc(db, "users", fbUser.uid));
+          if (userDoc.exists()) {
+            const d = userDoc.data();
+            userRole = d.role || userRole;
+            userName = d.name || userName;
+            userVillage = d.village_name || userVillage;
+            userVillageId = d.village_id || userVillageId;
+            userPhoto = d.photoURL || userPhoto;
+          } else if (matchedLocal) {
+            // Sinkronkan dokumen profil user ke Firestore
+            await setDoc(doc(db, "users", fbUser.uid), {
+              id: fbUser.uid,
+              name: matchedLocal.name,
+              role: matchedLocal.role,
+              phone: matchedLocal.phone,
+              email: fbUser.email,
+              village_name: userVillage,
+              village_id: userVillageId,
+              photoURL: userPhoto
+            }, { merge: true });
+          }
+        }
+      } catch (err) {
+        console.warn("User profile fetch:", err);
+      }
+
+      const token = await fbUser.getIdToken();
+      const userObj = {
+        id: fbUser.uid,
+        name: userName,
+        phone: matchedLocal ? matchedLocal.phone : identifier,
+        email: fbUser.email,
+        role: userRole,
+        village_name: userVillage,
+        village_id: userVillageId,
+        photoURL: userPhoto
+      };
+      return { success: true, message: "Login Firebase Auth berhasil.", data: { token, user: userObj } };
+    } catch (authErr) {
+      console.warn("Firebase Auth signIn:", authErr.code);
+
+      // Jika akun belum terdaftar di Firebase Auth (user-not-found atau invalid-credential di v10+)
+      if (authErr.code === "auth/user-not-found" || authErr.code === "auth/invalid-credential" || authErr.code === "auth/invalid-email") {
+        if (matchedLocal) {
+          try {
+            // Daftarkan akun pilar resmi ke Firebase Auth secara otomatis (Zero Setup)
+            const newCred = await createUserWithEmailAndPassword(auth, emailToAuth, password);
+            if (newCred && newCred.user) {
+              const fbUser = newCred.user;
+              await updateProfile(fbUser, { displayName: matchedLocal.name });
+              if (db) {
+                await setDoc(doc(db, "users", fbUser.uid), {
+                  id: fbUser.uid,
+                  name: matchedLocal.name,
+                  role: matchedLocal.role,
+                  phone: matchedLocal.phone,
+                  email: fbUser.email,
+                  village_name: matchedLocal.village_name || "Kokop",
+                  village_id: matchedLocal.village_id || 1,
+                  photoURL: matchedLocal.photoURL || null
+                }, { merge: true });
+              }
+              const token = await fbUser.getIdToken();
+              return { success: true, message: "Akun resmi tersinkronkan ke Firebase Cloud Auth.", data: { token, user: { ...matchedLocal, id: fbUser.uid } } };
+            }
+          } catch (createErr) {
+            console.warn("Auto-register to Firebase Auth fallback:", createErr.code);
+            // Jika kata sandi salah saat mencoba pendaftaran yang sudah ada
+            if (createErr.code === "auth/email-already-in-use") {
+              return { success: false, message: "Kata sandi salah. Silakan periksa kembali." };
+            }
+          }
+        }
+      } else if (authErr.code === "auth/wrong-password") {
+        return { success: false, message: "Kata sandi salah. Silakan periksa kembali." };
+      }
+    }
   }
+
+  // Fallback ke penyimpanan lokal faskes (resiliensi offline)
+  if (!matchedLocal) {
+    return { success: false, message: "Nomor WhatsApp atau Email belum terdaftar di sistem faskes." };
+  }
+
   const token = "token_" + Math.random().toString(36).substring(2) + Date.now();
-  return { success: true, message: "Login berhasil.", data: { token, user } };
+  return { success: true, message: "Login berhasil.", data: { token, user: matchedLocal } };
+}
+
+export async function requestPasswordReset(identifier) {
+  const users = getLocalStore("users", DEFAULT_SEED.users);
+  const cleanId = (identifier || '').replace(/\D/g, '');
+  const user = users.find(u => {
+    const uPhone = (u.phone || '').replace(/\D/g, '');
+    const uEmail = (u.email || '').toLowerCase();
+    return (cleanId && uPhone === cleanId) || (uEmail && uEmail === (identifier || '').toLowerCase());
+  });
+
+  // Eksekusi sendPasswordResetEmail jika Firebase Auth aktif dan format email valid
+  let firebaseEmailSent = false;
+  if (isFirebaseActive && auth) {
+    const targetEmail = (identifier || '').includes('@') ? identifier : (user && user.email ? user.email : null);
+    if (targetEmail) {
+      try {
+        await sendPasswordResetEmail(auth, targetEmail);
+        firebaseEmailSent = true;
+        console.log("📧 [Firebase Auth] Email reset password terkirim ke:", targetEmail);
+      } catch (fbResetErr) {
+        console.warn("Firebase sendPasswordResetEmail:", fbResetErr);
+      }
+    }
+  }
+
+  if (!user && !firebaseEmailSent) {
+    return { success: false, message: "Kontak tersebut belum terdaftar sebagai pengguna resmi faskes." };
+  }
+
+  const ticketId = "RST-" + Math.random().toString(36).substring(2, 7).toUpperCase() + "-" + Date.now().toString().slice(-4);
+  return {
+    success: true,
+    message: firebaseEmailSent 
+      ? "Tautan reset kata sandi resmi telah dikirim ke email Anda via Firebase Auth." 
+      : "Verifikasi identitas berhasil.",
+    data: {
+      user: user || { name: identifier, role: "NAKES", phone: identifier },
+      ticketId,
+      firebaseEmailSent,
+      adminPhone: "081100000001",
+      adminName: "Administrator Puskesmas Kokop"
+    }
+  };
 }
 
 export async function getVillages() {
@@ -121,27 +293,371 @@ export async function getUsers() {
 
 export async function createUser(userData) {
   const users = getLocalStore("users", DEFAULT_SEED.users);
-  const newId = users.length + 1;
-  const newUser = { id: newId, ...userData };
+  const cleanPhone = (userData.phone || '').replace(/\D/g, '');
+  const emailToAuth = (userData.email && userData.email.includes('@')) 
+    ? userData.email 
+    : `${cleanPhone || 'user_' + Date.now()}@satengka-pasung.id`;
+  const password = userData.password || 'satengka123';
+
+  let firebaseUid = null;
+
+  // 1. Jika Firebase Auth aktif, daftarkan akun ke Cloud Firebase Authentication
+  if (isFirebaseActive && auth) {
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, emailToAuth, password);
+      if (cred && cred.user) {
+        firebaseUid = cred.user.uid;
+        await updateProfile(cred.user, { displayName: userData.name });
+        console.log("☁️ [Firebase Auth] User berhasil didaftarkan di Cloud:", cred.user.email);
+      }
+    } catch (authErr) {
+      console.warn("Firebase createUser Auth:", authErr.code, authErr.message);
+      if (authErr.code === "auth/email-already-in-use") {
+        try {
+          const signInCred = await signInWithEmailAndPassword(auth, emailToAuth, password);
+          if (signInCred && signInCred.user) firebaseUid = signInCred.user.uid;
+        } catch (e) { /* ignore */ }
+      }
+    }
+  }
+
+  const newId = firebaseUid || (users.length > 0 ? Math.max(...users.map(u => Number(u.id) || 0)) + 1 : 10);
+  const newUser = {
+    id: newId,
+    uid: firebaseUid || String(newId),
+    name: userData.name,
+    phone: userData.phone,
+    email: emailToAuth,
+    role: userData.role || "KADER",
+    village_id: userData.village_id || 1,
+    village_name: userData.village_name || "Kokop",
+    created_at: new Date().toISOString()
+  };
+
+  // 2. Simpan dokumen user ke Cloud Firestore
+  if (isFirebaseActive && db) {
+    try {
+      const docId = firebaseUid || String(newId);
+      await setDoc(doc(db, "users", docId), { ...newUser, updated_at: serverTimestamp() }, { merge: true });
+      console.log("☁️ [Firestore] Dokumen profil user tersimpan di Cloud:", docId);
+    } catch (dbErr) {
+      console.warn("Gagal simpan user ke Firestore:", dbErr);
+    }
+  }
+
+  // 3. Simpan ke local store dan picu storage event
   users.push(newUser);
   setLocalStore("users", users);
-  return { success: true, message: `Mitra ${userData.name} berhasil ditambahkan.` };
+  window.dispatchEvent(new Event("storage"));
+
+  return { success: true, message: `Mitra ${userData.name} berhasil didaftarkan ke sistem.`, data: newUser };
 }
 
-export async function getCases(userId = null, role = null) {
+export async function getCases(userId = null, role = null, villageId = null, villageName = null) {
   let cases = getLocalStore("cases", DEFAULT_SEED.cases);
-  if (userId && (role === "GURU" || role === "RATO")) {
+
+  // Jika Firestore aktif, sinkronkan kasus dari Firestore
+  if (isFirebaseActive && db) {
+    try {
+      const snap = await getDocs(collection(db, "cases"));
+      if (!snap.empty) {
+        const cloudCases = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        if (cloudCases.length > 0) {
+          cases = cloudCases;
+          setLocalStore("cases", cases);
+        }
+      }
+    } catch (e) {
+      console.warn("⚠️ Gagal mengambil kasus dari Firestore, fallback lokal:", e);
+    }
+  }
+
+  if (role === "KADER") {
+    cases = cases.filter(c => {
+      if (villageId && String(c.village_id) === String(villageId)) return true;
+      if (villageName && (c.village_name || '').trim().toLowerCase() === villageName.trim().toLowerCase()) return true;
+      if (!villageId && !villageName && userId && String(c.reporter_id) === String(userId)) return true;
+      return false;
+    });
+  } else if (userId && (role === "GURU" || role === "RATO")) {
     cases = cases.filter(c => c.participants && c.participants.some(p => String(p.user_id) === String(userId) || p.participant_role === role));
   }
   return { success: true, data: cases };
 }
 
-export async function getReports(reporterId = null) {
+export async function getReports(reporterId = null, villageId = null, role = null, villageName = null) {
   let reports = getLocalStore("reports", DEFAULT_SEED.reports);
-  if (reporterId) {
+
+  // Jika Firestore aktif, sinkronkan laporan dari Firestore
+  if (isFirebaseActive && db) {
+    try {
+      const snap = await getDocs(collection(db, "reports"));
+      if (!snap.empty) {
+        const cloudReports = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        if (cloudReports.length > 0) {
+          reports = cloudReports;
+          setLocalStore("reports", reports);
+        }
+      }
+    } catch (e) {
+      console.warn("⚠️ Gagal mengambil laporan dari Firestore, fallback lokal:", e);
+    }
+  }
+
+  if (role === "KADER") {
+    reports = reports.filter(r => {
+      if (villageId && String(r.village_id) === String(villageId)) return true;
+      if (villageName && (r.village_name || '').trim().toLowerCase() === villageName.trim().toLowerCase()) return true;
+      if (!villageId && !villageName && reporterId && String(r.reporter_id) === String(reporterId)) return true;
+      return false;
+    });
+  } else if (reporterId) {
     reports = reports.filter(r => String(r.reporter_id) === String(reporterId));
   }
   return { success: true, data: reports };
+}
+
+function filterCasesForUser(cases, filterParams = {}) {
+  const { userId = '', role = '', villageId = null, villageName = null } = filterParams;
+  let list = [...cases];
+  if (role === "KADER") {
+    list = list.filter(c => {
+      if (villageId && String(c.village_id) === String(villageId)) return true;
+      if (villageName && (c.village_name || '').trim().toLowerCase() === (villageName || '').trim().toLowerCase()) return true;
+      if (!villageId && !villageName && userId && String(c.reporter_id) === String(userId)) return true;
+      return false;
+    });
+  } else if (userId && (role === "GURU" || role === "RATO")) {
+    list = list.filter(c => c.participants && c.participants.some(p => String(p.user_id) === String(userId) || p.participant_role === role));
+  }
+  // Urutkan ID terbesar / activated_at terbaru di atas
+  return list.sort((a, b) => {
+    const timeA = new Date(a.activated_at || a.created_at || 0).getTime();
+    const timeB = new Date(b.activated_at || b.created_at || 0).getTime();
+    return timeB - timeA || (Number(b.id) || 0) - (Number(a.id) || 0);
+  });
+}
+
+function filterReportsForUser(reports, filterParams = {}) {
+  const { reporterId = null, villageId = null, role = null, villageName = null } = filterParams;
+  let list = [...reports];
+  if (role === "KADER") {
+    list = list.filter(r => {
+      if (villageId && String(r.village_id) === String(villageId)) return true;
+      if (villageName && (r.village_name || '').trim().toLowerCase() === (villageName || '').trim().toLowerCase()) return true;
+      if (!villageId && !villageName && reporterId && String(r.reporter_id) === String(reporterId)) return true;
+      return false;
+    });
+  } else if (reporterId) {
+    list = list.filter(r => String(r.reporter_id) === String(reporterId));
+  }
+  // Urutkan tanggal laporan terbaru di atas
+  return list.sort((a, b) => {
+    const timeA = new Date(a.created_at || a.report_date || 0).getTime();
+    const timeB = new Date(b.created_at || b.report_date || 0).getTime();
+    return timeB - timeA || (Number(b.id) || 0) - (Number(a.id) || 0);
+  });
+}
+
+export function subscribeCases(onUpdate, filterParams = {}) {
+  // Callback instan dengan data lokal
+  const initialCases = getLocalStore("cases", DEFAULT_SEED.cases);
+  onUpdate(filterCasesForUser(initialCases, filterParams));
+
+  let unsubscribeFirestore = null;
+  if (isFirebaseActive && db) {
+    try {
+      unsubscribeFirestore = onSnapshot(collection(db, "cases"), (snapshot) => {
+        if (!snapshot.empty) {
+          const cloudCases = snapshot.docs.map(d => {
+            const data = d.data();
+            return { ...data, id: data.id !== undefined ? data.id : d.id };
+          });
+          setLocalStore("cases", cloudCases);
+          onUpdate(filterCasesForUser(cloudCases, filterParams));
+        }
+      }, (err) => {
+        console.warn("⚠️ Firestore cases snapshot fallback:", err);
+      });
+    } catch (e) {
+      console.warn("⚠️ Error initializing Firestore onSnapshot cases:", e);
+    }
+  }
+
+  const storageListener = (e) => {
+    if (!e || !e.key || e.key === "malekkas_cases") {
+      const updated = (e && e.newValue) ? JSON.parse(e.newValue) : getLocalStore("cases", DEFAULT_SEED.cases);
+      onUpdate(filterCasesForUser(updated, filterParams));
+    }
+  };
+  window.addEventListener("storage", storageListener);
+
+  return () => {
+    if (unsubscribeFirestore) unsubscribeFirestore();
+    window.removeEventListener("storage", storageListener);
+  };
+}
+
+export function subscribeReports(onUpdate, filterParams = {}) {
+  // Callback instan dengan data lokal
+  const initialReports = getLocalStore("reports", DEFAULT_SEED.reports);
+  onUpdate(filterReportsForUser(initialReports, filterParams));
+
+  let unsubscribeFirestore = null;
+  if (isFirebaseActive && db) {
+    try {
+      unsubscribeFirestore = onSnapshot(collection(db, "reports"), (snapshot) => {
+        if (!snapshot.empty) {
+          const cloudReports = snapshot.docs.map(d => {
+            const data = d.data();
+            return { ...data, id: data.id !== undefined ? data.id : d.id };
+          });
+          setLocalStore("reports", cloudReports);
+          onUpdate(filterReportsForUser(cloudReports, filterParams));
+        }
+      }, (err) => {
+        console.warn("⚠️ Firestore reports snapshot fallback:", err);
+      });
+    } catch (e) {
+      console.warn("⚠️ Error initializing Firestore onSnapshot reports:", e);
+    }
+  }
+
+  const storageListener = (e) => {
+    if (!e || !e.key || e.key === "malekkas_reports") {
+      const updated = (e && e.newValue) ? JSON.parse(e.newValue) : getLocalStore("reports", DEFAULT_SEED.reports);
+      onUpdate(filterReportsForUser(updated, filterParams));
+    }
+  };
+  window.addEventListener("storage", storageListener);
+
+  return () => {
+    if (unsubscribeFirestore) unsubscribeFirestore();
+    window.removeEventListener("storage", storageListener);
+  };
+}
+
+export async function updateControlVisit(caseId, visitNumber, updatedData) {
+  const cases = getLocalStore("cases", DEFAULT_SEED.cases);
+  const targetCase = cases.find(c => c.id === caseId);
+  if (!targetCase) return { success: false, message: "Kasus tidak ditemukan." };
+  if (!Array.isArray(targetCase.control_history)) targetCase.control_history = [];
+  
+  const idx = targetCase.control_history.findIndex(v => Number(v.visit_number) === Number(visitNumber));
+  if (idx === -1) return { success: false, message: "Kunjungan kontrol tidak ditemukan." };
+
+  targetCase.control_history[idx] = {
+    ...targetCase.control_history[idx],
+    ...updatedData,
+    visit_number: Number(visitNumber),
+    updated_at: new Date().toISOString()
+  };
+
+  if (idx === targetCase.control_history.length - 1) {
+    if (updatedData.compliance) targetCase.drug_compliance = updatedData.compliance;
+    if (updatedData.notes) targetCase.drug_notes = updatedData.notes;
+  }
+
+  setLocalStore("cases", cases);
+  return { success: true, message: `Kunjungan Ke-${visitNumber} berhasil diperbarui.`, data: targetCase };
+}
+
+export async function deleteControlVisit(caseId, visitNumber) {
+  const cases = getLocalStore("cases", DEFAULT_SEED.cases);
+  const targetCase = cases.find(c => c.id === caseId);
+  if (!targetCase) return { success: false, message: "Kasus tidak ditemukan." };
+  if (!Array.isArray(targetCase.control_history)) return { success: false, message: "Riwayat kosong." };
+
+  targetCase.control_history = targetCase.control_history.filter(v => Number(v.visit_number) !== Number(visitNumber));
+  
+  targetCase.control_history.forEach((v, i) => {
+    v.visit_number = i + 1;
+  });
+
+  if (targetCase.control_history.length > 0) {
+    const last = targetCase.control_history[targetCase.control_history.length - 1];
+    targetCase.drug_compliance = last.compliance;
+    targetCase.drug_notes = last.notes;
+  } else {
+    targetCase.drug_compliance = "RUTIN";
+    targetCase.drug_notes = "Belum ada catatan kunjungan.";
+  }
+
+  setLocalStore("cases", cases);
+  return { success: true, message: `Kunjungan Ke-${visitNumber} berhasil dihapus.`, data: targetCase };
+}
+
+export async function createPatient(patientData) {
+  const cases = getLocalStore("cases", DEFAULT_SEED.cases);
+  const newId = cases.length > 0 ? Math.max(...cases.map(c => c.id || 0)) + 1 : 1;
+  const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,"");
+  const caseNumber = `CAS-${dateStr}-${String(newId).padStart(3, '0')}`;
+
+  const newCase = {
+    id: newId,
+    case_number: caseNumber,
+    patient_id: newId,
+    patient_name: patientData.patient_name,
+    gender: patientData.gender || "L",
+    patient_address: patientData.patient_address || "Desa Kokop",
+    village_id: patientData.village_id || 1,
+    village_name: patientData.village_name || "Kokop",
+    family_phone: patientData.family_phone || "",
+    family_name: patientData.family_name || "Keluarga Bhuppa' Bhu'",
+    priority: patientData.priority || "NORMAL",
+    status: patientData.status || "MONITORING",
+    report_type: patientData.report_type || "Pasung",
+    notes: patientData.notes || "Data pasien ditambahkan langsung oleh Petugas Nakes.",
+    drug_compliance: patientData.drug_compliance || "RUTIN",
+    drug_notes: patientData.drug_notes || "Mulai pendampingan kepatuhan obat.",
+    control_history: [],
+    participants: [
+      { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "AGREE", response_note: "Pendampingan siap" },
+      { participant_role: "RATO", name: "Klebun Kokop", phone: "081234567893", user_id: 5, response: "READY", response_note: "Pengawalan wilayah siap" }
+    ],
+    created_at: new Date().toISOString()
+  };
+
+  cases.unshift(newCase);
+  setLocalStore("cases", cases);
+  return { success: true, message: `Data pasien ${patientData.patient_name} berhasil ditambahkan.`, data: newCase };
+}
+
+export async function updatePatient(caseId, patientData) {
+  const cases = getLocalStore("cases", DEFAULT_SEED.cases);
+  const targetCase = cases.find(c => c.id === caseId);
+  if (!targetCase) return { success: false, message: "Pasien tidak ditemukan." };
+
+  if (patientData.patient_name) targetCase.patient_name = patientData.patient_name;
+  if (patientData.gender) targetCase.gender = patientData.gender;
+  if (patientData.patient_address) targetCase.patient_address = patientData.patient_address;
+  if (patientData.village_id) targetCase.village_id = patientData.village_id;
+  if (patientData.village_name) targetCase.village_name = patientData.village_name;
+  if (patientData.family_phone !== undefined) targetCase.family_phone = patientData.family_phone;
+  if (patientData.status) targetCase.status = patientData.status;
+  if (patientData.priority) targetCase.priority = patientData.priority;
+  if (patientData.notes !== undefined) targetCase.notes = patientData.notes;
+  if (patientData.drug_compliance) targetCase.drug_compliance = patientData.drug_compliance;
+
+  setLocalStore("cases", cases);
+  return { success: true, message: `Data pasien ${targetCase.patient_name} berhasil diperbarui.`, data: targetCase };
+}
+
+export async function deletePatient(caseId) {
+  let cases = getLocalStore("cases", DEFAULT_SEED.cases);
+  const targetCase = cases.find(c => c.id === caseId);
+  if (!targetCase) return { success: false, message: "Pasien tidak ditemukan." };
+
+  cases = cases.filter(c => c.id !== caseId);
+  setLocalStore("cases", cases);
+
+  let reports = getLocalStore("reports", DEFAULT_SEED.reports);
+  if (targetCase.report_id) {
+    reports = reports.filter(r => r.id !== targetCase.report_id);
+    setLocalStore("reports", reports);
+  }
+
+  return { success: true, message: `Data pasien ${targetCase.patient_name} berhasil dihapus.` };
 }
 
 export async function createReport(reportInput, currentUser) {
@@ -154,7 +670,7 @@ export async function createReport(reportInput, currentUser) {
     id: newId,
     report_number: reportNumber,
     reporter_id: currentUser ? currentUser.id : 3,
-    reporter_name: currentUser ? currentUser.name : "Siti Kader Jiwa",
+    reporter_name: currentUser ? currentUser.name : "Siti",
     reporter_phone: currentUser ? currentUser.phone : "081234567891",
     village_id: reportInput.village_id || 1,
     village_name: "Kokop",
@@ -172,6 +688,18 @@ export async function createReport(reportInput, currentUser) {
   reports.unshift(newReport);
   setLocalStore("reports", reports);
 
+  // Simpan langsung ke Cloud Firestore
+  if (isFirebaseActive && db) {
+    try {
+      const docRef = doc(db, "reports", String(newId));
+      await setDoc(docRef, { ...newReport, created_at: serverTimestamp() }, { merge: true });
+      console.log("☁️ [Firestore] Laporan baru tersimpan di Cloud:", reportNumber);
+    } catch (e) {
+      console.warn("⚠️ Gagal simpan laporan ke Firestore:", e);
+    }
+  }
+
+  window.dispatchEvent(new Event("storage"));
   return { success: true, message: "Laporan berhasil dikirim ke Puskesmas.", data: { report_id: newId, report_number: reportNumber } };
 }
 
@@ -180,8 +708,8 @@ export async function activateSiagaEws(payload, currentUser) {
   const reports = getLocalStore("reports", DEFAULT_SEED.reports);
   const users = getLocalStore("users", DEFAULT_SEED.users);
 
-  const guru = users.find(u => String(u.id) === String(payload.guru_id)) || { id: 4, name: "Kiai H. Kholil (Guru)", phone: "081234567892" };
-  const rato = users.find(u => String(u.id) === String(payload.rato_id)) || { id: 5, name: "Klebun Kokop (Rato)", phone: "081234567893" };
+  const guru = users.find(u => String(u.id) === String(payload.guru_id)) || { id: 4, name: "Kiai H. Kholil", phone: "081234567892" };
+  const rato = users.find(u => String(u.id) === String(payload.rato_id)) || { id: 5, name: "Klebun Kokop", phone: "081234567893" };
 
   let caseId = payload.case_id;
 
@@ -212,6 +740,17 @@ export async function activateSiagaEws(payload, currentUser) {
       ]
     };
     cases.unshift(newCase);
+
+    if (isFirebaseActive && db) {
+      try {
+        await setDoc(doc(db, "cases", String(caseId)), { ...newCase, updated_at: serverTimestamp() }, { merge: true });
+        if (rep) {
+          await setDoc(doc(db, "reports", String(rep.id)), { status: "VALIDATED", updated_at: serverTimestamp() }, { merge: true });
+        }
+      } catch (e) {
+        console.warn("⚠️ Gagal simpan kasus baru ke Firestore:", e);
+      }
+    }
   } else {
     const c = cases.find(item => item.id === caseId);
     if (c) {
@@ -221,11 +760,20 @@ export async function activateSiagaEws(payload, currentUser) {
         { participant_role: "GURU", name: guru.name, phone: guru.phone, user_id: guru.id, response: "PENDING" },
         { participant_role: "RATO", name: rato.name, phone: rato.phone, user_id: rato.id, response: "PENDING" }
       ];
+
+      if (isFirebaseActive && db) {
+        try {
+          await setDoc(doc(db, "cases", String(caseId)), { ...c, updated_at: serverTimestamp() }, { merge: true });
+        } catch (e) {
+          console.warn("⚠️ Gagal update kasus ke Firestore:", e);
+        }
+      }
     }
   }
 
   setLocalStore("cases", cases);
   setLocalStore("reports", reports);
+  window.dispatchEvent(new Event("storage"));
 
   return { success: true, message: "Tombol Siaga EWS Berhasil Diaktifkan!", data: { case_id: caseId } };
 }
@@ -235,28 +783,43 @@ export async function respondParticipant(caseId, userId, responseVal, note = "")
   const targetCase = cases.find(c => c.id === caseId);
   if (!targetCase) return { success: false, message: "Kasus tidak ditemukan." };
 
-  if (targetCase.participants) {
-    const p = targetCase.participants.find(item => String(item.user_id) === String(userId) || (userId === 4 && item.participant_role === "GURU") || (userId === 5 && item.participant_role === "RATO"));
-    if (p) {
-      p.response = responseVal;
-      p.response_note = note;
-    }
-  }
-
-  // Cek apakah Guru & Rato sudah setuju
   let readyCount = 0;
+  let hasAnyResponse = false;
   if (targetCase.participants) {
     targetCase.participants.forEach(p => {
-      if (p.response === "AGREE" || p.response === "READY") readyCount++;
+      if (String(p.user_id) === String(userId)) {
+        p.response = responseVal;
+        p.responded_at = new Date().toISOString();
+        if (note) p.note = note;
+      }
+      if (p.response && p.response !== "PENDING") {
+        hasAnyResponse = true;
+      }
+      if (p.response === "READY" || p.response === "SIAP" || p.response === "AGREE") {
+        readyCount++;
+      }
     });
   }
 
+  // Transisi Status Otomatis EWS Terpadu
   if (readyCount >= 2) {
     targetCase.status = "READY_FOR_EVACUATION";
+  } else if (hasAnyResponse && targetCase.status === "SIAGA") {
+    targetCase.status = "COORDINATION";
   }
 
   setLocalStore("cases", cases);
-  return { success: true, message: "Tanggapan berhasil dicatat.", data: { ready_count: readyCount } };
+
+  if (isFirebaseActive && db) {
+    try {
+      await setDoc(doc(db, "cases", String(caseId)), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
+    } catch (e) {
+      console.warn("⚠️ Gagal update respon ke Firestore:", e);
+    }
+  }
+
+  window.dispatchEvent(new Event("storage"));
+  return { success: true, message: "Tanggapan berhasil dicatat dan disinkronkan ke Puskesmas.", data: { ready_count: readyCount, status: targetCase.status } };
 }
 
 export async function updateCaseStatus(caseId, newStatus, note = "") {
@@ -265,6 +828,15 @@ export async function updateCaseStatus(caseId, newStatus, note = "") {
   if (targetCase) {
     targetCase.status = newStatus;
     setLocalStore("cases", cases);
+
+    if (isFirebaseActive && db) {
+      try {
+        await setDoc(doc(db, "cases", String(caseId)), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
+      } catch (e) {
+        console.warn("⚠️ Gagal update status kasus ke Firestore:", e);
+      }
+    }
+    window.dispatchEvent(new Event("storage"));
   }
   return { success: true, message: `Status kasus berhasil diperbarui ke: ${newStatus}` };
 }
@@ -309,4 +881,95 @@ export async function sendRealtimeMessage(caseId, messageData) {
   // Dispatch storage event ke tab lain
   window.dispatchEvent(new Event("storage"));
   return true;
+}
+
+export async function uploadUserProfilePhoto(userId, fileOrBlob) {
+  if (!userId) throw new Error("User ID wajib disertakan untuk upload foto profil.");
+
+  // Helper konversi file/blob ke dataUrl
+  const fileToDataUrl = (blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(blob);
+  });
+
+  const localDataUrl = await fileToDataUrl(fileOrBlob);
+
+  if (isFirebaseActive && storage) {
+    try {
+      const storageRef = ref(storage, `profile_photos/${userId}/avatar_${Date.now()}.webp`);
+      const snapshot = await uploadBytes(storageRef, fileOrBlob, {
+        contentType: fileOrBlob.type || "image/webp"
+      });
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      await updateUserProfile(userId, { photoURL: downloadURL });
+      return { success: true, photoURL: downloadURL, storage: "firebase" };
+    } catch (error) {
+      console.warn("⚠️ Firebase Storage CORS/Network issue. Menggunakan Cloud Firestore & Local Sync fallback:", error);
+      // Fallback: simpan foto ke dokumen user di Firestore dan Local Storage
+      await updateUserProfile(userId, { photoURL: localDataUrl });
+      return { success: true, photoURL: localDataUrl, storage: "local" };
+    }
+  }
+
+  await updateUserProfile(userId, { photoURL: localDataUrl });
+  return { success: true, photoURL: localDataUrl, storage: "local" };
+}
+
+export async function updateUserProfile(userId, updateData) {
+  if (!userId) throw new Error("User ID tidak valid.");
+
+  let users = getLocalStore("users", DEFAULT_SEED.users);
+  const userIdx = users.findIndex(u => String(u.id) === String(userId) || u.phone === String(userId));
+  if (userIdx !== -1) {
+    users[userIdx] = { ...users[userIdx], ...updateData, updated_at: new Date().toISOString() };
+    setLocalStore("users", users);
+  }
+
+  // Simpan ke dokumen user di Cloud Firestore
+  if (isFirebaseActive && db) {
+    try {
+      const userDocRef = doc(db, "users", String(userId));
+      await setDoc(userDocRef, { ...updateData, updated_at: serverTimestamp() }, { merge: true });
+      console.log("☁️ [Firestore] Profil user berhasil diperbarui di Cloud:", userId);
+    } catch (e) {
+      console.warn("⚠️ Gagal update profil di Cloud Firestore:", e);
+    }
+  }
+
+  const activeUserStr = localStorage.getItem("malekkas_user");
+  if (activeUserStr) {
+    try {
+      const activeUser = JSON.parse(activeUserStr);
+      if (String(activeUser.id) === String(userId) || activeUser.phone === String(userId)) {
+        const merged = { ...activeUser, ...updateData };
+        localStorage.setItem("malekkas_user", JSON.stringify(merged));
+      }
+    } catch (e) {}
+  }
+
+  return { success: true, data: updateData };
+}
+
+export async function getUserProfileFromCloud(userId) {
+  if (!userId) return null;
+
+  if (isFirebaseActive && db) {
+    try {
+      const userDocRef = doc(db, "users", String(userId));
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        return { success: true, data: docSnap.data() };
+      }
+    } catch (e) {
+      console.warn("⚠️ Gagal mengambil profil user dari Cloud Firestore:", e);
+    }
+  }
+
+  // Fallback ke penyimpanan lokal
+  const users = getLocalStore("users", DEFAULT_SEED.users);
+  const found = users.find(u => String(u.id) === String(userId) || u.phone === String(userId));
+  return { success: !!found, data: found || null };
 }

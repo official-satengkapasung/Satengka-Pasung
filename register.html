@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,100 +12,201 @@
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <style>
-    body { 
+    body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #17656e url('./assets/background_opt.webp') no-repeat center center fixed;
+      background: linear-gradient(180deg, rgba(16, 67, 73, 0.40) 0%, rgba(20, 88, 97, 0.35) 50%, rgba(14, 58, 64, 0.50) 100%), url('./assets/background_opt.webp') no-repeat center center fixed;
       background-size: cover;
     }
+
     .btn-satengka {
       background: linear-gradient(135deg, #2ca3ab 0%, #1f7d84 100%);
       transition: all 0.25s ease;
     }
+
     .btn-satengka:hover {
       background: linear-gradient(135deg, #34bcc6 0%, #2ca3ab 100%);
       box-shadow: 0 10px 20px -5px rgba(44, 163, 171, 0.4);
     }
-    .role-card-radio:checked + div {
-      border-color: #2ca3ab;
-      background-color: rgba(44, 163, 171, 0.08);
-      box-shadow: 0 0 0 2px #2ca3ab;
+
+    .role-card-radio:checked+div {
+      border-color: #178A91;
+      background-color: rgba(23, 138, 145, 0.08);
+      box-shadow: 0 0 0 2px #178A91;
     }
-    /* Splash Screen Styles */
+
+    .role-card-radio:checked+div .role-icon-box {
+      background-color: #178A91 !important;
+      border-color: #178A91 !important;
+      box-shadow: 0 4px 10px -2px rgba(23, 138, 145, 0.4);
+    }
+
+    .role-card-radio:checked+div .role-icon-img {
+      filter: brightness(0) invert(1);
+    }
+
+    /* Splash Screen Styles dengan Background Batik Kokop Jelas & Elegan */
     #appSplashScreen {
+      background: linear-gradient(180deg, rgba(16, 67, 73, 0.45) 0%, rgba(20, 88, 97, 0.35) 50%, rgba(14, 58, 64, 0.55) 100%), url('./assets/background_opt.webp') no-repeat center center;
+      background-size: cover;
       transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s ease;
     }
+
     #appSplashScreen.splash-hidden {
       opacity: 0 !important;
       visibility: hidden !important;
       pointer-events: none !important;
     }
-    .splash-wallpaper-mobile {
-      display: block;
-    }
-    .splash-wallpaper-desktop {
-      display: none;
-    }
-    @media (min-width: 768px) {
-      .splash-wallpaper-mobile {
-        display: none !important;
-      }
-      .splash-wallpaper-desktop {
-        display: block !important;
-      }
-    }
+
     @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.4)); }
-      50% { transform: scale(1.04); filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.85)); }
+
+      0%,
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.4));
+      }
+
+      50% {
+        transform: scale(1.04);
+        filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.85));
+      }
     }
+
     .splash-logo-pulse {
       animation: pulseGlow 2s infinite ease-in-out;
     }
+
+    @keyframes crayonPulse {
+      0%, 100% {
+        transform: scale(1) rotate(0deg);
+        filter: drop-shadow(0 0 12px rgba(163, 246, 248, 0.45));
+      }
+      50% {
+        transform: scale(1.03) rotate(1.5deg);
+        filter: drop-shadow(0 0 24px rgba(163, 246, 248, 0.8));
+      }
+    }
+
+    .splash-crayon-ring {
+      animation: crayonPulse 4s infinite ease-in-out;
+    }
+
+    .crayon-sketch-path {
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+    }
   </style>
 </head>
+
 <body class="min-h-screen flex items-center justify-center p-3 sm:p-4 text-slate-800 relative antialiased">
 
   <!-- ========================================================================= -->
-  <!-- BRAND IDENTITY SPLASH / LOADING SCREEN (PERSIS MOCKUP BRAND IDENTITY PDF) -->
+  <!-- BRAND IDENTITY SPLASH / LOADING SCREEN (RESPONSIF DESKTOP & MOBILE)        -->
   <!-- ========================================================================= -->
-  <div id="appSplashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-between text-white select-none overflow-hidden bg-[#17656e]">
-    <!-- Mobile Wallpaper (page_3_img_2.jpeg) -->
-    <img src="./assets/pdf_extracted/page_3_img_2.jpeg" alt="Satengka Pasung Splash Screen" class="splash-wallpaper-mobile absolute inset-0 w-full h-full object-cover pointer-events-none">
-    <!-- Desktop Wallpaper (page_2_img_3.jpeg) -->
-    <img src="./assets/pdf_extracted/page_2_img_3.jpeg" alt="Satengka Pasung Splash Screen Desktop" class="splash-wallpaper-desktop absolute inset-0 w-full h-full object-cover pointer-events-none">
-
+  <div id="appSplashScreen"
+    class="fixed inset-0 z-[9999] flex flex-col items-center justify-between text-white select-none overflow-hidden p-6">
     <!-- Top Spacer -->
-    <div class="h-10 relative z-10"></div>
+    <div class="h-6 relative z-10"></div>
 
-    <!-- Center Invisible Spacer to balance layout -->
-    <div class="relative z-10"></div>
+    <!-- Center Responsive Branding Container -->
+    <div
+      class="relative z-10 flex flex-col items-center justify-center text-center space-y-4 max-w-sm sm:max-w-md w-full my-auto px-4">
+      <!-- Animated Logo with Flexible Crayon Sketch Ring -->
+      <div class="relative w-28 h-28 md:w-32 md:h-32 flex items-center justify-center splash-crayon-ring">
+        <!-- SVG Crayon Hand-Drawn Outline Ring -->
+        <svg class="absolute -inset-2 w-[calc(100%+16px)] h-[calc(100%+16px)] pointer-events-none" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M65 8 C97 6, 122 31, 121 65 C120 99, 98 122, 64 121 C30 120, 8 96, 9 65 C10 32, 34 10, 65 8 Z" 
+                stroke="#a3f6f8" stroke-width="3.2" stroke-dasharray="16 7 24 5 12 6" class="crayon-sketch-path" opacity="0.95" />
+          <path d="M63 11 C93 10, 118 34, 117 66 C116 96, 94 118, 66 117 C34 116, 12 94, 13 63 C14 34, 34 12, 63 11 Z" 
+                stroke="#ffffff" stroke-width="2" stroke-dasharray="8 6 18 5 10 7" class="crayon-sketch-path" opacity="0.85" />
+          <path d="M66 6 C100 5, 124 33, 123 68 C122 100, 99 124, 63 123 C27 122, 6 99, 7 66 C8 30, 32 7, 66 6 Z" 
+                stroke="#2ca3ab" stroke-width="1.6" stroke-dasharray="6 8 14 6" class="crayon-sketch-path" opacity="0.6" />
+        </svg>
+
+        <!-- Wadah Fleksibel Logo (Fluid Organic Blob Glassmorphism) -->
+        <div class="w-22 h-22 md:w-26 md:h-26 p-3.5 bg-[#145861]/70 border border-[#a3f6f8]/30 backdrop-blur-md flex items-center justify-center shadow-2xl transition-transform duration-300 hover:scale-105"
+             style="border-radius: 54% 46% 62% 38% / 48% 58% 42% 52%;">
+          <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" class="w-full h-full object-contain filter drop-shadow">
+        </div>
+      </div>
+      <div>
+        <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight uppercase drop-shadow-md">SATENGKA PASUNG
+        </h1>
+        <p class="text-xs md:text-sm font-bold text-[#a3f6f8] tracking-widest uppercase mt-0.5 drop-shadow">BHUPPA’ BHU’
+          GHURU RATO’</p>
+        <p
+          class="text-[11px] md:text-xs text-slate-200/90 font-medium mt-2 leading-relaxed max-w-xs mx-auto drop-shadow-xs">
+          Sistem Komunikasi Terapeutik, Peringatan Dini, & Evakuasi Pasung Terintegrasi
+        </p>
+      </div>
+    </div>
 
     <!-- Bottom Indicator: Elegant Loading Bar & Status -->
-    <div class="relative z-10 w-full pb-8 flex flex-col items-center space-y-2.5 px-6">
-      <div class="w-48 h-1 bg-black/25 rounded-full overflow-hidden backdrop-blur-sm border border-white/20">
-        <div class="h-full bg-gradient-to-r from-[#a3f6f8] to-white rounded-full animate-[pulse_1.5s_ease-in-out_infinite] w-3/4"></div>
+    <div class="relative z-10 w-full pb-6 md:pb-8 flex flex-col items-center space-y-2.5 px-6">
+      <div class="w-48 md:w-56 h-1.5 bg-black/30 rounded-full overflow-hidden backdrop-blur-sm border border-white/20">
+        <div
+          class="h-full bg-gradient-to-r from-[#a3f6f8] to-white rounded-full animate-[pulse_1.5s_ease-in-out_infinite] w-3/4">
+        </div>
       </div>
-      <p class="text-[11px] text-[#a3f6f8]/90 font-medium tracking-wider uppercase drop-shadow">
+      <p class="text-[11px] text-[#a3f6f8] font-semibold tracking-wider uppercase drop-shadow">
         Puskesmas Kokop Bangkalan
       </p>
     </div>
   </div>
 
-  <!-- OVERLAY GRADASI MOTIF TANJUNG BUMI (OLD TOSCA KE LIGHT CYAN) -->
-  <div class="fixed inset-0 bg-gradient-to-b from-[#134e54]/80 via-[#1a646c]/70 to-[#2ca3ab]/80 pointer-events-none"></div>
+  <!-- OVERLAY GRADASI MOTIF TANJUNG BUMI TRANSLUCENT AGAR MOTIF BATIK JELAS -->
+  <div class="fixed inset-0 bg-slate-900/15 backdrop-blur-[0.5px] pointer-events-none z-0">
+  </div>
 
   <!-- CONTAINER FORM REGISTRASI MANDIRI -->
-  <div class="max-w-[480px] w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/60 shadow-2xl overflow-hidden p-6 sm:p-8 space-y-4 relative z-10 my-4">
-    
-    <!-- BRANDING LOGO & HEADER -->
-    <div class="text-center space-y-1.5 pt-1">
-      <div class="w-20 h-20 mx-auto relative flex items-center justify-center filter drop-shadow-md">
-        <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" class="w-full h-full object-contain">
+  <div
+    class="max-w-[480px] w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/60 shadow-2xl overflow-hidden p-6 sm:p-8 space-y-4 relative z-10 my-4">
+
+    <!-- BRANDING LOGO DENGAN RING CRAYON SKETSA FLEKSIBEL & BACKGROUND BULAT #145861 -->
+    <div class="text-center space-y-2 pt-1">
+      <!-- Logo dengan Ring Crayon Sketsa Fleksibel & Background Bulat Deep Teal #145861 -->
+      <div class="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto flex items-center justify-center">
+        <!-- SVG Ring Outline Krayon Fleksibel & Background Bulat Inline Palet #145861 -->
+        <svg class="absolute inset-0 w-full h-full pointer-events-none drop-shadow-md" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Palet Warna Inline Background Deep Teal Satengka (#145861) -->
+            <linearGradient id="regInlineTealBg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#186a75" />
+              <stop offset="45%" stop-color="#145861" />
+              <stop offset="100%" stop-color="#0f444c" />
+            </linearGradient>
+          </defs>
+
+          <!-- Background Bulat Berwarna Palet #145861 Mengikuti Garis Outline Krayon -->
+          <path d="M65 8 C97 6, 122 31, 121 65 C120 99, 98 122, 64 121 C30 120, 8 96, 9 65 C10 32, 34 10, 65 8 Z" 
+                fill="url(#regInlineTealBg)" style="background-color: #145861;" />
+
+          <!-- Goresan Krayon Utama (Light Tosca #a3f6f8 dengan Tekstur Sketsa Organik) -->
+          <path d="M65 8 C97 6, 122 31, 121 65 C120 99, 98 122, 64 121 C30 120, 8 96, 9 65 C10 32, 34 10, 65 8 Z" 
+                stroke="#a3f6f8" stroke-width="3.2" stroke-dasharray="16 7 24 5 12 6" class="crayon-sketch-path" opacity="0.95" />
+          
+          <!-- Goresan Krayon Kedua (Chalk White Lembut, Aksen Highlight Berdimensi) -->
+          <path d="M63 11 C93 10, 118 34, 117 66 C116 96, 94 118, 66 117 C34 116, 12 94, 13 63 C14 34, 34 12, 63 11 Z" 
+                stroke="#ffffff" stroke-width="2" stroke-dasharray="8 6 18 5 10 7" class="crayon-sketch-path" opacity="0.9" />
+          
+          <!-- Goresan Krayon Aksen (Tosca Medium #2ca3ab untuk Efek Kedalaman) -->
+          <path d="M66 6 C100 5, 124 33, 123 68 C122 100, 99 124, 63 123 C27 122, 6 99, 7 66 C8 30, 32 7, 66 6 Z" 
+                stroke="#2ca3ab" stroke-width="1.6" stroke-dasharray="6 8 14 6" class="crayon-sketch-path" opacity="0.75" />
+        </svg>
+
+        <!-- Logo SATENGKA PASUNG di Atas Background Bulat Deep Teal #145861 -->
+        <div class="relative z-10 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-1 transition-transform transform hover:scale-105 duration-300">
+          <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" 
+            class="w-full h-full object-contain filter drop-shadow">
+        </div>
       </div>
       <div>
-        <h1 class="text-xl sm:text-2xl font-black text-[#17656e] tracking-tight uppercase">DAFTAR AKUN MANDIRI</h1>
-        <p class="text-[10px] sm:text-[11px] font-bold text-[#2ca3ab] uppercase tracking-wider">SATENGKA PASUNG (BHUPPA’ BHU’ GHURU RATO’)</p>
+        <h1 class="text-xl sm:text-2xl font-black text-[#145861] tracking-tight uppercase">DAFTAR AKUN MANDIRI</h1>
+        <p class="text-[10px] sm:text-[11px] font-bold text-[#2ca3ab] uppercase tracking-wider">SATENGKA PASUNG (BHUPPA’
+          BHU’ GHURU RATO’)</p>
         <p class="text-[11px] text-slate-500 font-medium mt-0.5 leading-snug">
           Kemitraan Terpadu Kesehatan Jiwa & Evakuasi Pasung Puskesmas Kokop
         </p>
@@ -116,12 +218,12 @@
 
     <!-- FORM PENDAFTARAN -->
     <form id="formRegister" onsubmit="handleSelfRegister(event)" class="space-y-3.5 text-xs">
-      
+
       <!-- 1. NAMA LENGKAP -->
       <div>
         <label class="block font-semibold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
         <div class="relative">
-          <input type="text" id="regFullName" required placeholder="Contoh: Siti Aisyah, S.Kep / Kiai Ahmad" 
+          <input type="text" id="regFullName" required placeholder="Contoh: Siti Aisyah, S.Kep / Kiai Ahmad"
             class="w-full pl-9 pr-3 py-2.5 sm:py-3 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] focus:ring-2 focus:ring-[#2ca3ab]/20 outline-none transition font-medium">
           <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400"></i>
         </div>
@@ -131,60 +233,48 @@
       <div>
         <label class="block font-semibold text-slate-700 mb-1.5">Pilih Peran Pilar Anda</label>
         <div class="grid grid-cols-2 gap-2 text-left">
-          
-          <!-- KADER -->
-          <label class="cursor-pointer">
+
+          <!-- 1. BHUPA' -->
+          <label class="cursor-pointer group">
             <input type="radio" name="regRole" value="KADER" checked class="hidden role-card-radio">
-            <div class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2ca3ab] transition">
-              <div class="flex items-center space-x-2">
-                <span class="text-base">🤝</span>
-                <div>
-                  <p class="font-bold text-slate-800 text-[11px]">Kader Jiwa</p>
-                  <p class="text-[9px] text-slate-500">Pendamping Warga</p>
-                </div>
+            <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
+              <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
+                <img src="./assets/icons/role_bhupa.png" alt="Bhupa'" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
+              <p class="font-bold text-slate-800 text-xs sm:text-sm">Bhupa'</p>
             </div>
           </label>
 
-          <!-- GURU / KIAI -->
-          <label class="cursor-pointer">
+          <!-- 2. BHU' GHURU -->
+          <label class="cursor-pointer group">
             <input type="radio" name="regRole" value="GURU" class="hidden role-card-radio">
-            <div class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2ca3ab] transition">
-              <div class="flex items-center space-x-2">
-                <span class="text-base">🕌</span>
-                <div>
-                  <p class="font-bold text-slate-800 text-[11px]">Guru / Kiai</p>
-                  <p class="text-[9px] text-slate-500">Tokoh Agama BGR</p>
-                </div>
+            <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
+              <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
+                <img src="./assets/icons/role_bhu-ghuru.png" alt="Bhu' Ghuru" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
+              <p class="font-bold text-slate-800 text-xs sm:text-sm">Bhu' Ghuru</p>
             </div>
           </label>
 
-          <!-- RATO / KEPALA DESA -->
-          <label class="cursor-pointer">
+          <!-- 3. RATO -->
+          <label class="cursor-pointer group">
             <input type="radio" name="regRole" value="RATO" class="hidden role-card-radio">
-            <div class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2ca3ab] transition">
-              <div class="flex items-center space-x-2">
-                <span class="text-base">🛡️</span>
-                <div>
-                  <p class="font-bold text-slate-800 text-[11px]">Rato / Kades</p>
-                  <p class="text-[9px] text-slate-500">Pemerintah Desa</p>
-                </div>
+            <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
+              <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
+                <img src="./assets/icons/role_rato.png" alt="Rato" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
+              <p class="font-bold text-slate-800 text-xs sm:text-sm">Rato</p>
             </div>
           </label>
 
-          <!-- NAKES PUSKESMAS -->
-          <label class="cursor-pointer">
+          <!-- 4. NAKES -->
+          <label class="cursor-pointer group">
             <input type="radio" name="regRole" value="NAKES" class="hidden role-card-radio">
-            <div class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2ca3ab] transition">
-              <div class="flex items-center space-x-2">
-                <span class="text-base">👨‍⚕️</span>
-                <div>
-                  <p class="font-bold text-slate-800 text-[11px]">Nakes / Faskes</p>
-                  <p class="text-[9px] text-slate-500">Petugas Medis</p>
-                </div>
+            <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
+              <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
+                <img src="./assets/icons/role_nakes.png" alt="Nakes" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
+              <p class="font-bold text-slate-800 text-xs sm:text-sm">Nakes</p>
             </div>
           </label>
 
@@ -199,14 +289,16 @@
             class="w-full pl-9 pr-3 py-2.5 sm:py-3 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] focus:ring-2 focus:ring-[#2ca3ab]/20 outline-none transition font-medium">
           <i class="fa-brands fa-whatsapp absolute left-3 top-3 text-emerald-600 text-sm"></i>
         </div>
-        <p class="text-[10px] text-slate-400 mt-0.5">Digunakan sebagai username saat login dan nomor notifikasi darurat.</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">Digunakan sebagai username saat login dan nomor notifikasi darurat.
+        </p>
       </div>
 
       <!-- 4. WILAYAH DESA -->
       <div>
         <label class="block font-semibold text-slate-700 mb-1">Wilayah Desa di Kec. Kokop</label>
         <div class="relative">
-          <select id="regVillage" required class="w-full pl-9 pr-3 py-2.5 sm:py-3 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] outline-none transition font-medium text-xs">
+          <select id="regVillage" required
+            class="w-full pl-9 pr-3 py-2.5 sm:py-3 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] outline-none transition font-medium text-xs">
             <option value="1">Kokop</option>
             <option value="2">Amparaan</option>
             <option value="3">Bandang Laok</option>
@@ -232,7 +324,8 @@
           <div class="relative">
             <input type="password" id="regPassword" required placeholder="Minimal 6 karakter" minlength="6"
               class="w-full pl-3 pr-8 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] outline-none transition font-medium">
-            <button type="button" onclick="togglePasswordVisibility('regPassword', 'eyeIcon1')" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600">
+            <button type="button" onclick="togglePasswordVisibility('regPassword', 'eyeIcon1')"
+              class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600">
               <i class="fa-solid fa-eye text-[11px]" id="eyeIcon1"></i>
             </button>
           </div>
@@ -242,7 +335,8 @@
           <div class="relative">
             <input type="password" id="regConfirmPassword" required placeholder="Ulangi sandi" minlength="6"
               class="w-full pl-3 pr-8 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] outline-none transition font-medium">
-            <button type="button" onclick="togglePasswordVisibility('regConfirmPassword', 'eyeIcon2')" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600">
+            <button type="button" onclick="togglePasswordVisibility('regConfirmPassword', 'eyeIcon2')"
+              class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600">
               <i class="fa-solid fa-eye text-[11px]" id="eyeIcon2"></i>
             </button>
           </div>
@@ -267,7 +361,8 @@
     </form>
 
     <!-- TOMBOL INSTALL PWA PROMINENT (JIKA BELUM TERINSTALL) -->
-    <div id="pwaInstallBanner" class="hidden p-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-[#a3f6f8]/20 border border-[#2ca3ab]/30 flex items-center justify-between">
+    <div id="pwaInstallBanner"
+      class="hidden p-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-[#a3f6f8]/20 border border-[#2ca3ab]/30 flex items-center justify-between">
       <div class="flex items-center space-x-2.5">
         <div class="w-8 h-8 rounded-xl bg-[#2ca3ab] text-white flex items-center justify-center text-sm shadow">
           <i class="fa-solid fa-download"></i>
@@ -277,7 +372,8 @@
           <p class="text-[10px] text-slate-500">Akses cepat offline di layar utama HP</p>
         </div>
       </div>
-      <button type="button" onclick="triggerPwaInstall()" class="px-3 py-1.5 rounded-xl bg-[#2ca3ab] hover:bg-[#1f7d84] text-white font-bold text-xs shadow transition">
+      <button type="button" onclick="triggerPwaInstall()"
+        class="px-3 py-1.5 rounded-xl bg-[#2ca3ab] hover:bg-[#1f7d84] text-white font-bold text-xs shadow transition">
         Install
       </button>
     </div>
@@ -300,6 +396,9 @@
     // Inisialisasi daftar desa dari data engine jika tersedia
     document.addEventListener('DOMContentLoaded', async () => {
       try {
+        if (window.firebaseReadyPromise) {
+          await window.firebaseReadyPromise;
+        }
         if (window.firebaseAdapter && window.firebaseAdapter.getVillages) {
           const res = await window.firebaseAdapter.getVillages();
           if (res.success && res.data && res.data.length > 0) {
@@ -326,7 +425,7 @@
 
     function showAlert(msg, isError = true) {
       const box = document.getElementById('alertBox');
-      box.className = isError 
+      box.className = isError
         ? 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-red-50 text-red-700 border border-red-200'
         : 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-emerald-50 text-emerald-700 border border-emerald-200';
       box.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i><span>${msg}</span>`;
@@ -335,6 +434,9 @@
 
     async function handleSelfRegister(e) {
       e.preventDefault();
+      if (window.firebaseReadyPromise) {
+        await window.firebaseReadyPromise;
+      }
       const name = document.getElementById('regFullName').value.trim();
       const role = document.querySelector('input[name="regRole"]:checked')?.value || 'KADER';
       const phone = document.getElementById('regPhone').value.trim();
@@ -359,7 +461,8 @@
         const existingUsers = JSON.parse(localStorage.getItem('malekkas_users') || '[]');
         const duplicate = existingUsers.find(u => u.phone === phone);
         if (duplicate) {
-          showAlert(`Nomor ${phone} sudah terdaftar sebagai ${duplicate.role} (${duplicate.name}). Silakan masuk langsung.`);
+          const roleDisplay = duplicate.role === 'KADER' ? "Bhupa'" : (duplicate.role === 'GURU' ? "Bhu' Ghuru" : (duplicate.role === 'RATO' ? 'Rato' : 'Nakes'));
+          showAlert(`Nomor ${phone} sudah terdaftar sebagai ${roleDisplay} (${duplicate.name}). Silakan masuk langsung.`);
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-user-plus mr-2"></i><span>Daftar Sekarang & Masuk</span>';
           return;
@@ -449,5 +552,25 @@
       dismissSplashScreen(1400);
     });
   </script>
+  <script src="./js/malekkas-engine.js"></script>
+  <script type="module">
+    // Sinkronkan Firebase Auth Cloud jika diakses via Web Server / Firebase Hosting (HTTP/HTTPS)
+    window.firebaseReadyPromise = (async () => {
+      if (window.location.protocol.startsWith('http')) {
+        try {
+          const fbModule = await import('./js/firebase-adapter.js');
+          if (fbModule) {
+            window.firebaseAdapter = Object.assign(window.firebaseAdapter || {}, fbModule);
+            console.log("🔥 [SATENGKA PASUNG] Firebase Cloud Auth & Adapter aktif di Halaman Register!");
+            return fbModule;
+          }
+        } catch (err) {
+          console.warn("⚠️ Firebase Auth Cloud module fallback:", err);
+        }
+      }
+      return null;
+    })();
+  </script>
 </body>
+
 </html>

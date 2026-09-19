@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,94 +12,179 @@
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <style>
-    body { 
+    body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #17656e url('./assets/background_opt.webp') no-repeat center center fixed;
+      background: linear-gradient(180deg, rgba(16, 67, 73, 0.40) 0%, rgba(20, 88, 97, 0.35) 50%, rgba(14, 58, 64, 0.50) 100%), url('./assets/background_opt.webp') no-repeat center center fixed;
       background-size: cover;
     }
+
     .btn-satengka {
       background: linear-gradient(135deg, #2ca3ab 0%, #1f7d84 100%);
       transition: all 0.25s ease;
     }
+
     .btn-satengka:hover {
       background: linear-gradient(135deg, #34bcc6 0%, #2ca3ab 100%);
       box-shadow: 0 10px 20px -5px rgba(44, 163, 171, 0.4);
     }
-    /* Splash Screen Styles */
+
+    /* Splash Screen Styles dengan Background Batik Kokop Jelas & Elegan */
     #appSplashScreen {
+      background: linear-gradient(180deg, rgba(16, 67, 73, 0.45) 0%, rgba(20, 88, 97, 0.35) 50%, rgba(14, 58, 64, 0.55) 100%), url('./assets/background_opt.webp') no-repeat center center;
+      background-size: cover;
       transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s ease;
     }
+
     #appSplashScreen.splash-hidden {
       opacity: 0 !important;
       visibility: hidden !important;
       pointer-events: none !important;
     }
-    .splash-wallpaper-mobile {
-      display: block;
-    }
-    .splash-wallpaper-desktop {
-      display: none;
-    }
-    @media (min-width: 768px) {
-      .splash-wallpaper-mobile {
-        display: none !important;
-      }
-      .splash-wallpaper-desktop {
-        display: block !important;
-      }
-    }
+
     @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.4)); }
-      50% { transform: scale(1.04); filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.85)); }
+      0%,
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.4));
+      }
+
+      50% {
+        transform: scale(1.04);
+        filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.85));
+      }
     }
+
     .splash-logo-pulse {
       animation: pulseGlow 2s infinite ease-in-out;
     }
+
+    @keyframes crayonPulse {
+      0%, 100% {
+        transform: scale(1) rotate(0deg);
+        filter: drop-shadow(0 0 12px rgba(163, 246, 248, 0.45));
+      }
+      50% {
+        transform: scale(1.03) rotate(1.5deg);
+        filter: drop-shadow(0 0 24px rgba(163, 246, 248, 0.8));
+      }
+    }
+    .splash-crayon-ring {
+      animation: crayonPulse 4s infinite ease-in-out;
+    }
+    .crayon-sketch-path {
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+    }
   </style>
 </head>
+
 <body class="min-h-screen flex items-center justify-center p-4 text-slate-800 relative">
 
   <!-- ========================================================================= -->
-  <!-- BRAND IDENTITY SPLASH / LOADING SCREEN (PERSIS MOCKUP BRAND IDENTITY PDF) -->
+  <!-- BRAND IDENTITY SPLASH / LOADING SCREEN (RESPONSIF DESKTOP & MOBILE)        -->
   <!-- ========================================================================= -->
-  <div id="appSplashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-between text-white select-none overflow-hidden bg-[#17656e]">
-    <!-- Mobile Wallpaper (page_3_img_2.jpeg) -->
-    <img src="./assets/pdf_extracted/page_3_img_2.jpeg" alt="Satengka Pasung Splash Screen" class="splash-wallpaper-mobile absolute inset-0 w-full h-full object-cover pointer-events-none">
-    <!-- Desktop Wallpaper (page_2_img_3.jpeg) -->
-    <img src="./assets/pdf_extracted/page_2_img_3.jpeg" alt="Satengka Pasung Splash Screen Desktop" class="splash-wallpaper-desktop absolute inset-0 w-full h-full object-cover pointer-events-none">
-
+  <div id="appSplashScreen"
+    class="fixed inset-0 z-[9999] flex flex-col items-center justify-between text-white select-none overflow-hidden p-6">
     <!-- Top Spacer -->
-    <div class="h-10 relative z-10"></div>
+    <div class="h-6 relative z-10"></div>
 
-    <!-- Center Invisible Spacer to balance layout -->
-    <div class="relative z-10"></div>
+    <!-- Center Responsive Branding Container -->
+    <div
+      class="relative z-10 flex flex-col items-center justify-center text-center space-y-4 max-w-sm sm:max-w-md w-full my-auto px-4">
+      <!-- Animated Logo with Flexible Crayon Sketch Ring -->
+      <div class="relative w-28 h-28 md:w-32 md:h-32 flex items-center justify-center splash-crayon-ring">
+        <!-- SVG Crayon Hand-Drawn Outline Ring -->
+        <svg class="absolute -inset-2 w-[calc(100%+16px)] h-[calc(100%+16px)] pointer-events-none" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M65 8 C97 6, 122 31, 121 65 C120 99, 98 122, 64 121 C30 120, 8 96, 9 65 C10 32, 34 10, 65 8 Z" 
+                stroke="#a3f6f8" stroke-width="3.2" stroke-dasharray="16 7 24 5 12 6" class="crayon-sketch-path" opacity="0.95" />
+          <path d="M63 11 C93 10, 118 34, 117 66 C116 96, 94 118, 66 117 C34 116, 12 94, 13 63 C14 34, 34 12, 63 11 Z" 
+                stroke="#ffffff" stroke-width="2" stroke-dasharray="8 6 18 5 10 7" class="crayon-sketch-path" opacity="0.85" />
+          <path d="M66 6 C100 5, 124 33, 123 68 C122 100, 99 124, 63 123 C27 122, 6 99, 7 66 C8 30, 32 7, 66 6 Z" 
+                stroke="#2ca3ab" stroke-width="1.6" stroke-dasharray="6 8 14 6" class="crayon-sketch-path" opacity="0.6" />
+        </svg>
+
+        <!-- Wadah Fleksibel Logo (Fluid Organic Blob Glassmorphism) -->
+        <div class="w-22 h-22 md:w-26 md:h-26 p-3.5 bg-[#145861]/70 border border-[#a3f6f8]/30 backdrop-blur-md flex items-center justify-center shadow-2xl transition-transform duration-300 hover:scale-105"
+             style="border-radius: 54% 46% 62% 38% / 48% 58% 42% 52%;">
+          <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" class="w-full h-full object-contain filter drop-shadow">
+        </div>
+      </div>
+      <div>
+        <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight uppercase drop-shadow-md">SATENGKA PASUNG
+        </h1>
+        <p class="text-xs md:text-sm font-bold text-[#a3f6f8] tracking-widest uppercase mt-0.5 drop-shadow">BHUPPA’ BHU’
+          GHURU RATO’</p>
+        <p
+          class="text-[11px] md:text-xs text-slate-200/90 font-medium mt-2 leading-relaxed max-w-xs mx-auto drop-shadow-xs">
+          Sistem Komunikasi Terapeutik, Peringatan Dini, & Evakuasi Pasung Terintegrasi
+        </p>
+      </div>
+    </div>
 
     <!-- Bottom Indicator: Elegant Loading Bar & Status -->
-    <div class="relative z-10 w-full pb-8 flex flex-col items-center space-y-2.5 px-6">
-      <div class="w-48 h-1 bg-black/25 rounded-full overflow-hidden backdrop-blur-sm border border-white/20">
-        <div class="h-full bg-gradient-to-r from-[#a3f6f8] to-white rounded-full animate-[pulse_1.5s_ease-in-out_infinite] w-3/4"></div>
+    <div class="relative z-10 w-full pb-6 md:pb-8 flex flex-col items-center space-y-2.5 px-6">
+      <div class="w-48 md:w-56 h-1.5 bg-black/30 rounded-full overflow-hidden backdrop-blur-sm border border-white/20">
+        <div
+          class="h-full bg-gradient-to-r from-[#a3f6f8] to-white rounded-full animate-[pulse_1.5s_ease-in-out_infinite] w-3/4">
+        </div>
       </div>
-      <p class="text-[11px] text-[#a3f6f8]/90 font-medium tracking-wider uppercase drop-shadow">
+      <p class="text-[11px] text-[#a3f6f8] font-semibold tracking-wider uppercase drop-shadow">
         Puskesmas Kokop Bangkalan
       </p>
     </div>
   </div>
 
-  <!-- OVERLAY GRADASI MOTIF TANJUNG BUMI (OLD TOSCA #2ca3ab KE LIGHT CYAN #a3f6f8) -->
-  <div class="fixed inset-0 bg-gradient-to-b from-[#134e54]/80 via-[#1a646c]/70 to-[#2ca3ab]/80 pointer-events-none"></div>
+  <!-- OVERLAY GRADASI MOTIF TANJUNG BUMI TRANSLUCENT AGAR MOTIF BATIK JELAS -->
+  <div class="fixed inset-0 bg-slate-900/15 backdrop-blur-[0.5px] pointer-events-none z-0">
+  </div>
 
-  <div class="max-w-[440px] w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/60 shadow-2xl overflow-hidden p-7 md:p-8 space-y-5 relative z-10">
-    
-    <!-- BRANDING LOGO RESMI PERSIS MOCKUP BRAND IDENTITY PDF -->
-    <div class="text-center space-y-2 pt-1">
-      <!-- Logo 3D 4-Pilar & Sirine Darurat Merah -->
-      <div class="w-24 h-24 mx-auto relative flex items-center justify-center filter drop-shadow-md">
-        <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" class="w-full h-full object-contain">
+  <div
+    class="max-w-[440px] w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/60 shadow-2xl overflow-hidden p-7 md:p-8 space-y-5 relative z-10">
+
+    <!-- BRANDING LOGO RESMI DENGAN RING LINGKARAN TOSCA LIGHT BERBINGKAI -->
+    <div class="text-center space-y-2.5 pt-1">
+      <!-- Logo dengan Ring Crayon Sketsa Fleksibel & Background Bulat Deep Teal #145861 -->
+      <div class="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto flex items-center justify-center">
+        <!-- SVG Ring Outline Krayon Fleksibel & Background Bulat Inline Palet #145861 -->
+        <svg class="absolute inset-0 w-full h-full pointer-events-none drop-shadow-md" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Palet Warna Inline Background Deep Teal Satengka (#145861) -->
+            <linearGradient id="loginInlineTealBg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#186a75" />
+              <stop offset="45%" stop-color="#145861" />
+              <stop offset="100%" stop-color="#0f444c" />
+            </linearGradient>
+          </defs>
+
+          <!-- Background Bulat Berwarna Palet #145861 Mengikuti Garis Outline Krayon -->
+          <path d="M65 8 C97 6, 122 31, 121 65 C120 99, 98 122, 64 121 C30 120, 8 96, 9 65 C10 32, 34 10, 65 8 Z" 
+                fill="url(#loginInlineTealBg)" style="background-color: #145861;" />
+
+          <!-- Goresan Krayon Utama (Light Tosca #a3f6f8 dengan Tekstur Sketsa Organik) -->
+          <path d="M65 8 C97 6, 122 31, 121 65 C120 99, 98 122, 64 121 C30 120, 8 96, 9 65 C10 32, 34 10, 65 8 Z" 
+                stroke="#a3f6f8" stroke-width="3.2" stroke-dasharray="16 7 24 5 12 6" class="crayon-sketch-path" opacity="0.95" />
+          
+          <!-- Goresan Krayon Kedua (Chalk White Lembut, Aksen Highlight Berdimensi) -->
+          <path d="M63 11 C93 10, 118 34, 117 66 C116 96, 94 118, 66 117 C34 116, 12 94, 13 63 C14 34, 34 12, 63 11 Z" 
+                stroke="#ffffff" stroke-width="2" stroke-dasharray="8 6 18 5 10 7" class="crayon-sketch-path" opacity="0.9" />
+          
+          <!-- Goresan Krayon Aksen (Tosca Medium #2ca3ab untuk Efek Kedalaman) -->
+          <path d="M66 6 C100 5, 124 33, 123 68 C122 100, 99 124, 63 123 C27 122, 6 99, 7 66 C8 30, 32 7, 66 6 Z" 
+                stroke="#2ca3ab" stroke-width="1.6" stroke-dasharray="6 8 14 6" class="crayon-sketch-path" opacity="0.75" />
+        </svg>
+
+        <!-- Logo SATENGKA PASUNG di Atas Background Bulat Deep Teal #145861 -->
+        <div class="relative z-10 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-1 transition-transform transform hover:scale-105 duration-300">
+          <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" 
+               class="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+        </div>
       </div>
       <div>
-        <h1 class="text-2xl font-black text-[#17656e] tracking-tight uppercase">SATENGKA PASUNG</h1>
+        <h1 class="text-2xl font-black text-[#145861] tracking-tight uppercase">SATENGKA PASUNG</h1>
         <p class="text-[11px] font-bold text-[#2ca3ab] uppercase tracking-wider">BHUPPA’ BHU’ GHURU RATO’</p>
         <p class="text-[11px] text-slate-500 font-medium mt-1 leading-snug">
           Sistem Komunikasi Terapeutik, Peringatan Dini,<br>& Evakuasi Pasung Puskesmas Kokop
@@ -109,48 +195,52 @@
     <!-- ALERT MESSAGE -->
     <div id="alertBox" class="hidden p-3.5 rounded-2xl text-xs font-semibold flex items-center space-x-2"></div>
 
-    <!-- FORM LOGIN TUNGGAL (CERDAS ROLE) -->
+    <!-- FORM LOGIN TUNGGAL (CERDAS ROLE - TANPA PRE-FILL DUMMY) -->
     <form id="formLogin" onsubmit="handleUnifiedLogin(event)" class="space-y-3.5">
       <div>
         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Nomor WhatsApp / Username</label>
         <div class="relative">
-          <input type="text" id="loginUsername" required placeholder="08xxxxxxxxxx" value="081234567890"
-            class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] focus:ring-2 focus:ring-[#2ca3ab]/20 outline-none transition font-medium">
+          <input type="text" id="loginUsername" required placeholder="Contoh: 081234567890" value=""
+            class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50/70 focus:bg-white focus:border-[#145861] focus:ring-2 focus:ring-[#145861]/20 outline-none transition font-medium">
         </div>
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Kata Sandi</label>
         <div class="relative">
-          <input type="password" id="loginPassword" required placeholder="••••••••" value="password123"
-            class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] focus:ring-2 focus:ring-[#2ca3ab]/20 outline-none transition font-medium">
-          <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 text-xs">
+          <input type="password" id="loginPassword" required placeholder="Masukkan kata sandi Anda" value=""
+            class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50/70 focus:bg-white focus:border-[#145861] focus:ring-2 focus:ring-[#145861]/20 outline-none transition font-medium">
+          <button type="button" onclick="togglePasswordVisibility()"
+            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 text-xs">
             <i class="fa-solid fa-eye" id="eyeIcon"></i>
           </button>
         </div>
       </div>
 
       <button type="submit" id="btnSubmit"
-        class="w-full btn-satengka text-white font-bold py-3.5 rounded-xl shadow-lg shadow-[#2ca3ab]/25 transition flex items-center justify-center text-sm">
+        class="w-full btn-satengka text-white font-bold py-3.5 rounded-xl shadow-lg shadow-[#145861]/25 transition flex items-center justify-center text-sm">
         <span>Masuk ke Sistem</span>
       </button>
 
-      <!-- LINK DAFTAR AKUN MANDIRI & LUPA PASSWORD -->
+      <!-- LINK DAFTAR AKUN MANDIRI & LUPA PASSWORD INTERAKTIF -->
       <div class="flex items-center justify-between pt-1 px-1 text-xs">
-        <a href="register.html" class="text-[#2ca3ab] hover:text-[#17656e] font-bold hover:underline flex items-center space-x-1">
+        <a href="register.html"
+          class="text-[#2ca3ab] hover:text-[#145861] font-bold hover:underline flex items-center space-x-1">
           <i class="fa-solid fa-user-plus text-[11px]"></i>
           <span>Daftar Akun Mandiri</span>
         </a>
-        <a href="#" onclick="alert('Silakan hubungi Administrator Puskesmas Kokop untuk reset akun.'); return false;" class="text-slate-400 hover:text-slate-600 hover:underline font-medium">
-          Lupa password?
-        </a>
+        <button type="button" onclick="openForgotPasswordModal()"
+          class="text-slate-500 hover:text-[#145861] hover:underline font-semibold transition">
+          Lupa kata sandi?
+        </button>
       </div>
     </form>
 
     <!-- BANNER INSTALASI PWA CEPAT DI HALAMAN LOGIN -->
-    <div id="pwaLoginInstallBanner" class="p-2.5 rounded-2xl bg-[#a3f6f8]/20 border border-[#2ca3ab]/30 flex items-center justify-between">
+    <div id="pwaLoginInstallBanner"
+      class="p-2.5 rounded-2xl bg-[#145861]/10 border border-[#145861]/25 flex items-center justify-between">
       <div class="flex items-center space-x-2">
-        <div class="w-7 h-7 rounded-lg bg-[#2ca3ab] text-white flex items-center justify-center text-xs shadow-sm">
+        <div class="w-7 h-7 rounded-lg bg-[#145861] text-white flex items-center justify-center text-xs shadow-sm">
           <i class="fa-solid fa-download"></i>
         </div>
         <div class="text-left">
@@ -158,29 +248,11 @@
           <p class="text-[9px] text-slate-500">Pasang di HP / Laptop (Akses Cepat)</p>
         </div>
       </div>
-      <button type="button" onclick="triggerPwaInstallLogin()" id="btnPwaLoginInstall" class="px-2.5 py-1 rounded-lg bg-[#2ca3ab] hover:bg-[#1f7d84] text-white font-bold text-[11px] shadow transition flex items-center space-x-1">
+      <button type="button" onclick="triggerPwaInstallLogin()" id="btnPwaLoginInstall"
+        class="px-2.5 py-1 rounded-lg bg-[#145861] hover:bg-[#0e434a] text-white font-bold text-[11px] shadow transition flex items-center space-x-1">
         <i class="fa-solid fa-cloud-arrow-down text-[10px]"></i>
         <span>Install</span>
       </button>
-    </div>
-
-    <!-- QUICK ACCOUNTS PREVIEW (UNTUK KEMUDAHAN TESTING 4 ROLE) -->
-    <div class="border-t border-slate-100 pt-3.5 text-xs text-slate-500 space-y-2">
-      <p class="font-bold text-[10px] text-slate-400 uppercase tracking-wider text-center">Akun Uji Coba Cepat (Klik untuk Isi Otomatis):</p>
-      <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-        <button type="button" onclick="fillAccount('081234567890', 'NAKES')" class="p-2 rounded-xl bg-slate-50 hover:bg-[#a3f6f8]/20 hover:text-[#17656e] border border-slate-100 text-left transition truncate">
-          👨‍⚕️ <strong>Nakes:</strong> 081234567890
-        </button>
-        <button type="button" onclick="fillAccount('081234567891', 'KADER')" class="p-2 rounded-xl bg-slate-50 hover:bg-[#a3f6f8]/20 hover:text-[#17656e] border border-slate-100 text-left transition truncate">
-          🤝 <strong>Kader:</strong> 081234567891
-        </button>
-        <button type="button" onclick="fillAccount('081234567892', 'GURU')" class="p-2 rounded-xl bg-slate-50 hover:bg-[#a3f6f8]/20 hover:text-[#17656e] border border-slate-100 text-left transition truncate">
-          🕌 <strong>Guru/Kiai:</strong> 081234567892
-        </button>
-        <button type="button" onclick="fillAccount('081234567893', 'RATO')" class="p-2 rounded-xl bg-slate-50 hover:bg-[#a3f6f8]/20 hover:text-[#17656e] border border-slate-100 text-left transition truncate">
-          🛡️ <strong>Rato/Kades:</strong> 081234567893
-        </button>
-      </div>
     </div>
 
     <!-- FOOTER: TIM PENELITIAN UNIVERSITAS TRUNOJOYO MADURA (UTM) & PUSKESMAS KOKOP -->
@@ -196,6 +268,77 @@
 
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL: LUPA KATA SANDI (REAL WORKING FORGOT PASSWORD FLOW)               -->
+  <!-- ========================================================================= -->
+  <div id="modalForgotPassword"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div
+      class="bg-white/95 backdrop-blur-md rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-white/70 space-y-4 relative">
+      <!-- Close Button -->
+      <button type="button" onclick="closeForgotPasswordModal()"
+        class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+
+      <!-- Header Modal -->
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 rounded-2xl bg-[#145861]/15 border border-[#145861]/30 text-[#145861] flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <div>
+          <h3 class="font-black text-slate-900 text-base sm:text-lg">Lupa Kata Sandi Akun</h3>
+          <p class="text-xs text-slate-500 font-medium">Bantuan pemulihan akses akun SATENGKA PASUNG</p>
+        </div>
+      </div>
+
+      <!-- Alert Inside Modal -->
+      <div id="forgotAlertBox" class="hidden p-3 rounded-2xl text-xs font-semibold flex items-center space-x-2"></div>
+
+      <!-- Form Lupa Password -->
+      <form id="formForgotPassword" onsubmit="handleForgotPasswordSubmit(event)" class="space-y-3.5 pt-1">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Nomor WhatsApp atau Email Terdaftar</label>
+          <div class="relative">
+            <input type="text" id="forgotIdentifier" required placeholder="Contoh: 081234567890 atau nama@email.com"
+              class="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs sm:text-sm bg-slate-50/70 focus:bg-white focus:border-[#2ca3ab] focus:ring-2 focus:ring-[#2ca3ab]/20 outline-none transition font-medium">
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1 leading-normal">
+            Masukkan kontak yang Anda gunakan saat bertugas sebagai Nakes, Bhupa', Bhu' Ghuru, atau Rato.
+          </p>
+        </div>
+
+        <div id="forgotResultContainer"
+          class="hidden p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2 text-xs">
+          <div class="flex items-center space-x-2 text-emerald-800 font-bold">
+            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+            <span>Identitas Akun Terverifikasi!</span>
+          </div>
+          <p id="forgotResultText" class="text-slate-600 text-[11px] leading-relaxed"></p>
+          <div class="pt-1">
+            <a id="forgotWaHelpdeskLink" href="#" target="_blank"
+              class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-1.5 shadow transition">
+              <i class="fa-brands fa-whatsapp text-sm"></i>
+              <span>Hubungi Admin Kokop via WhatsApp</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 pt-2">
+          <button type="button" onclick="closeForgotPasswordModal()"
+            class="w-1/3 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+            Batal
+          </button>
+          <button type="submit" id="btnForgotSubmit"
+            class="flex-1 btn-satengka text-white font-bold py-3 rounded-xl shadow-md transition flex items-center justify-center text-xs">
+            <span>Verifikasi & Kirim Permintaan</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     function togglePasswordVisibility() {
       const pass = document.getElementById('loginPassword');
@@ -209,15 +352,97 @@
       }
     }
 
-    function fillAccount(phone, role) {
-      document.getElementById('loginUsername').value = phone;
-      document.getElementById('loginPassword').value = 'password123';
-      showAlert(`Akun demo ${role} terpasang. Klik Masuk.`, false);
+    function openForgotPasswordModal() {
+      const modal = document.getElementById('modalForgotPassword');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.getElementById('forgotIdentifier').value = document.getElementById('loginUsername').value.trim();
+        document.getElementById('forgotAlertBox').classList.add('hidden');
+        document.getElementById('forgotResultContainer').classList.add('hidden');
+        document.getElementById('btnForgotSubmit').disabled = false;
+        document.getElementById('btnForgotSubmit').innerHTML = '<span>Verifikasi & Kirim Permintaan</span>';
+      }
+    }
+
+    function closeForgotPasswordModal() {
+      const modal = document.getElementById('modalForgotPassword');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function handleForgotPasswordSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('forgotIdentifier').value.trim();
+      const alertEl = document.getElementById('forgotAlertBox');
+      const resultBox = document.getElementById('forgotResultContainer');
+      const resultText = document.getElementById('forgotResultText');
+      const waLink = document.getElementById('forgotWaHelpdeskLink');
+      const btn = document.getElementById('btnForgotSubmit');
+
+      if (!input) return;
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Memeriksa data faskes...';
+      alertEl.classList.add('hidden');
+      resultBox.classList.add('hidden');
+
+      try {
+        let res = null;
+        if (window.firebaseAdapter && window.firebaseAdapter.requestPasswordReset) {
+          res = await window.firebaseAdapter.requestPasswordReset(input);
+        } else {
+          // Fallback lokal jika adapter belum termuat
+          const raw = localStorage.getItem('malekkas_users');
+          const users = raw ? JSON.parse(raw) : [];
+          const cleanInput = input.replace(/\D/g, '');
+          const matched = (users || []).find(u => {
+            const uPhone = (u.phone || '').replace(/\D/g, '');
+            const uEmail = (u.email || '').toLowerCase();
+            return (cleanInput && uPhone === cleanInput) || (uEmail && uEmail === input.toLowerCase());
+          });
+          if (matched) {
+            const ticketId = 'RST-' + Math.random().toString(36).substring(2, 7).toUpperCase() + '-' + Date.now().toString().slice(-4);
+            res = { success: true, message: "Verifikasi berhasil", data: { user: matched, ticketId } };
+          } else {
+            res = { success: false, message: `Kontak "${input}" belum terdata sebagai pengguna faskes resmi.` };
+          }
+        }
+
+        if (res && res.success) {
+          const matched = res.data.user;
+          const ticketId = res.data.ticketId;
+          const roleTitle = matched.role === 'NAKES' ? 'Nakes' : (matched.role === 'KADER' ? "Bhupa'" : (matched.role === 'GURU' ? "Bhu' Ghuru" : 'Rato'));
+
+          let emailNote = '';
+          if (res.data && res.data.firebaseEmailSent) {
+            emailNote = `<div class="p-2.5 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-950 font-bold mb-2 flex items-center space-x-2"><i class="fa-solid fa-envelope-circle-check text-[#17656e] text-base"></i><span>Tautan reset kata sandi resmi telah dikirim ke email Anda via Firebase Auth Cloud!</span></div>`;
+          }
+
+          resultText.innerHTML = `${emailNote}Akun <strong>${matched.name}</strong> (${roleTitle}) terverifikasi. Nomor Tiket Resmi: <span class="font-mono font-black text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded">#${ticketId}</span>.<br>Silakan kirimkan tiket validasi ini ke Administrator Puskesmas Kokop melalui tautan WhatsApp di bawah untuk pembaruan kata sandi baru.`;
+
+          const waMessage = encodeURIComponent(`Halo Administrator SATENGKA PASUNG Puskesmas Kokop,\nSaya: ${matched.name} (${roleTitle})\nKontak Terdaftar: ${matched.phone || matched.email || input}\nPengajuan: Reset Kata Sandi Akun Faskes\nNomor Tiket Validasi: #${ticketId}\nMohon bantuan pembaruan kata sandi. Terima kasih.`);
+          waLink.href = `https://wa.me/6281100000001?text=${waMessage}`;
+
+          resultBox.classList.remove('hidden');
+          btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Tiket Terbit';
+        } else {
+          alertEl.className = 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-amber-50 text-amber-800 border border-amber-200';
+          alertEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>${(res && res.message) ? res.message : `Kontak "${input}" belum terdata sebagai pengguna faskes resmi.`}</span>`;
+          alertEl.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerHTML = '<span>Coba Kontak Lain</span>';
+        }
+      } catch (err) {
+        alertEl.className = 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-red-50 text-red-700 border border-red-200';
+        alertEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>Gagal memeriksa data faskes. Silakan coba beberapa saat lagi.</span>`;
+        alertEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = '<span>Verifikasi & Kirim Permintaan</span>';
+      }
     }
 
     function showAlert(msg, isError = true) {
       const box = document.getElementById('alertBox');
-      box.className = isError 
+      box.className = isError
         ? 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-red-50 text-red-700 border border-red-200'
         : 'p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-emerald-50 text-emerald-700 border border-emerald-200';
       box.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i><span>${msg}</span>`;
@@ -226,6 +451,9 @@
 
     async function handleUnifiedLogin(e) {
       e.preventDefault();
+      if (window.firebaseReadyPromise) {
+        await window.firebaseReadyPromise;
+      }
       const phone = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
       const btn = document.getElementById('btnSubmit');
@@ -248,11 +476,11 @@
         } else {
           // Fallback langsung
           let fallbackRole = 'NAKES';
-          let fallbackName = 'dr. Siti Amelia (Nakes)';
+          let fallbackName = 'dr. Siti Amelia';
           let fallbackId = 2;
-          if (phone === '081234567891') { fallbackRole = 'KADER'; fallbackName = 'Siti Kader Jiwa'; fallbackId = 3; }
-          if (phone === '081234567892') { fallbackRole = 'GURU'; fallbackName = 'Kiai H. Kholil (Guru)'; fallbackId = 4; }
-          if (phone === '081234567893') { fallbackRole = 'RATO'; fallbackName = 'Klebun Kokop (Rato)'; fallbackId = 5; }
+          if (phone === '081234567891') { fallbackRole = 'KADER'; fallbackName = "Siti"; fallbackId = 3; }
+          if (phone === '081234567892') { fallbackRole = 'GURU'; fallbackName = "Kiai H. Kholil"; fallbackId = 4; }
+          if (phone === '081234567893') { fallbackRole = 'RATO'; fallbackName = 'Klebun Kokop'; fallbackId = 5; }
 
           const demoUser = { id: fallbackId, name: fallbackName, phone: phone, role: fallbackRole, village_name: "Kokop" };
           localStorage.setItem('malekkas_token', 'token_' + Date.now());
@@ -274,7 +502,7 @@
       deferredPromptLogin = e;
       const btn = document.getElementById('btnPwaLoginInstall');
       if (btn) {
-        btn.classList.remove('bg-[#2ca3ab]');
+        btn.classList.remove('bg-[#2ca3ab]', 'bg-[#145861]');
         btn.classList.add('bg-emerald-600', 'animate-pulse');
       }
     });
@@ -309,10 +537,10 @@
       });
     }
 
-    // DISMISS SPLASH / LOADING SCREEN SECARA MULUS
-    function dismissSplashScreen(delay = 1400) {
+    // DISMISS SPLASH / LOADING SCREEN SECARA MULUS & FAIL-SAFE
+    function dismissSplashScreen(delay = 1200) {
       const splash = document.getElementById('appSplashScreen');
-      if (!splash) return;
+      if (!splash || splash.classList.contains('splash-hidden')) return;
       setTimeout(() => {
         splash.classList.add('splash-hidden');
         setTimeout(() => {
@@ -321,10 +549,34 @@
       }, delay);
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      dismissSplashScreen(1400);
-    });
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      dismissSplashScreen(800);
+    } else {
+      window.addEventListener('DOMContentLoaded', () => {
+        dismissSplashScreen(1200);
+      });
+    }
+    // Safety fallback: pastikan splash screen hilang maksimal dalam 2 detik
+    setTimeout(() => dismissSplashScreen(0), 2000);
   </script>
   <script src="./js/malekkas-engine.js"></script>
+  <script type="module">
+    // Sinkronkan Firebase Auth Cloud jika diakses via Web Server / Firebase Hosting (HTTP/HTTPS)
+    window.firebaseReadyPromise = (async () => {
+      if (window.location.protocol.startsWith('http')) {
+        try {
+          const fbModule = await import('./js/firebase-adapter.js');
+          if (fbModule) {
+            window.firebaseAdapter = Object.assign(window.firebaseAdapter || {}, fbModule);
+            console.log("🔥 [SATENGKA PASUNG] Firebase Cloud Auth & Adapter aktif di Halaman Login!");
+            return fbModule;
+          }
+        } catch (err) {
+          console.warn("⚠️ Firebase Auth Cloud module fallback:", err);
+        }
+      }
+      return null;
+    })();
+  </script>
 </body>
 </html>
