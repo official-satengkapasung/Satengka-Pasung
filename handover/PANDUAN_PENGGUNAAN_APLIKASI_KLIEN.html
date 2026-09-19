@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>PANDUAN PENGGUNAAN APLIKASI SATENGKA PASUNG</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 15mm 20mm 15mm;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #1e293b;
+      line-height: 1.5;
+      font-size: 11pt;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+    }
+    .header-doc {
+      border-bottom: 2.5px solid #145861;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-title h1 {
+      margin: 0;
+      font-size: 16pt;
+      font-weight: 900;
+      color: #145861;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+    .header-title h2 {
+      margin: 2px 0 0 0;
+      font-size: 11pt;
+      font-weight: 700;
+      color: #2ca3ab;
+    }
+    .header-title p {
+      margin: 3px 0 0 0;
+      font-size: 9pt;
+      color: #64748b;
+    }
+    .badge {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 8.5pt;
+      font-weight: bold;
+      color: #334155;
+    }
+    h2.section-title {
+      font-size: 12.5pt;
+      color: #0f172a;
+      border-left: 4px solid #145861;
+      padding-left: 8px;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      page-break-after: avoid;
+    }
+    h3.sub-section {
+      font-size: 11pt;
+      color: #1e293b;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+    }
+    p, li {
+      font-size: 10pt;
+      color: #334155;
+      margin-top: 4px;
+      margin-bottom: 6px;
+    }
+    ul, ol {
+      padding-left: 20px;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+    .box-callout {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 3.5px solid #2ca3ab;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin: 12px 0;
+      font-size: 9.5pt;
+    }
+    .box-callout strong {
+      color: #0f172a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 9.5pt;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 7px 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: bold;
+    }
+    .flow-diagram {
+      background: #f8fafc;
+      border: 1px dashed #94a3b8;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      font-family: monospace;
+      font-size: 9pt;
+      color: #0f172a;
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+    .footer-doc {
+      margin-top: 30px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 8pt;
+      color: #94a3b8;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-doc">
+    <div class="header-title">
+      <h1>SATENGKA PASUNG</h1>
+      <h2>PANDUAN PENGGUNAAN APLIKASI (USER MANUAL)</h2>
+      <p>Sistem Peringatan Dini & Evakuasi Humanis ODGJ Berbasis Pendekatan 4 Pilar Madura</p>
+    </div>
+    <div>
+      <span class="badge">Edisi Faskes Kokop &bull; 2026</span>
+    </div>
+  </div>
+
+  <div class="box-callout">
+    <strong>Wilayah Kerja:</strong> Puskesmas Kokop, Kabupaten Bangkalan (Mencakup 13 Desa)<br>
+    <strong>Kemitraan Riset:</strong> LPPM Universitas Trunojoyo Madura (UTM) bermitra dengan Puskesmas Kokop
+  </div>
+
+  <h2 class="section-title">1. Sekilas Pendekatan 4 Pilar Budaya</h2>
+  <p>SATENGKA PASUNG mendigitalisasi model komunikasi terapeutik dengan mengintegrasikan struktur budaya Madura <em>Bhuppa' Bhu' Ghuru Rato'</em> bersama Tenaga Kesehatan:</p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Pilar Budaya</th>
+        <th style="width: 25%;">Representasi</th>
+        <th>Peran Utama di Lapangan</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Bhupa'</strong></td>
+        <td>Kader Jiwa Desa</td>
+        <td>Deteksi dini, pelaporan kasus dugaan pasung baru, dan pendampingan keluarga di desa.</td>
+      </tr>
+      <tr>
+        <td><strong>Bhu' Ghuru</strong></td>
+        <td>Tokoh Agama / Kiai</td>
+        <td>Pendekatan batin dan doa santun untuk melunakkan penolakan keluarga terhadap evakuasi.</td>
+      </tr>
+      <tr>
+        <td><strong>Rato</strong></td>
+        <td>Kepala Desa / Tokoh Adat</td>
+        <td>Legitimasi wilayah, pengawalan penjemputan pasien, dan fasilitasi administrasi/ambulans desa.</td>
+      </tr>
+      <tr>
+        <td><strong>Nakes</strong></td>
+        <td>Petugas Puskesmas Kokop</td>
+        <td>Koordinator medis, evaluasi klinis kegawatan, evakuasi medis, dan kesinambungan obat jiwa.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="section-title">2. Cara Memasang Aplikasi di Layar Utama Ponsel (PWA)</h2>
+  <p>Aplikasi ini berbasis Progressive Web App (PWA) yang ringan dan tidak membebani memori penyimpanan ponsel:</p>
+  <ol>
+    <li>Buka peramban <strong>Google Chrome</strong> di ponsel dan akses portal resmi SATENGKA PASUNG.</li>
+    <li>Pada halaman masuk, temukan banner hijau <strong>"Pasang Aplikasi"</strong> di bagian bawah.</li>
+    <li>Tekan tombol <strong>"Pasang"</strong> (atau tekan ikon titik tiga di sudut kanan atas Chrome &rarr; pilih <em>Tambahkan ke Layar Utama</em>).</li>
+    <li>Ikon resmi SATENGKA PASUNG akan terpasang di layar utama ponsel dan dapat dibuka langsung tanpa mengetikkan ulang alamat web.</li>
+  </ol>
+
+  <h2 class="section-title">3. Panduan Masuk Akun (Login)</h2>
+  <ul>
+    <li><strong>Nomor WhatsApp:</strong> Masukkan nomor WhatsApp yang telah didaftarkan (contoh: <code>081234567890</code>).</li>
+    <li><strong>Kata Sandi:</strong> Masukkan kata sandi akun Anda.</li>
+    <li>Tekan tombol <strong>"Masuk"</strong>. Sistem akan secara otomatis mengarahkan antarmuka sesuai peran pilar Anda.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <h2 class="section-title">4. Panduan Pilar 1: Tenaga Kesehatan (Puskesmas Kokop)</h2>
+  <p>Petugas Puskesmas bertindak sebagai koordinator pengendali sistem di tingkat kecamatan.</p>
+
+  <h3 class="sub-section">A. Memvalidasi Laporan Kasus dari Kader</h3>
+  <ol>
+    <li>Buka antrean kasus berlabel <strong>"Laporan Baru"</strong> di Dashboard Nakes.</li>
+    <li>Periksa foto kondisi pasien, tingkat kegawatan, riwayat pasung, dan kontak keluarga.</li>
+    <li>Tentukan opsi validasi:
+      <ul>
+        <li><strong>Validasi Saja:</strong> Jika kasus dapat ditangani langsung oleh tim medis tanpa rembuk tokoh.</li>
+        <li><strong>Validasi & Kirim ke Tokoh:</strong> Jika keluarga menolak dievakuasi dan membutuhkan bantuan Kiai & Kepala Desa.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h3 class="sub-section">B. Mengaktifkan Notifikasi Siaga ke Kiai & Kepala Desa</h3>
+  <ol>
+    <li>Pilih nama <strong>Bhu' Ghuru (Kiai)</strong> dan <strong>Rato (Kepala Desa)</strong> yang bertugas di desa pasien.</li>
+    <li>Tekan tombol <strong>"Kirim Notifikasi Siaga"</strong>.</li>
+    <li>Pesan resmi WhatsApp akan disiapkan otomatis untuk meminta kesediaan tokoh membuka aplikasi dan membantu rembuk.</li>
+  </ol>
+
+  <h3 class="sub-section">C. Mengelola Kontak Tokoh & Kader Desa</h3>
+  <ol>
+    <li>Buka menu <strong>"Kontak Tokoh & Kader"</strong> pada panel samping kiri.</li>
+    <li><strong>Tambah Kontak:</strong> Tekan tombol hijau <em>Tambah Kontak</em> untuk mendaftarkan kader, kiai, atau kades baru.</li>
+    <li><strong>Ubah Data Kontak:</strong> Tekan tombol <em>Edit</em> untuk memperbarui nomor WhatsApp atau desa penugasan.</li>
+    <li><strong>Hapus Kontak:</strong> Tekan tombol <em>Hapus</em> dengan konfirmasi aman jika mitra sudah purna tugas.</li>
+  </ol>
+
+  <h3 class="sub-section">D. Atur Ulang Kata Sandi (Reset Password) oleh Petugas</h3>
+  <ol>
+    <li>Pada menu <strong>Kontak Tokoh & Kader</strong>, temukan nama pengguna yang mengajukan permohonan reset sandi.</li>
+    <li>Tekan tombol <strong>"Reset"</strong> (ikon kunci berwarna kuning).</li>
+    <li>Masukkan kata sandi baru atau gunakan sandi bawaan <code>satengka123</code>.</li>
+    <li>Tekan <strong>"Simpan Sandi Baru"</strong>, lalu tekan tombol <strong>"Kirim Sandi ke WhatsApp"</strong> untuk mengirimkan konfirmasi sandi ke nomor WhatsApp tokoh.</li>
+  </ol>
+
+  <h3 class="sub-section">E. Pemantauan Obat & Kunjungan Kontrol</h3>
+  <ul>
+    <li>Pasien pasca-evakuasi berpindah ke tab <strong>"Dalam Monitoring"</strong>.</li>
+    <li>Buka modul <strong>Kontrol Obat</strong> untuk mendokumentasikan kunjungan rumah bulanan dan kepatuhan konsumsi obat.</li>
+    <li>Gunakan tombol <strong>"Kirim Pengingat WA"</strong> untuk mengingatkan keluarga pasien terkait jadwal pengambilan obat di puskesmas.</li>
+  </ul>
+
+  <h2 class="section-title">5. Panduan Pilar 2: Bhupa' (Kader Jiwa Desa)</h2>
+  <ol>
+    <li>Masuk menggunakan nomor WhatsApp kader yang terdaftar.</li>
+    <li>Tekan tombol <strong>"Lapor Kasus Baru"</strong>.</li>
+    <li>Isi identitas pasien, nama penanggung jawab keluarga, nomor WhatsApp keluarga, dusun, dan lama pemasungan.</li>
+    <li>Lampirkan foto bukti kondisi pasien.</li>
+    <li>Tekan <strong>"Kirim Laporan ke Puskesmas"</strong>. Laporan langsung masuk ke dashboard dokter Puskesmas Kokop.</li>
+  </ol>
+
+  <div class="page-break"></div>
+
+  <h2 class="section-title">6. Panduan Pilar 3: Bhu' Ghuru (Tokoh Agama / Kiai)</h2>
+  <p>Tokoh agama berperan memberikan ketenangan batin kepada keluarga pasien melalui dialog santun:</p>
+  <ol>
+    <li>Saat Nakes mengaktifkan notifikasi siaga, Kiai akan menerima pesan permohonan bantuan via WhatsApp.</li>
+    <li>Buka tautan kasus di aplikasi SATENGKA PASUNG.</li>
+    <li>Kiai dapat membaca ikhtisar kondisi pasien dan menekan salah satu opsi respons:
+      <ul>
+        <li><strong>[ Insya Allah Saya Bantu ]</strong> &rarr; Menyatakan kesediaan mendampingi petugas berdialog dengan keluarga.</li>
+        <li><strong>[ Saya Butuh Waktu / Telepon Dahulu ]</strong> &rarr; Mengonfirmasi sedang menghubungi keluarga secara pribadi.</li>
+      </ul>
+    </li>
+    <li>Respons Kiai otomatis memperbarui status di Puskesmas Kokop menjadi <em>"Siap Evakuasi"</em>.</li>
+  </ol>
+
+  <h2 class="section-title">7. Panduan Pilar 4: Rato (Kepala Desa / Aparat)</h2>
+  <ol>
+    <li>Kepala Desa menerima permohonan pengawalan evakuasi warga di desanya.</li>
+    <li>Buka aplikasi SATENGKA PASUNG untuk melihat lokasi pasien dan estimasi waktu penjemputan.</li>
+    <li>Tekan tombol <strong>[ Setuju Pengawalan Evakuasi ]</strong> untuk mengonfirmasi pendampingan perangkat desa dan fasilitasi ambulans desa bila diperlukan.</li>
+  </ol>
+
+  <h2 class="section-title">8. Prosedur Bantuan Lupa Kata Sandi (Resmi Faskes)</h2>
+  <p>Untuk melindungi kerahasiaan rekam medis pasien ODGJ dari pembajakan akun, reset kata sandi wajib melalui verifikasi resmi Petugas Puskesmas Kokop:</p>
+  <div class="flow-diagram">
+    [Pengguna Klik "Lupa kata sandi?"]<br>
+    &darr;<br>
+    [Masukkan Nomor WhatsApp Terdaftar & Klik "Verifikasi"]<br>
+    &darr;<br>
+    [Sistem Menerbitkan Tiket Resmi Validasi: #RST-XXXX]<br>
+    &darr;<br>
+    [Tekan Tombol: "Hubungi Petugas Puskesmas Kokop"]<br>
+    &darr;<br>
+    [Chat WhatsApp Terbuka Otomatis Menghubungi Nakes Faskes]<br>
+    &darr;<br>
+    [Petugas Mereset Kata Sandi di Menu Kelola Kontak & Mengirimkannya Balik]
+  </div>
+
+  <div class="footer-doc">
+    <span>SATENGKA PASUNG &bull; Puskesmas Kokop, Kabupaten Bangkalan</span>
+    <span>Dokumen Manual Penggunaan Faskes &bull; Halaman 3 dari 3</span>
+  </div>
+
+</body>
+</html>
