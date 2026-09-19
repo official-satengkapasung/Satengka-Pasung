@@ -353,6 +353,152 @@ export async function createUser(userData) {
   return { success: true, message: `Mitra ${userData.name} berhasil didaftarkan ke sistem.`, data: newUser };
 }
 
+export async function updateUser(userId, updatedData) {
+  const users = getLocalStore("users", DEFAULT_SEED.users);
+  const idx = users.findIndex(u => String(u.id) === String(userId) || (u.uid && String(u.uid) === String(userId)));
+  if (idx === -1) {
+    return { success: false, message: "Data pengguna tidak ditemukan." };
+  }
+
+  const user = users[idx];
+  users[idx] = {
+    ...user,
+    name: updatedData.name || user.name,
+    role: updatedData.role || user.role,
+    phone: updatedData.phone || user.phone,
+    village_id: updatedData.village_id || user.village_id,
+    village_name: updatedData.village_name || user.village_name,
+    updated_at: new Date().toISOString()
+  };
+
+  // Sinkronisasi ke Cloud Firestore jika aktif
+  if (isFirebaseActive && db) {
+    try {
+      const docId = user.uid || String(user.id);
+      await updateDoc(doc(db, "users", docId), {
+        name: users[idx].name,
+        role: users[idx].role,
+        phone: users[idx].phone,
+        village_id: users[idx].village_id,
+        village_name: users[idx].village_name,
+        updated_at: serverTimestamp()
+      });
+      console.log("☁️ [Firestore] Profil user diperbarui di Cloud:", docId);
+    } catch (e) {
+      console.warn("Gagal update user di Firestore:", e);
+    }
+  }
+
+  setLocalStore("users", users);
+  window.dispatchEvent(new Event("storage"));
+  return { success: true, message: `Data mitra ${users[idx].name} berhasil diperbarui.`, data: users[idx] };
+}
+
+export async function deleteUser(userId) {
+  let users = getLocalStore("users", DEFAULT_SEED.users);
+  const targetUser = users.find(u => String(u.id) === String(userId) || (u.uid && String(u.uid) === String(userId)));
+  if (!targetUser) {
+    return { success: false, message: "Pengguna tidak ditemukan." };
+  }
+
+  if (targetUser.role === "NAKES" || targetUser.role === "ADMIN") {
+    const nakesCount = users.filter(u => u.role === "NAKES" || u.role === "ADMIN").length;
+    if (nakesCount <= 1) {
+      return { success: false, message: "Akun Nakes / Admin utama faskes tidak dapat dihapus." };
+    }
+  }
+
+  users = users.filter(u => String(u.id) !== String(userId) && (!u.uid || String(u.uid) !== String(userId)));
+
+  // Hapus dari Firestore jika aktif
+  if (isFirebaseActive && db) {
+    try {
+      const docId = targetUser.uid || String(targetUser.id);
+      await deleteDoc(doc(db, "users", docId));
+      console.log("☁️ [Firestore] User dihapus dari Cloud:", docId);
+    } catch (e) {
+      console.warn("Gagal hapus user di Firestore:", e);
+    }
+  }
+
+  setLocalStore("users", users);
+  window.dispatchEvent(new Event("storage"));
+  return { success: true, message: `Akun mitra ${targetUser.name} berhasil dihapus dari sistem.` };
+}
+
+export async function resetUserPasswordByAdmin(userId, newPassword = "satengka123") {
+  const users = getLocalStore("users", DEFAULT_SEED.users);
+  const user = users.find(u => String(u.id) === String(userId) || (u.uid && String(u.uid) === String(userId)));
+  if (!user) {
+    return { success: false, message: "Data pengguna tidak ditemukan." };
+  }
+
+  user.password = newPassword;
+  user.password_reset_at = new Date().toISOString();
+
+  // Simpan catatan audit reset ke Firestore jika aktif
+  if (isFirebaseActive && db) {
+    try {
+      const docId = user.uid || String(user.id);
+      await updateDoc(doc(db, "users", docId), {
+        password: newPassword,
+        password_reset_at: serverTimestamp()
+      });
+    } catch (e) {
+      console.warn("Gagal update password reset di Firestore:", e);
+    }
+  }
+
+  setLocalStore("users", users);
+  window.dispatchEvent(new Event("storage"));
+  return {
+    success: true,
+    message: `Kata sandi untuk ${user.name} berhasil diatur ulang menjadi "${newPassword}". Tokoh/Kader dapat langsung login dengan kata sandi tersebut.`,
+    data: { user, newPassword }
+  };
+}
+
+export async function selfResetPassword(identifier, newPassword) {
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, message: "Kata sandi baru minimal 6 karakter." };
+  }
+
+  const users = getLocalStore("users", DEFAULT_SEED.users);
+  const cleanId = (identifier || '').replace(/\D/g, '');
+  const user = users.find(u => {
+    const uPhone = (u.phone || '').replace(/\D/g, '');
+    const uEmail = (u.email || '').toLowerCase();
+    return (cleanId && uPhone === cleanId) || (uEmail && uEmail === (identifier || '').toLowerCase());
+  });
+
+  if (!user) {
+    return { success: false, message: "Pengguna dengan kontak tersebut tidak ditemukan." };
+  }
+
+  user.password = newPassword;
+  user.password_reset_at = new Date().toISOString();
+
+  if (isFirebaseActive && db) {
+    try {
+      const docId = user.uid || String(user.id);
+      await updateDoc(doc(db, "users", docId), {
+        password: newPassword,
+        password_reset_at: serverTimestamp()
+      });
+    } catch (e) {
+      console.warn("Gagal update password reset mandiri di Firestore:", e);
+    }
+  }
+
+  setLocalStore("users", users);
+  window.dispatchEvent(new Event("storage"));
+  return {
+    success: true,
+    message: `Kata sandi untuk akun ${user.name} berhasil diperbarui. Silakan login dengan kata sandi baru Anda.`,
+    data: { user }
+  };
+}
+
 export async function getCases(userId = null, role = null, villageId = null, villageName = null) {
   let cases = getLocalStore("cases", DEFAULT_SEED.cases);
 

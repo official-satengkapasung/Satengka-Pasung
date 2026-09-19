@@ -298,6 +298,50 @@
       return { success: true, message: `Mitra ${userData.name} berhasil ditambahkan.` };
     },
 
+    updateUser: async function(userId, updatedData) {
+      const users = getLocalStore("users", DEFAULT_SEED.users);
+      const idx = users.findIndex(u => String(u.id) === String(userId));
+      if (idx === -1) return { success: false, message: "Pengguna tidak ditemukan." };
+      users[idx] = { ...users[idx], ...updatedData };
+      setLocalStore("users", users);
+      return { success: true, message: `Data mitra ${users[idx].name} berhasil diperbarui.` };
+    },
+
+    deleteUser: async function(userId) {
+      let users = getLocalStore("users", DEFAULT_SEED.users);
+      const user = users.find(u => String(u.id) === String(userId));
+      if (!user) return { success: false, message: "Pengguna tidak ditemukan." };
+      users = users.filter(u => String(u.id) !== String(userId));
+      setLocalStore("users", users);
+      return { success: true, message: `Akun mitra ${user.name} berhasil dihapus.` };
+    },
+
+    resetUserPasswordByAdmin: async function(userId, newPassword = "satengka123") {
+      const users = getLocalStore("users", DEFAULT_SEED.users);
+      const user = users.find(u => String(u.id) === String(userId));
+      if (!user) return { success: false, message: "Pengguna tidak ditemukan." };
+      user.password = newPassword;
+      setLocalStore("users", users);
+      return { success: true, message: `Kata sandi ${user.name} direset ke "${newPassword}".` };
+    },
+
+    selfResetPassword: async function(identifier, newPassword) {
+      if (!newPassword || newPassword.length < 6) {
+        return { success: false, message: "Kata sandi baru minimal 6 karakter." };
+      }
+      const users = getLocalStore("users", DEFAULT_SEED.users);
+      const cleanId = (identifier || '').replace(/\D/g, '');
+      const user = users.find(u => {
+        const uPhone = (u.phone || '').replace(/\D/g, '');
+        const uEmail = (u.email || '').toLowerCase();
+        return (cleanId && uPhone === cleanId) || (uEmail && uEmail === (identifier || '').toLowerCase());
+      });
+      if (!user) return { success: false, message: "Pengguna dengan kontak tersebut tidak ditemukan." };
+      user.password = newPassword;
+      setLocalStore("users", users);
+      return { success: true, message: `Kata sandi untuk akun ${user.name} berhasil diperbarui.` };
+    },
+
     getCases: async function(userId = null, role = null, villageId = null, villageName = null) {
       let cases = getLocalStore("cases", DEFAULT_SEED.cases);
       if (role === "KADER") {

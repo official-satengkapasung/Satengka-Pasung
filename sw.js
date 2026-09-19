@@ -1,5 +1,5 @@
 // Service Worker for BHUPPA' BHU' GHURU RATO PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v8';
+const CACHE_NAME = 'satengka-pasung-pwa-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,6 +8,9 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './assets/logo_opt.png',
   './assets/background_opt.webp',
+  './assets/brand_text_official.png',
+  './assets/splash_official.jpeg',
+  './assets/splash_desktop.jpg',
   './assets/icons/role_bhupa.png',
   './assets/icons/role_bhu-ghuru.png',
   './assets/icons/role_rato.png',
