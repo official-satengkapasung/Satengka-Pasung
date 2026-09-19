@@ -1422,7 +1422,7 @@
 
     <!-- CONTAINER RESPONSIF FLUID: FULLSCREEN DI HP, NATURAL CARD MODERN DI TABLET & DESKTOP -->
     <div id="mobileDeviceFrame"
-      class="w-full max-w-7xl bg-slate-50/90 md:bg-slate-50/85 backdrop-blur-xl md:rounded-3xl shadow-2xl overflow-hidden min-h-screen md:min-h-0 flex flex-col justify-between border-0 md:border md:border-white/50 relative transition-all duration-300">
+      class="w-full max-w-7xl bg-slate-50/90 md:bg-slate-50/85 md:backdrop-blur-xl md:rounded-3xl shadow-2xl overflow-hidden min-h-screen md:min-h-0 flex flex-col justify-between border-0 md:border md:border-white/50 relative transition-all duration-300">
 
       <!-- TOPBAR APLIKASI RESPONSIF MODERN (LOGO, PERAN, AKSI CEPAT, PROFILE) -->
       <header
@@ -1518,7 +1518,7 @@
 
       <!-- KONTEN CONTAINER DINAMIS SESUAI ROLE (KADER, GURU, RATO) DENGAN LAYOUT RESPONSIF -->
       <div
-        class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 bg-gradient-to-b from-transparent via-white/40 to-slate-50/60">
+        class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-32 sm:pb-6 space-y-6 bg-gradient-to-b from-transparent via-white/40 to-slate-50/60">
 
         <!-- ------------------------------------------------------------- -->
         <!-- SCREEN KADER (RESPONSIF MOBILE, TABLET & DESKTOP)             -->
@@ -2331,8 +2331,8 @@
       </footer>
 
       <!-- BOTTOM NAVIGATION BAR: HANYA MUNCUL DI MOBILE (< 640px), DI DESKTOP MENGGUNAKAN TOPBAR PILLS -->
-      <div
-        class="bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 py-2 flex sm:hidden justify-between items-center text-[10px] font-semibold text-slate-400 sticky bottom-0 z-30">
+      <nav id="mobileBottomNavBar"
+        class="fixed inset-x-0 bottom-0 z-50 bg-white border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] px-2 py-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+0.7rem)] flex sm:hidden justify-around items-center text-[10px] font-semibold text-slate-400 transition-all duration-200">
         <button id="mobileNavHome" onclick="handleMobileNavAction('home')"
           class="flex flex-col items-center space-y-1 text-emerald-700 font-bold transition">
           <i class="fa-solid fa-house text-base"></i>
