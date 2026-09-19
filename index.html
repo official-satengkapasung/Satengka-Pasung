@@ -848,11 +848,11 @@
               <div class="space-y-2 text-xs font-medium text-slate-800">
                 <label class="flex items-center space-x-2.5 cursor-pointer">
                   <input type="checkbox" id="chkDispatchGuru" checked class="w-4 h-4 text-emerald-600 rounded">
-                  <span>Kirim Notifikasi Siaga ke Guru / Kiai (Pendekatan Doa & Batin)</span>
+                  <span>Kirim Notifikasi ke Bhu' Ghuru / Kiai</span>
                 </label>
                 <label class="flex items-center space-x-2.5 cursor-pointer">
                   <input type="checkbox" id="chkDispatchRato" checked class="w-4 h-4 text-emerald-600 rounded">
-                  <span>Kirim Notifikasi Siaga ke Rato / Kepala Desa (Pengawalan Linmas Wilayah)</span>
+                  <span>Kirim Notifikasi ke Rato / Kepala Desa</span>
                 </label>
               </div>
             </div>
@@ -872,9 +872,9 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Pesan Terapeutik</label>
+              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Keterangan Pendampingan</label>
               <textarea id="ewsCustomMessage" rows="3" class="w-full border rounded-xl p-3 text-sm leading-relaxed"
-                placeholder="Permintaan pendampingan untuk evakuasi warga dengan gangguan jiwa di Desa Kokop. Mohon dukungan dan keridhoan."></textarea>
+                placeholder="Permintaan pendampingan untuk evakuasi medis warga di Desa Kokop."></textarea>
             </div>
 
             <div class="pt-3">
@@ -1753,8 +1753,7 @@
                   class="inline-block text-[11px] uppercase tracking-wider font-bold bg-white/20 text-emerald-100 px-2.5 py-0.5 rounded-full mb-1">Bhu' Ghuru</span>
                 <h3 id="guruGreetingName"
                   class="font-black text-lg sm:text-2xl text-white tracking-tight leading-tight">Kiai Abdullah</h3>
-                <p class="text-xs text-emerald-100/90 font-medium">Kecamatan Kokop • Pendekatan Terapeutik & Rembuk
-                  Santun</p>
+                <p class="text-xs text-emerald-100/90 font-medium">Kecamatan Kokop • Pendampingan Laporan</p>
               </div>
             </div>
             <button type="button" onclick="openUserProfileModal()"
@@ -1774,8 +1773,8 @@
               </button>
               <button type="button" onclick="handleMobileNavAction('action')"
                 class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 border border-transparent transition flex items-center space-x-1.5">
-                <i class="fa-solid fa-hands-praying text-xs text-emerald-600"></i>
-                <span>Permintaan Rembuk</span>
+                <i class="fa-solid fa-hand-holding-heart text-xs text-emerald-600"></i>
+                <span>Permintaan Masuk</span>
               </button>
               <button type="button" onclick="openGuruRiwayatScreen()"
                 class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 border border-transparent transition flex items-center space-x-1.5">
@@ -1786,7 +1785,7 @@
             <button type="button" onclick="openTherapeuticChatModal()"
               class="px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition flex items-center space-x-1.5">
               <i class="fa-regular fa-comments text-xs"></i>
-              <span>Live Chat Rembuk Keluarga</span>
+              <span>Live Chat Koordinasi</span>
             </button>
           </div>
 
@@ -1794,12 +1793,12 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
             <div class="bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm flex items-center space-x-3.5">
               <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-lg font-black shrink-0">
-                <i class="fa-solid fa-hands-praying"></i>
+                <i class="fa-solid fa-bell"></i>
               </div>
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Permintaan Baru</p>
                 <h4 id="guruStatRequests" class="text-xl sm:text-2xl font-black text-amber-700">0</h4>
-                <p class="text-[10px] text-amber-600 font-semibold">Perlu Tausiyah & Doa</p>
+                <p class="text-[10px] text-amber-600 font-semibold">Laporan Butuh Pendampingan</p>
               </div>
             </div>
 
@@ -1810,7 +1809,7 @@
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Siap Dampingi</p>
                 <h4 id="guruStatAgreed" class="text-xl sm:text-2xl font-black text-emerald-700">0</h4>
-                <p class="text-[10px] text-emerald-600 font-semibold">Kesiapan Tercatat</p>
+                <p class="text-[10px] text-emerald-600 font-semibold">Terkonfirmasi Siap</p>
               </div>
             </div>
 
@@ -1821,18 +1820,24 @@
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Dampingan Selesai</p>
                 <h4 id="guruStatDone" class="text-xl sm:text-2xl font-black text-teal-700">0</h4>
-                <p class="text-[10px] text-teal-600 font-semibold">Bebas Pasung Medis</p>
+                <p class="text-[10px] text-teal-600 font-semibold">Selesai Ditangani</p>
               </div>
             </div>
           </div>
 
           <!-- Permintaan Bantuan Baru -->
           <div class="space-y-3">
-            <div class="flex justify-between items-center border-b border-slate-200/80 pb-2.5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
               <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-hands-praying text-emerald-700 text-base"></i>
-                <h4 class="font-bold text-slate-900 text-sm sm:text-base">Permintaan Rembuk Santun & Pendampingan Baru
-                </h4>
+                <i class="fa-solid fa-hand-holding-heart text-emerald-700 text-base"></i>
+                <h4 class="font-bold text-slate-900 text-sm sm:text-base">Laporan Butuh Pendampingan</h4>
+              </div>
+              <!-- Search Bar Bhu' Ghuru -->
+              <div class="relative w-full sm:w-72">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="guruSearchInput" oninput="handleGuruSearchFilter()"
+                  placeholder="Cari nama pasien atau alamat..."
+                  class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-600 transition shadow-2xs">
               </div>
             </div>
 
@@ -1840,6 +1845,9 @@
             <div id="guruRequestsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Diisi otomatis oleh JS -->
             </div>
+
+            <!-- Pagination Controls Guru -->
+            <div id="guruPaginationContainer" class="pt-2"></div>
           </div>
 
           <!-- Riwayat Selesai -->
@@ -1847,7 +1855,7 @@
             <div class="flex justify-between items-center text-xs font-bold text-slate-700">
               <div class="flex items-center space-x-2">
                 <i class="fa-regular fa-calendar-check text-emerald-700"></i>
-                <span class="text-sm">Riwayat Pendampingan Keagamaan</span>
+                <span class="text-sm">Riwayat Pendampingan</span>
               </div>
               <button type="button" onclick="openGuruRiwayatScreen()"
                 class="text-xs text-emerald-700 hover:underline font-bold">Lihat Semua Riwayat</button>
@@ -1861,11 +1869,10 @@
                 </div>
                 <div>
                   <p class="font-black text-slate-800 text-sm">Siti</p>
-                  <p class="text-xs text-slate-500">Desa Kokop • Rembuk Keluarga Berhasil</p>
+                  <p class="text-xs text-slate-500">Desa Kokop • Pendampingan Selesai</p>
                 </div>
               </div>
-              <span class="text-emerald-700 font-bold bg-emerald-100/70 px-3 py-1 rounded-full">✓ Selesai Bebas
-                Pasung</span>
+              <span class="text-emerald-700 font-bold bg-emerald-100/70 px-3 py-1 rounded-full">✓ Selesai</span>
             </div>
           </div>
         </div>
@@ -1888,8 +1895,7 @@
                   class="inline-block text-[11px] uppercase tracking-wider font-bold bg-white/20 text-indigo-100 px-2.5 py-0.5 rounded-full mb-1">Rato</span>
                 <h3 id="ratoGreetingName"
                   class="font-black text-lg sm:text-2xl text-white tracking-tight leading-tight">Kepala Desa Kokop</h3>
-                <p class="text-xs text-indigo-100/90 font-medium">Pemerintah Desa • Pengawalan Keamanan & Evakuasi
-                  Linmas</p>
+                <p class="text-xs text-indigo-100/90 font-medium">Pemerintah Desa • Pengawalan Wilayah</p>
               </div>
             </div>
             <button type="button" onclick="openUserProfileModal()"
@@ -1910,18 +1916,18 @@
               <button type="button" onclick="handleMobileNavAction('action')"
                 class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-indigo-800 hover:bg-indigo-50 border border-transparent transition flex items-center space-x-1.5">
                 <i class="fa-solid fa-shield text-xs text-indigo-600"></i>
-                <span>Permintaan Pengawalan</span>
+                <span>Permintaan Masuk</span>
               </button>
               <button type="button" onclick="openRatoRiwayatScreen()"
                 class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-indigo-800 hover:bg-indigo-50 border border-transparent transition flex items-center space-x-1.5">
                 <i class="fa-solid fa-shield-halved text-xs text-blue-600"></i>
-                <span>Riwayat Wilayah</span>
+                <span>Riwayat Pengawalan</span>
               </button>
             </div>
             <button type="button" onclick="openTherapeuticChatModal()"
               class="px-3.5 py-2 rounded-xl text-xs font-semibold text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 transition flex items-center space-x-1.5">
               <i class="fa-regular fa-comments text-xs"></i>
-              <span>Koordinasi Linmas & Nakes</span>
+              <span>Live Chat Koordinasi</span>
             </button>
           </div>
 
@@ -1929,12 +1935,12 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
             <div class="bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm flex items-center space-x-3.5">
               <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-lg font-black shrink-0">
-                <i class="fa-solid fa-shield-halved"></i>
+                <i class="fa-solid fa-bell"></i>
               </div>
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pengawalan Masuk</p>
                 <h4 id="ratoStatRequests" class="text-xl sm:text-2xl font-black text-amber-700">0</h4>
-                <p class="text-[10px] text-amber-600 font-semibold">Butuh Linmas Wilayah</p>
+                <p class="text-[10px] text-amber-600 font-semibold">Laporan Butuh Pendampingan</p>
               </div>
             </div>
 
@@ -1945,7 +1951,7 @@
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Siap Mengawal</p>
                 <h4 id="ratoStatReady" class="text-xl sm:text-2xl font-black text-indigo-800">0</h4>
-                <p class="text-[10px] text-indigo-600 font-semibold">Aparat & Rute Siaga</p>
+                <p class="text-[10px] text-indigo-600 font-semibold">Terkonfirmasi Siap</p>
               </div>
             </div>
 
@@ -1954,19 +1960,26 @@
                 <i class="fa-solid fa-clipboard-check"></i>
               </div>
               <div>
-                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Evakuasi Tuntas</p>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pengawalan Selesai</p>
                 <h4 id="ratoStatDone" class="text-xl sm:text-2xl font-black text-teal-700">0</h4>
-                <p class="text-[10px] text-teal-600 font-semibold">Situasi Aman Terkendali</p>
+                <p class="text-[10px] text-teal-600 font-semibold">Selesai Ditangani</p>
               </div>
             </div>
           </div>
 
           <!-- Koordinasi Evakuasi -->
           <div class="space-y-3">
-            <div class="flex justify-between items-center border-b border-slate-200/80 pb-2.5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
               <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-shield text-indigo-600 text-base"></i>
-                <h4 class="font-bold text-slate-900 text-sm sm:text-base">Permintaan Pengawalan Evakuasi Lapangan</h4>
+                <h4 class="font-bold text-slate-900 text-sm sm:text-base">Laporan Butuh Pendampingan</h4>
+              </div>
+              <!-- Search Bar Rato -->
+              <div class="relative w-full sm:w-72">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="ratoSearchInput" oninput="handleRatoSearchFilter()"
+                  placeholder="Cari nama pasien atau alamat..."
+                  class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 transition shadow-2xs">
               </div>
             </div>
 
@@ -1974,6 +1987,9 @@
             <div id="ratoRequestsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Diisi otomatis oleh JS -->
             </div>
+
+            <!-- Pagination Controls Rato -->
+            <div id="ratoPaginationContainer" class="pt-2"></div>
           </div>
 
           <!-- Riwayat Pengawalan -->
@@ -1981,7 +1997,7 @@
             <div class="flex justify-between items-center text-xs font-bold text-slate-700">
               <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-shield-halved text-indigo-600"></i>
-                <span class="text-sm">Riwayat Pengawalan Wilayah</span>
+                <span class="text-sm">Riwayat Pengawalan</span>
               </div>
               <button type="button" onclick="openRatoRiwayatScreen()"
                 class="text-xs text-indigo-700 hover:underline font-bold">Lihat Semua Riwayat</button>
@@ -1995,11 +2011,10 @@
                 </div>
                 <div>
                   <p class="font-black text-slate-800 text-sm">Siti</p>
-                  <p class="text-xs text-slate-500">Desa Kokop • Evakuasi Tertib & Kondusif</p>
+                  <p class="text-xs text-slate-500">Desa Kokop • Pengawalan Selesai</p>
                 </div>
               </div>
-              <span class="text-emerald-700 font-bold bg-emerald-100/70 px-3 py-1 rounded-full">✓ Selesai Bebas
-                Pasung</span>
+              <span class="text-emerald-700 font-bold bg-emerald-100/70 px-3 py-1 rounded-full">✓ Selesai</span>
             </div>
           </div>
         </div>
@@ -2017,15 +2032,13 @@
                 <i class="fa-solid fa-arrow-left text-sm"></i>
               </button>
               <div>
-                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Detail Permintaan Rembuk Santun
-                </h3>
-                <p class="text-xs text-slate-500 font-medium">Informasi permohonan tausiyah dan panduan alamat kediaman
-                  warga</p>
+                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Detail Permintaan Pendampingan</h3>
+                <p class="text-xs text-slate-500 font-medium">Informasi laporan warga dan lokasi kediaman</p>
               </div>
             </div>
             <div
               class="hidden sm:flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1 rounded-full text-xs font-bold">
-              <i class="fa-solid fa-hands-praying"></i>
+              <i class="fa-solid fa-hand-holding-heart"></i>
               <span>Pilar Guru</span>
             </div>
           </div>
@@ -2043,18 +2056,17 @@
                   </div>
                   <div
                     class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-hands-praying"></i>
+                    <i class="fa-solid fa-hand-holding-heart"></i>
                   </div>
                 </div>
 
                 <div class="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-100 space-y-2 text-xs">
                   <p class="font-bold text-emerald-900 flex items-center text-sm">
                     <i class="fa-solid fa-circle-info mr-2 text-emerald-600"></i>
-                    Permohonan Pendekatan Santun
+                    Laporan Butuh Pendampingan
                   </p>
                   <p class="text-slate-700 leading-relaxed text-xs" id="mGuruDetailNote">
-                    Puskesmas meminta bantuan Kiai untuk memberikan tausiyah dan nasihat menenangkan kepada keluarga
-                    pasien agar tidak melakukan pasung dan berkenan dirujuk secara medis.
+                    Puskesmas Kokop membutuhkan pendampingan Bhu' Ghuru untuk mediasi keluarga dan penanganan medis warga.
                   </p>
                 </div>
 
@@ -2094,10 +2106,8 @@
                 <i class="fa-solid fa-arrow-left text-sm"></i>
               </button>
               <div>
-                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Detail Pengawalan Aparat Linmas
-                  Desa</h3>
-                <p class="text-xs text-slate-500 font-medium">Koordinasi keamanan wilayah saat penjemputan warga
-                  berlangsung</p>
+                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Detail Pengawalan Wilayah</h3>
+                <p class="text-xs text-slate-500 font-medium">Koordinasi keamanan wilayah saat penjemputan warga berlangsung</p>
               </div>
             </div>
             <div
@@ -2127,11 +2137,10 @@
                 <div class="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 space-y-2 text-xs">
                   <p class="font-bold text-indigo-900 flex items-center text-sm">
                     <i class="fa-solid fa-shield mr-2 text-indigo-600"></i>
-                    Instruksi Pengamanan Lapangan
+                    Laporan Butuh Pengawalan
                   </p>
                   <p class="text-slate-700 leading-relaxed text-xs">
-                    Pemerintah desa dan aparat Linmas diharapkan hadir mendampingi petugas medis saat penjemputan warga
-                    untuk memastikan proses evakuasi kondusif, aman, dan tertib.
+                    Pemerintah desa dan aparat Linmas diharapkan hadir mendampingi petugas medis saat penjemputan warga untuk memastikan proses evakuasi aman dan tertib.
                   </p>
                 </div>
 
@@ -2160,59 +2169,63 @@
         </div>
 
         <!-- ------------------------------------------------------------- -->
-        <!-- SUB-SCREEN GURU: RIWAYAT DAMPINGAN KEAGAMAAN                  -->
+        <!-- SUB-SCREEN GURU: RIWAYAT DAMPINGAN                            -->
         <!-- ------------------------------------------------------------- -->
         <div id="mobileGuruSubRiwayat" class="space-y-6 hidden">
           <div
-            class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+            class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center space-x-3 sm:space-x-4">
               <button type="button" onclick="closeGuruRiwayatScreen()"
                 class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
               </button>
               <div>
-                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Riwayat Dampingan Guru / Kiai
-                </h3>
-                <p class="text-xs text-slate-500 font-medium">Rekam jejak pendekatan doa & rembuk keluarga santun</p>
+                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Riwayat Pendampingan</h3>
+                <p class="text-xs text-slate-500 font-medium">Daftar laporan warga yang telah selesai didampingi</p>
               </div>
             </div>
-            <div
-              class="hidden sm:flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1 rounded-full text-xs font-bold">
-              <i class="fa-solid fa-hands-praying"></i>
-              <span>Pilar Guru</span>
+            <!-- Search Riwayat Guru -->
+            <div class="relative w-full sm:w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" id="guruRiwayatSearchInput" oninput="handleGuruRiwayatSearchFilter()"
+                placeholder="Cari riwayat pasien..."
+                class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-600 transition shadow-2xs">
             </div>
           </div>
           <div id="mGuruRiwayatListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Diisi otomatis oleh JS -->
           </div>
+          <div id="guruRiwayatPaginationContainer" class="pt-2"></div>
         </div>
 
         <!-- ------------------------------------------------------------- -->
-        <!-- SUB-SCREEN RATO: RIWAYAT PENGAWALAN DESA                      -->
+        <!-- SUB-SCREEN RATO: RIWAYAT PENGAWALAN                           -->
         <!-- ------------------------------------------------------------- -->
         <div id="mobileRatoSubRiwayat" class="space-y-6 hidden">
           <div
-            class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+            class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center space-x-3 sm:space-x-4">
               <button type="button" onclick="closeRatoRiwayatScreen()"
                 class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-indigo-100 hover:text-indigo-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
               </button>
               <div>
-                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Riwayat Pengawalan Rato / Kades
-                </h3>
-                <p class="text-xs text-slate-500 font-medium">Rekam jejak koordinasi linmas & evakuasi wilayah aman</p>
+                <h3 class="font-black text-base sm:text-lg text-slate-900 leading-tight">Riwayat Pengawalan</h3>
+                <p class="text-xs text-slate-500 font-medium">Daftar laporan warga yang telah selesai dikawal</p>
               </div>
             </div>
-            <div
-              class="hidden sm:flex items-center space-x-1.5 bg-indigo-50 text-indigo-800 border border-indigo-200/80 px-3 py-1 rounded-full text-xs font-bold">
-              <i class="fa-solid fa-shield-halved"></i>
-              <span>Pilar Rato</span>
+            <!-- Search Riwayat Rato -->
+            <div class="relative w-full sm:w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" id="ratoRiwayatSearchInput" oninput="handleRatoRiwayatSearchFilter()"
+                placeholder="Cari riwayat pasien..."
+                class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 transition shadow-2xs">
             </div>
           </div>
           <div id="mRatoRiwayatListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Diisi otomatis oleh JS -->
           </div>
+          <div id="ratoRiwayatPaginationContainer" class="pt-2"></div>
         </div>
 
         <!-- Universal Footer Khusus Tampilan Scroll Konten (Mobile & Tablet) -->
@@ -3059,6 +3072,85 @@
       </form>
     </div>
   </div>
+
+  <!-- MODAL: DETAIL LAPORAN MASUK DARI KADER JIWA -->
+  <div id="modalReportDetail" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-red-100 text-red-700 flex items-center justify-center font-bold text-base shadow-xs">
+            <i class="fa-solid fa-clipboard-check"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="font-black text-slate-900 text-base sm:text-lg" id="repDetailPatientName">Detail Laporan Temuan</h3>
+              <span id="repDetailBadgeStatus" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                Laporan Baru
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 font-mono" id="repDetailReportNumber">LAP-000</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeReportDetail()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Preview Foto Bukti Lapangan -->
+      <div id="repDetailPhotoContainer" class="bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 text-center relative max-h-60 flex items-center justify-center hidden">
+        <img id="repDetailPhotoImg" src="" alt="Foto Bukti Temuan Pasung" class="w-full h-auto max-h-60 object-contain rounded-2xl">
+      </div>
+
+      <!-- Grid Data Pelapor & Pasien -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Identitas Pelapor</span>
+          <p class="font-black text-slate-900 text-sm" id="repDetailReporterName">-</p>
+          <p class="text-slate-500 font-medium" id="repDetailReporterRole">Kader Jiwa (Bhupa')</p>
+          <div class="pt-1.5 flex items-center gap-2">
+            <a id="repDetailReporterWaBtn" href="#" target="_blank" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center gap-1 shadow-xs transition">
+              <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Lokasi & Wilayah</span>
+          <p class="font-black text-slate-900 text-sm" id="repDetailVillageName">Desa Kokop</p>
+          <p class="text-slate-500 font-medium truncate" id="repDetailAddress">-</p>
+          <div class="pt-1.5">
+            <a id="repDetailGpsBtn" href="#" target="_blank" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-black text-white font-bold text-[11px] inline-flex items-center gap-1 shadow-xs transition">
+              <i class="fa-solid fa-map-location-dot"></i> Buka Titik GPS
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rincian Catatan Kasus -->
+      <div class="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 text-xs space-y-1">
+        <span class="text-[10px] uppercase font-bold text-amber-800 block tracking-wider">Jenis Temuan & Keterangan</span>
+        <div class="flex items-center gap-2">
+          <span class="font-black text-slate-900" id="repDetailType">Kasus Pasung</span>
+          <span class="text-slate-400">•</span>
+          <span class="text-slate-600" id="repDetailDate">-</span>
+        </div>
+        <p class="text-slate-700 font-medium leading-relaxed pt-1" id="repDetailDesc">Tidak ada catatan tambahan.</p>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <button type="button" onclick="closeReportDetail()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
+          Tutup
+        </button>
+        <div id="repDetailNakesActions" class="w-full sm:w-auto flex items-center gap-2">
+          <button type="button" id="btnRepDetailValidate" onclick="openSiagaFromReportDetail()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-clipboard-check"></i>
+            <span>Validasi EWS & Pemetaan</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- ZERO-COST CLIENT DATA & STORAGE ENGINE (UNIVERSAL SCRIPT, BEBAS CORS PROTOCOL) -->
   <script src="./js/malekkas-engine.js"></script>
   <script type="module">
@@ -3180,6 +3272,41 @@
       const elapsed = Date.now() - startTime;
       const remainingDelay = Math.max(200, 1400 - elapsed);
       dismissSplashScreen(remainingDelay);
+    });
+
+    // Realtime Cross-tab & Multi-role Sync Event Listener
+    window.addEventListener('storage', async (e) => {
+      try {
+        if (!e.key || e.key === 'cases' || e.key === 'reports') {
+          await Promise.all([fetchCases(), fetchReports()]);
+          if (currentUser) {
+            if (currentUser.role === 'GURU') {
+              renderGuruMobileRequests(currentCases);
+              if (typeof renderGuruRiwayatList === 'function') renderGuruRiwayatList();
+            } else if (currentUser.role === 'RATO') {
+              renderRatoMobileRequests(currentCases);
+              if (typeof renderRatoRiwayatList === 'function') renderRatoRiwayatList();
+            } else if (currentUser.role === 'KADER') {
+              renderKaderRecentReports(currentReports);
+              if (typeof renderKaderStatusList === 'function') renderKaderStatusList(currentReports);
+            } else {
+              renderNakesDashboardCases(currentCases);
+              if (typeof handleReportsFilterSort === 'function') handleReportsFilterSort(false);
+              if (typeof handleCasesFilterSort === 'function') handleCasesFilterSort(false);
+              if (activeSelectedCase) {
+                const refreshed = currentCases.find(c => String(c.id) === String(activeSelectedCase.id));
+                if (refreshed) {
+                  activeSelectedCase = refreshed;
+                  selectCaseDetail(activeSelectedCase.id);
+                }
+              }
+            }
+            updateRoleMetricCounters();
+          }
+        }
+      } catch (err) {
+        console.warn('Storage sync error:', err);
+      }
     });
 
     async function checkSession() {
@@ -3811,7 +3938,7 @@
           }
           bannerList.innerHTML = pendingReports.map(r => `
             <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-              <div class="space-y-0.5">
+              <div class="space-y-0.5 cursor-pointer flex-1" onclick="openReportDetail('${r.id}')">
                 <div class="flex items-center space-x-2">
                   <span class="font-bold text-white text-sm">${r.patient_name_input}</span>
                   <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-white text-red-700 font-bold">${r.report_number}</span>
@@ -3822,8 +3949,11 @@
                 </p>
               </div>
               <div class="flex items-center space-x-2 self-end md:self-center shrink-0">
+                <button type="button" onclick="openReportDetail('${r.id}')" class="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white font-bold text-xs transition flex items-center shadow-xs">
+                  <i class="fa-solid fa-eye mr-1.5"></i> Detail
+                </button>
                 ${r.latitude ? `<a href="https://maps.google.com/?q=${r.latitude},${r.longitude}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white font-bold text-xs transition flex items-center"><i class="fa-solid fa-map-location-dot mr-1"></i> GPS</a>` : ''}
-                <button onclick="openSiagaFromReport(${r.id})" class="px-3.5 py-1.5 rounded-lg bg-white text-red-700 hover:bg-red-50 font-black text-xs shadow-md transition flex items-center">
+                <button onclick="openSiagaFromReport('${r.id}')" class="px-3.5 py-1.5 rounded-lg bg-white text-red-700 hover:bg-red-50 font-black text-xs shadow-md transition flex items-center">
                   <i class="fa-solid fa-clipboard-check mr-1.5"></i> Validasi EWS & Pemetaan
                 </button>
               </div>
@@ -3843,9 +3973,9 @@
 
       if (pendingReports.length > 0) {
         actionItemsHtml += pendingReports.map(r => `
-          <div onclick="openSiagaFromReport(${r.id})" class="p-3.5 rounded-2xl border-2 border-red-300 bg-red-50/50 hover:bg-red-50 cursor-pointer transition flex justify-between items-center shadow-xs">
+          <div onclick="openReportDetail('${r.id}')" class="p-3.5 rounded-2xl border-2 border-red-300 bg-red-50/50 hover:bg-red-50 cursor-pointer transition flex justify-between items-center shadow-xs">
             <div class="flex items-center space-x-3">
-              <div class="w-9 h-9 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm">
+              <div class="w-9 h-9 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm shrink-0">
                 <i class="fa-solid fa-bell animate-bounce"></i>
               </div>
               <div>
@@ -3856,8 +3986,11 @@
                 <p class="text-xs text-slate-500">${r.address_input || 'Desa Kokop'} • <span class="text-red-600 font-semibold">Laporan Kader (Belum Divalidasi)</span></p>
               </div>
             </div>
-            <div>
-              <button onclick="event.stopPropagation(); openSiagaFromReport(${r.id});" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow">
+            <div class="flex items-center space-x-1.5 shrink-0">
+              <button onclick="event.stopPropagation(); openReportDetail('${r.id}');" class="px-2.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 font-bold text-xs rounded-xl shadow-xs">
+                <i class="fa-solid fa-eye mr-1 text-slate-400"></i> Detail
+              </button>
+              <button onclick="event.stopPropagation(); openSiagaFromReport('${r.id}');" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow">
                 Validasi EWS
               </button>
             </div>
@@ -3881,13 +4014,13 @@
           const ratoP = parts.find(p => p.participant_role === 'RATO');
 
           let partnerPills = '';
-          if (guruP && guruP.response === 'AGREE') {
+          if (guruP && (guruP.response === 'AGREE' || guruP.response === 'SIAP' || guruP.response === 'READY')) {
             partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain inline-block"> Bhu' Ghuru: Siap</span>`;
           } else if (guruP && guruP.response === 'NEED_TIME') {
             partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 animate-pulse flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain inline-block"> Bhu' Ghuru: Butuh Waktu</span>`;
           }
 
-          if (ratoP && ratoP.response === 'READY') {
+          if (ratoP && (ratoP.response === 'READY' || ratoP.response === 'SIAP' || ratoP.response === 'AGREE')) {
             partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain inline-block"> Rato: Siap</span>`;
           }
 
@@ -3901,7 +4034,7 @@
           const cleanGuruPhone = guruPhone.replace(/\D/g, '').replace(/^0/, '62');
           let guruResponseText = 'Menunggu Konfirmasi';
           let guruResponseClass = 'text-slate-500';
-          if (guruP && guruP.response === 'AGREE') { guruResponseText = '✓ Siap Dampingi'; guruResponseClass = 'text-emerald-700 font-bold'; }
+          if (guruP && (guruP.response === 'AGREE' || guruP.response === 'SIAP' || guruP.response === 'READY')) { guruResponseText = '✓ Siap Dampingi'; guruResponseClass = 'text-emerald-700 font-bold'; }
           else if (guruP && guruP.response === 'NEED_TIME') { guruResponseText = '▲ Butuh Waktu'; guruResponseClass = 'text-amber-700 font-bold'; }
 
           const ratoName = cleanRoleAccountName((ratoP && ratoP.name) ? ratoP.name : 'Klebun Kokop');
@@ -3909,10 +4042,10 @@
           const cleanRatoPhone = ratoPhone.replace(/\D/g, '').replace(/^0/, '62');
           let ratoResponseText = 'Menunggu Linmas';
           let ratoResponseClass = 'text-slate-500';
-          if (ratoP && ratoP.response === 'READY') { ratoResponseText = '✓ Siap Kawal'; ratoResponseClass = 'text-indigo-700 font-bold'; }
+          if (ratoP && (ratoP.response === 'READY' || ratoP.response === 'SIAP' || ratoP.response === 'AGREE')) { ratoResponseText = '✓ Siap Kawal'; ratoResponseClass = 'text-indigo-700 font-bold'; }
 
           return `
-            <div onclick="selectCaseDetail(${c.id})" class="p-4 rounded-2xl md:rounded-3xl border border-slate-200/90 bg-white hover:border-emerald-500 hover:shadow-md cursor-pointer transition space-y-3">
+            <div onclick="selectCaseDetail('${c.id}')" class="p-4 rounded-2xl md:rounded-3xl border border-slate-200/90 bg-white hover:border-emerald-500 hover:shadow-md cursor-pointer transition space-y-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                 <div class="flex items-center space-x-3">
                   <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
@@ -4140,7 +4273,7 @@
                   <p class="text-[10px] text-slate-500">${c.case_number} • ${c.report_type || 'Pasung'}</p>
                   <span class="px-2 py-0.5 rounded text-[9px] font-bold text-white ${pinColor.split(' ')[0]}">${statusLabel}</span>
                   <div class="pt-1.5 flex space-x-1.5">
-                    <button onclick="selectCaseDetail(${c.id})" class="px-2 py-1 bg-slate-800 text-white font-bold rounded text-[9px] hover:bg-black">Detail</button>
+                    <button onclick="selectCaseDetail('${c.id}')" class="px-2 py-1 bg-slate-800 text-white font-bold rounded text-[9px] hover:bg-black">Detail</button>
                     <button onclick="openExternalMapsModal(${lat}, ${lng}, '${c.patient_name.replace(/'/g, "\\'")}', '${(c.village_name || 'Desa Kokop').replace(/'/g, "\\'")}')" class="px-2 py-1 bg-emerald-700 text-white font-bold rounded text-[9px] hover:bg-emerald-800 flex items-center space-x-1">
                       <i class="fa-solid fa-diamond-turn-right text-[8px]"></i>
                       <span>Maps</span>
@@ -4251,7 +4384,11 @@
       patients: { page: 1, perPage: 10, query: '', village: '', status: '', sort: 'latest' },
       kontrol: { page: 1, perPage: 5, query: '', compliance: '', sort: 'name_asc' },
       reports: { page: 1, perPage: 10, query: '', status: '', sort: 'latest' },
-      kaderStatus: { page: 1, perPage: 6 }
+      kaderStatus: { page: 1, perPage: 6 },
+      guruRequests: { page: 1, perPage: 4, query: '' },
+      guruRiwayat: { page: 1, perPage: 4, query: '' },
+      ratoRequests: { page: 1, perPage: 4, query: '' },
+      ratoRiwayat: { page: 1, perPage: 4, query: '' }
     };
 
     function renderPaginationControls({
@@ -4413,7 +4550,7 @@
               </td>
               <td class="p-3.5 font-bold text-slate-700">${formatPriorityIndo(c.priority)}</td>
               <td class="p-3.5 text-center">
-                <button onclick="selectCaseDetail(${c.id})" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow">
+                <button onclick="selectCaseDetail('${c.id}')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow">
                   Detail & Tindak
                 </button>
               </td>
@@ -4534,15 +4671,15 @@
               </td>
               <td class="p-3.5 text-center">
                 <div class="inline-flex items-center gap-1.5">
-                  <button onclick="openEditPatientModal(${c.id})" title="Edit Data Pasien"
+                  <button onclick="openEditPatientModal('${c.id}')" title="Edit Data Pasien"
                     class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-[11px] border border-amber-200 transition flex items-center gap-1">
                     <i class="fa-solid fa-pen-to-square"></i> Edit
                   </button>
-                  <button onclick="deletePatientAction(${c.id}, '${escapeHtml(c.patient_name)}')" title="Hapus Pasien"
+                  <button onclick="deletePatientAction('${c.id}', '${escapeHtml(c.patient_name)}')" title="Hapus Pasien"
                     class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[11px] border border-rose-200 transition flex items-center gap-1">
                     <i class="fa-solid fa-trash-can"></i> Hapus
                   </button>
-                  <button onclick="selectCaseDetail(${c.id})" title="Lihat Rekam Medis & Riwayat"
+                  <button onclick="selectCaseDetail('${c.id}')" title="Lihat Rekam Medis & Riwayat"
                     class="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-[11px] border border-emerald-200 transition flex items-center gap-1">
                     <i class="fa-solid fa-eye"></i> Detail
                   </button>
@@ -4594,7 +4731,7 @@
             Didampingi oleh pilar <strong>Bhu' Ghuru</strong> dan <strong>Rato</strong> setempat. Ambulans siaga dari Puskesmas Kokop.
           </p>
           <div class="flex space-x-2 pt-1">
-            <button onclick="selectCaseDetail(${c.id})" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow flex items-center justify-center">
+            <button onclick="selectCaseDetail('${c.id}')" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow flex items-center justify-center">
               <i class="fa-solid fa-truck-medical mr-1.5"></i> Buka Monitoring Evakuasi
             </button>
           </div>
@@ -4682,7 +4819,7 @@
             const displayNotes = lastVisit ? lastVisit.notes : (c.drug_notes || '');
 
             return `
-            <div onclick="openKontrolObatModal(${c.id})" class="p-4 rounded-2xl border border-slate-200 hover:border-emerald-500 bg-white hover:bg-emerald-50/20 cursor-pointer flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-xs shadow-sm transition group">
+            <div onclick="openKontrolObatModal('${c.id}')" class="p-4 rounded-2xl border border-slate-200 hover:border-emerald-500 bg-white hover:bg-emerald-50/20 cursor-pointer flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-xs shadow-sm transition group">
               <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-base shrink-0 group-hover:scale-105 transition">
                   <i class="fa-solid fa-pills"></i>
@@ -5159,12 +5296,12 @@
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                <button type="button" onclick="sendDirectWaReminder('keluarga', ${c.id})"
+                <button type="button" onclick="sendDirectWaReminder('keluarga', '${c.id}')"
                   class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition shadow-xs">
                   <i class="fa-brands fa-whatsapp text-sm"></i>
                   <span>WA Keluarga (${famPhone})</span>
                 </button>
-                <button type="button" onclick="sendDirectWaReminder('kader', ${c.id})"
+                <button type="button" onclick="sendDirectWaReminder('kader', '${c.id}')"
                   class="w-full px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition shadow-xs">
                   <i class="fa-brands fa-whatsapp text-sm"></i>
                   <span>WA Kader (${cleanRoleAccountName(kader ? kader.name : 'Bhupa\'')})</span>
@@ -5413,11 +5550,16 @@
                 </span>
               </td>
               <td class="p-3.5 text-center">
-                ${r.status === 'NEW' ? `
-                  <button onclick="openSiagaFromReport(${r.id})" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow">
-                    Validasi EWS
+                <div class="flex items-center justify-center space-x-1.5">
+                  <button type="button" onclick="openReportDetail('${r.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 transition">
+                    <i class="fa-solid fa-eye text-slate-400 mr-1"></i> Detail
                   </button>
-                ` : '<span class="text-slate-400 text-xs font-semibold">Tervalidasi</span>'}
+                  ${r.status === 'NEW' ? `
+                    <button onclick="openSiagaFromReport('${r.id}')" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow transition">
+                      Validasi EWS
+                    </button>
+                  ` : '<span class="text-emerald-700 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">✓ Tervalidasi</span>'}
+                </div>
               </td>
             </tr>
           `).join('');
@@ -5439,14 +5581,162 @@
     }
 
     let activeReportId = null; // Menyimpan report_id saat activasi dari laporan
+    let activeDetailReportId = null; // Menyimpan report_id saat modal detail dibuka
+
+    function openReportDetail(reportId) {
+      let rep = currentReports.find(r => String(r.id) === String(reportId) || (r.report_number && r.report_number === reportId));
+      if (!rep) {
+        const matchedCase = currentCases.find(c => String(c.id) === String(reportId) || (c.case_number && c.case_number === reportId));
+        if (matchedCase) {
+          rep = {
+            id: matchedCase.id,
+            patient_name_input: matchedCase.patient_name,
+            report_number: matchedCase.case_number,
+            status: matchedCase.status,
+            photo_path: matchedCase.photo_path,
+            reporter_name: matchedCase.reporter_name || 'Kader Jiwa',
+            reporter_phone: matchedCase.reporter_phone || '081234567891',
+            village_name: matchedCase.village_name || 'Kokop',
+            address_input: matchedCase.patient_address || matchedCase.village_name,
+            latitude: matchedCase.latitude,
+            longitude: matchedCase.longitude,
+            report_type: matchedCase.report_type || 'Kasus Pasung',
+            created_at: matchedCase.activated_at || matchedCase.created_at,
+            description: matchedCase.notes || 'Data kasus penanganan pasien.'
+          };
+        }
+      }
+      if (!rep) {
+        try {
+          const rawReps = JSON.parse(localStorage.getItem('reports') || '[]');
+          rep = rawReps.find(r => String(r.id) === String(reportId) || (r.report_number && r.report_number === reportId));
+          if (!rep) {
+            const rawCases = JSON.parse(localStorage.getItem('cases') || '[]');
+            const mc = rawCases.find(c => String(c.id) === String(reportId) || (c.case_number && c.case_number === reportId));
+            if (mc) {
+              rep = {
+                id: mc.id,
+                patient_name_input: mc.patient_name,
+                report_number: mc.case_number,
+                status: mc.status,
+                photo_path: mc.photo_path,
+                reporter_name: mc.reporter_name || 'Kader Jiwa',
+                reporter_phone: mc.reporter_phone || '081234567891',
+                village_name: mc.village_name || 'Kokop',
+                address_input: mc.patient_address || mc.village_name,
+                latitude: mc.latitude,
+                longitude: mc.longitude,
+                report_type: mc.report_type || 'Kasus Pasung',
+                created_at: mc.activated_at || mc.created_at,
+                description: mc.notes || 'Data kasus penanganan pasien.'
+              };
+            }
+          }
+        } catch (e) {}
+      }
+      if (!rep) return;
+      activeDetailReportId = rep.id;
+
+      const modal = document.getElementById('modalReportDetail');
+      if (!modal) return;
+
+      const pNameEl = document.getElementById('repDetailPatientName');
+      if (pNameEl) pNameEl.innerText = rep.patient_name_input || 'Pasien Temuan';
+
+      const rNumEl = document.getElementById('repDetailReportNumber');
+      if (rNumEl) rNumEl.innerText = rep.report_number || `LAP-${rep.id}`;
+
+      const statusBadge = document.getElementById('repDetailBadgeStatus');
+      if (statusBadge) {
+        statusBadge.innerText = formatStatusIndo(rep.status);
+        statusBadge.className = rep.status === 'NEW'
+          ? 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200'
+          : 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+      }
+
+      const photoContainer = document.getElementById('repDetailPhotoContainer');
+      const photoImg = document.getElementById('repDetailPhotoImg');
+      if (photoContainer && photoImg) {
+        if (rep.photo_path) {
+          photoImg.src = rep.photo_path;
+          photoContainer.classList.remove('hidden');
+        } else {
+          photoContainer.classList.add('hidden');
+        }
+      }
+
+      const repNameEl = document.getElementById('repDetailReporterName');
+      if (repNameEl) repNameEl.innerText = cleanRoleAccountName(rep.reporter_name || 'Kader Jiwa');
+
+      const repPhone = rep.reporter_phone || '081234567891';
+      const cleanPhone = repPhone.replace(/\D/g, '').replace(/^0/, '62');
+      const waBtn = document.getElementById('repDetailReporterWaBtn');
+      if (waBtn) {
+        waBtn.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Halo ' + (rep.reporter_name || 'Kader') + ', terkait laporan temuan pasien ' + (rep.patient_name_input || '') + ' di Desa ' + (rep.village_name || 'Kokop'))}`;
+      }
+
+      const vNameEl = document.getElementById('repDetailVillageName');
+      if (vNameEl) vNameEl.innerText = `Desa ${rep.village_name || 'Kokop'}`;
+
+      const addrEl = document.getElementById('repDetailAddress');
+      if (addrEl) addrEl.innerText = rep.address_input || '-';
+
+      const gpsBtn = document.getElementById('repDetailGpsBtn');
+      if (gpsBtn) {
+        if (rep.latitude && rep.longitude) {
+          gpsBtn.href = `https://maps.google.com/?q=${rep.latitude},${rep.longitude}`;
+          gpsBtn.classList.remove('hidden');
+        } else {
+          gpsBtn.classList.add('hidden');
+        }
+      }
+
+      const typeEl = document.getElementById('repDetailType');
+      if (typeEl) typeEl.innerText = rep.report_type || 'Kasus Pasung';
+
+      const dateStr = rep.reported_at || rep.created_at;
+      const dateEl = document.getElementById('repDetailDate');
+      if (dateEl) {
+        dateEl.innerText = dateStr ? new Date(dateStr).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : 'Baru saja';
+      }
+
+      const descEl = document.getElementById('repDetailDesc');
+      if (descEl) descEl.innerText = rep.description || 'Laporan temuan baru dari Kader Jiwa di lapangan.';
+
+      // Tampilkan tombol aksi validasi jika pengguna adalah Nakes atau Admin
+      const nakesActions = document.getElementById('repDetailNakesActions');
+      if (nakesActions) {
+        if (currentUser && (currentUser.role === 'NAKES' || currentUser.role === 'ADMIN')) {
+          nakesActions.classList.remove('hidden');
+        } else {
+          nakesActions.classList.add('hidden');
+        }
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeReportDetail() {
+      const modal = document.getElementById('modalReportDetail');
+      if (modal) modal.classList.add('hidden');
+      activeDetailReportId = null;
+    }
+
+    function openSiagaFromReportDetail() {
+      if (activeDetailReportId) {
+        const id = activeDetailReportId;
+        closeReportDetail();
+        openSiagaFromReport(id);
+      }
+    }
 
     function openSiagaFromReport(reportId) {
-      const rep = currentReports.find(r => r.id === reportId);
+      const rep = currentReports.find(r => String(r.id) === String(reportId));
       if (rep) {
-        activeReportId = reportId;
+        activeReportId = rep.id;
         // Jika laporan sudah punya case_id, gunakan itu
         if (rep.case_id) {
-          const matchCase = currentCases.find(c => c.id === rep.case_id);
+          const matchCase = currentCases.find(c => String(c.id) === String(rep.case_id));
           if (matchCase) activeSelectedCase = matchCase;
         }
         if (document.getElementById('valPatientName')) {
@@ -5557,8 +5847,16 @@
     }
 
     function selectCaseDetail(caseId) {
-      activeSelectedCase = currentCases.find(c => c.id === caseId);
-      if (!activeSelectedCase) return;
+      activeSelectedCase = currentCases.find(c => String(c.id) === String(caseId));
+      if (!activeSelectedCase) {
+        // Fallback: Jika ID berasal dari laporan kader yang belum tervalidasi menjadi kasus
+        const matchedReport = currentReports.find(r => String(r.id) === String(caseId));
+        if (matchedReport) {
+          openReportDetail(matchedReport.id);
+          return;
+        }
+        return;
+      }
 
       document.getElementById('detailCaseNumber').innerText = activeSelectedCase.case_number;
       document.getElementById('detailPatientName').innerText = activeSelectedCase.patient_name;
@@ -5638,7 +5936,7 @@
       const ratoP = parts.find(p => p.participant_role === 'RATO');
 
       let guruPill = '';
-      if (guruP && guruP.response === 'AGREE') {
+      if (guruP && (guruP.response === 'AGREE' || guruP.response === 'SIAP' || guruP.response === 'READY')) {
         guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain"> Bhu' Ghuru: Siap</span>`;
       } else if (guruP && guruP.response === 'NEED_TIME') {
         guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 animate-pulse"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain"> Bhu' Ghuru: Butuh Waktu</span>`;
@@ -5647,7 +5945,7 @@
       }
 
       let ratoPill = '';
-      if (ratoP && ratoP.response === 'READY') {
+      if (ratoP && (ratoP.response === 'READY' || ratoP.response === 'SIAP' || ratoP.response === 'AGREE')) {
         ratoPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain"> Rato: Siap Kawal</span>`;
       } else {
         ratoPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain opacity-60"> Rato: Menunggu</span>`;
@@ -5764,23 +6062,24 @@
         return;
       }
 
-      const reportType = document.getElementById('valReportType').value;
+      const reportType = document.getElementById('valReportType')?.value || 'PASUNG';
       const prio = document.querySelector('input[name="val_prio"]:checked')?.value || 'HIGH';
-      const notes = document.getElementById('valNotes').value.trim() || 'Laporan tervalidasi oleh Petugas Nakes.';
+      const notes = document.getElementById('valNotes')?.value.trim() || 'Laporan tervalidasi oleh Petugas Nakes Puskesmas Kokop.';
+      const adapter = window.firebaseAdapter || window.malekkasEngine;
 
       try {
-        if (activeReportId && window.firebaseAdapter && window.firebaseAdapter.validateReport) {
-          const res = await window.firebaseAdapter.validateReport(activeReportId, { priority: prio, notes: notes });
+        if (activeReportId && adapter && adapter.validateReport) {
+          const res = await adapter.validateReport(activeReportId, { priority: prio, notes: notes });
           if (res.success) {
-            alert('Laporan berhasil divalidasi secara mandiri (Tanpa aktivasi notifikasi tokoh). Rekam kasus tersimpan di Dashboard.');
+            alert('✓ Laporan berhasil divalidasi!\nData kasus pasien telah otomatis terdaftar di Basis Data Kasus & Rekam Medis Puskesmas Kokop.');
             activeReportId = null;
             await Promise.all([fetchCases(), fetchReports()]);
             switchNakesTab('dashboard');
             return;
           }
-        } else if (activeSelectedCase && window.firebaseAdapter && window.firebaseAdapter.updateCaseStatus) {
-          await window.firebaseAdapter.updateCaseStatus(activeSelectedCase.id, 'VALIDATED', notes);
-          alert('Status kasus berhasil divalidasi secara mandiri.');
+        } else if (activeSelectedCase && adapter && adapter.updateCaseStatus) {
+          await adapter.updateCaseStatus(activeSelectedCase.id, 'VALIDATED', notes);
+          alert('✓ Status kasus berhasil divalidasi secara mandiri.');
           await Promise.all([fetchCases(), fetchReports()]);
           switchNakesTab('dashboard');
           return;
@@ -5788,6 +6087,8 @@
       } catch (err) {
         console.warn('Validation error:', err);
       }
+      activeReportId = null;
+      await Promise.all([fetchCases(), fetchReports()]);
       alert('Validasi mandiri tersimpan.');
       switchNakesTab('dashboard');
     }
@@ -6255,7 +6556,7 @@
       }
 
       container.innerHTML = reports.slice(0, 6).map(r => `
-        <div onclick="switchKaderPwaSub('status')" class="bg-white p-4 rounded-3xl border border-slate-200/90 hover:border-emerald-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between space-y-3 group">
+        <div onclick="openReportDetail('${r.id}')" class="bg-white p-4 rounded-3xl border border-slate-200/90 hover:border-emerald-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between space-y-3 group">
           <div class="flex items-start justify-between">
             <div class="flex items-center space-x-3">
               <div class="w-10 h-10 rounded-2xl bg-emerald-100/80 text-emerald-800 flex items-center justify-center text-sm font-bold group-hover:scale-105 transition">
@@ -6274,7 +6575,7 @@
           <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
             <span class="truncate max-w-[180px]"><i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> ${r.address_input || 'Desa Kokop'}</span>
             <span class="text-emerald-700 font-bold group-hover:translate-x-0.5 transition flex items-center space-x-1">
-              <span>Pantau</span>
+              <span>Lihat Detail</span>
               <i class="fa-solid fa-angle-right text-[9px]"></i>
             </span>
           </div>
@@ -6424,10 +6725,10 @@
         ];
 
         return `
-          <div class="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/90 p-5 space-y-3.5 shadow-sm hover:shadow-md hover:border-emerald-400 transition">
+          <div onclick="openReportDetail('${r.id}')" class="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/90 p-5 space-y-3.5 shadow-sm hover:shadow-md hover:border-emerald-400 cursor-pointer transition">
             <div class="flex justify-between items-start">
               <div>
-                <h4 class="font-black text-sm sm:text-base text-slate-900">${r.patient_name_input}</h4>
+                <h4 class="font-black text-sm sm:text-base text-slate-900 hover:text-emerald-800 transition">${r.patient_name_input}</h4>
                 <p class="text-[11px] text-slate-400 font-medium">${r.report_number} • ${r.address_input || 'Desa Kokop'}</p>
               </div>
               <span class="bg-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-100 text-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-800 border border-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-200 text-[10px] font-black px-2.5 py-1 rounded-full shrink-0 ml-2">
@@ -6450,8 +6751,14 @@
               `).join('')}
             </div>
             <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
-              <span class="text-slate-400 font-mono text-[11px]">No: ${r.report_number}</span>
-              ${(matchedCase?.case_number || r.resolved_case_number || r.case_number) ? `<span class="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200 text-[11px]">Kasus: ${matchedCase?.case_number || r.resolved_case_number || r.case_number}</span>` : ''}
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400 font-mono text-[11px]">No: ${r.report_number}</span>
+                ${(matchedCase?.case_number || r.resolved_case_number || r.case_number) ? `<span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200 text-[11px]">Kasus: ${matchedCase?.case_number || r.resolved_case_number || r.case_number}</span>` : ''}
+              </div>
+              <button type="button" onclick="event.stopPropagation(); openReportDetail('${r.id}');" class="text-emerald-700 font-bold bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center space-x-1 shadow-xs transition text-xs">
+                <span>Lihat Detail</span>
+                <i class="fa-solid fa-angle-right text-[10px]"></i>
+              </button>
             </div>
           </div>
         `;
@@ -6521,8 +6828,10 @@
     async function submitMobileKaderReport() {
       const name = document.getElementById('kaderFormName').value.trim();
       const villageId = document.getElementById('kaderFormVillage').value;
+      const vSelect = document.getElementById('kaderFormVillage');
+      const vName = vSelect ? vSelect.options[vSelect.selectedIndex]?.text || 'Kokop' : 'Kokop';
       const addressEl = document.getElementById('kaderFormAddress');
-      const address = addressEl ? addressEl.value.trim() : 'Desa Kokop';
+      const address = addressEl ? addressEl.value.trim() : `Desa ${vName}`;
 
       const rawType = document.querySelector('input[name="kader_form_type"]:checked')?.value || 'Pasung';
       let type = rawType;
@@ -6538,31 +6847,30 @@
 
       const btn = document.getElementById('btnKirimMobileLaporan');
       btn.disabled = true;
-      btn.innerHTML = 'Mengirim Laporan...';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Mengirim Laporan...';
 
       try {
-        if (window.firebaseAdapter && window.firebaseAdapter.createReport) {
-          const res = await window.firebaseAdapter.createReport({
+        const adapter = window.firebaseAdapter || window.malekkasEngine;
+        if (adapter && adapter.createReport) {
+          const res = await adapter.createReport({
             patient_name: name,
-            address: address || 'Desa Kokop',
+            address: address || `Desa ${vName}`,
             village_id: villageId,
+            village_name: vName,
             report_type: type,
-            description: `Laporan temuan ${type} dari Kader Jiwa`,
+            description: `Laporan temuan ${type} dari Kader Jiwa di wilayah ${vName}`,
             latitude: mobileGpsCoords.lat,
             longitude: mobileGpsCoords.lng,
             photo_base64: mobilePhotoBase64
           }, currentUser);
 
           if (res.success) {
-            // Dapatkan nama desa
-            const vSelect = document.getElementById('kaderFormVillage');
-            const vName = vSelect ? vSelect.options[vSelect.selectedIndex].text : 'Desa Kokop';
             const reporterName = currentUser ? currentUser.name : 'Kader Jiwa';
 
             // Kirim tembusan otomatis ke WhatsApp Nakes
             dispatchWaToNakes('Laporan Kasus Baru dari Kader Jiwa', `No. Laporan: *${res.data.report_number}*\nPelapor: ${reporterName}\nPasien: *${name}*\nWilayah: ${vName}\nAlamat: ${address || '-'}\nJenis Kasus: *${type}*\nKoordinat GPS: ${mobileGpsCoords.lat.toFixed(4)}, ${mobileGpsCoords.lng.toFixed(4)}`);
 
-            alert(`Laporan berhasil dikirim ke Puskesmas!\nNomor: ${res.data.report_number}\nNotifikasi langsung diteruskan ke Dashboard dan WhatsApp Nakes.`);
+            alert(`✓ Laporan berhasil dikirim ke Puskesmas!\nNomor Laporan: ${res.data.report_number}\nData langsung tercatat di Sistem & Notifikasi diteruskan ke WhatsApp Nakes.`);
             document.getElementById('kaderFormName').value = '';
             if (addressEl) addressEl.value = '';
             const otherTextInput = document.getElementById('kaderFormTypeOtherText');
@@ -6575,13 +6883,21 @@
             mobilePhotoBase64 = null;
             document.getElementById('kaderMobilePhotoText').innerText = 'Ambil Foto';
             document.getElementById('kaderMobileGpsText').innerText = 'Ambil Lokasi GPS';
-            await fetchReports();
+            
+            // Muat ulang laporan dan kasus untuk memperbarui UI seketika
+            await Promise.all([fetchReports(), fetchCases()]);
+            renderKaderRecentReports(currentReports);
+            updateRoleMetricCounters();
             switchKaderPwaSub('dashboard');
             return;
           }
         }
       } catch (err) {
+        console.warn('Submit kader report fallback:', err);
         alert('Laporan berhasil disimpan.');
+        await Promise.all([fetchReports(), fetchCases()]);
+        renderKaderRecentReports(currentReports);
+        updateRoleMetricCounters();
         switchKaderPwaSub('dashboard');
       } finally {
         btn.disabled = false;
@@ -6591,38 +6907,104 @@
 
 
     // =========================================================================
-    // LOGIKA MOBILE PWA GURU & RATO (PERSIS GAMBAR WIREFRAME GURU & RATO)
+    // LOGIKA SEARCH & PAGINATION UNTUK BHU' GHURU & RATO
+    // =========================================================================
+    function handleGuruSearchFilter() {
+      const input = document.getElementById('guruSearchInput');
+      paginationState.guruRequests.query = input ? input.value.trim().toLowerCase() : '';
+      paginationState.guruRequests.page = 1;
+      renderGuruMobileRequests(currentCases);
+    }
+
+    function changeGuruPage(page) {
+      paginationState.guruRequests.page = page;
+      renderGuruMobileRequests(currentCases);
+    }
+
+    function handleGuruRiwayatSearchFilter() {
+      const input = document.getElementById('guruRiwayatSearchInput');
+      paginationState.guruRiwayat.query = input ? input.value.trim().toLowerCase() : '';
+      paginationState.guruRiwayat.page = 1;
+      renderGuruRiwayatList();
+    }
+
+    function changeGuruRiwayatPage(page) {
+      paginationState.guruRiwayat.page = page;
+      renderGuruRiwayatList();
+    }
+
+    function handleRatoSearchFilter() {
+      const input = document.getElementById('ratoSearchInput');
+      paginationState.ratoRequests.query = input ? input.value.trim().toLowerCase() : '';
+      paginationState.ratoRequests.page = 1;
+      renderRatoMobileRequests(currentCases);
+    }
+
+    function changeRatoPage(page) {
+      paginationState.ratoRequests.page = page;
+      renderRatoMobileRequests(currentCases);
+    }
+
+    function handleRatoRiwayatSearchFilter() {
+      const input = document.getElementById('ratoRiwayatSearchInput');
+      paginationState.ratoRiwayat.query = input ? input.value.trim().toLowerCase() : '';
+      paginationState.ratoRiwayat.page = 1;
+      renderRatoRiwayatList();
+    }
+
+    function changeRatoRiwayatPage(page) {
+      paginationState.ratoRiwayat.page = page;
+      renderRatoRiwayatList();
+    }
+
+    // =========================================================================
+    // LOGIKA MOBILE PWA GURU & RATO (BERSIH DARI SLOP, RESPONSIVE & REALTIME)
     // =========================================================================
     function renderGuruMobileRequests(cases) {
       const container = document.getElementById('guruRequestsContainer');
+      const pagContainer = document.getElementById('guruPaginationContainer');
       if (!container) return;
 
-      const active = cases.filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION');
-      if (active.length === 0) {
-        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Alhamdulillah, belum ada permintaan rembuk santun baru dari Puskesmas saat ini. Kondisi wilayah terpantau aman.</div>`;
+      const active = (cases || []).filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION');
+      const q = paginationState.guruRequests.query || '';
+      const filtered = q
+        ? active.filter(c => (c.patient_name || '').toLowerCase().includes(q) || (c.patient_address || '').toLowerCase().includes(q) || (c.village_name || '').toLowerCase().includes(q))
+        : active;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Tidak ada laporan yang membutuhkan pendampingan saat ini.</div>`;
+        if (pagContainer) pagContainer.innerHTML = '';
         return;
       }
 
-      container.innerHTML = active.map(c => {
+      const totalItems = filtered.length;
+      const perPage = paginationState.guruRequests.perPage;
+      const totalPages = Math.ceil(totalItems / perPage) || 1;
+      if (paginationState.guruRequests.page > totalPages) paginationState.guruRequests.page = totalPages;
+
+      const start = (paginationState.guruRequests.page - 1) * perPage;
+      const paged = filtered.slice(start, start + perPage);
+
+      container.innerHTML = paged.map(c => {
         const myPart = c.participants ? c.participants.find(p => p.participant_role === 'GURU') : null;
-        const isAgreed = myPart && myPart.response === 'AGREE';
+        const isAgreed = myPart && (myPart.response === 'AGREE' || myPart.response === 'SIAP' || myPart.response === 'READY');
         const isNeedTime = myPart && myPart.response === 'NEED_TIME';
 
         let cardBgClass = 'bg-white/95 border-red-200/90 shadow-sm';
         let badgeColor = 'text-red-700 bg-red-100 border-red-200';
         let iconHtml = '<i class="fa-solid fa-bell"></i>';
-        let badgeLabel = 'Permintaan Bantuan Baru';
+        let badgeLabel = 'Laporan Butuh Pendampingan';
 
         if (isAgreed) {
-          cardBgClass = 'bg-emerald-50/40 border-emerald-300 shadow-sm';
-          badgeColor = 'text-emerald-800 bg-emerald-100 border-emerald-200';
-          iconHtml = '<i class="fa-solid fa-check"></i>';
-          badgeLabel = 'Telah Disetujui (Siap Membantu)';
+          cardBgClass = 'bg-emerald-50/50 border-emerald-300 shadow-sm ring-1 ring-emerald-300/60';
+          badgeColor = 'text-emerald-800 bg-emerald-100 border-emerald-300';
+          iconHtml = '<i class="fa-solid fa-circle-check text-emerald-600"></i>';
+          badgeLabel = '✓ Terkonfirmasi Siap';
         } else if (isNeedTime) {
-          cardBgClass = 'bg-amber-50/40 border-amber-300 shadow-sm';
-          badgeColor = 'text-amber-800 bg-amber-100 border-amber-200';
-          iconHtml = '<i class="fa-solid fa-phone-volume animate-pulse"></i>';
-          badgeLabel = 'Sedang Hubungi Keluarga / Butuh Waktu';
+          cardBgClass = 'bg-amber-50/50 border-amber-300 shadow-sm';
+          badgeColor = 'text-amber-800 bg-amber-100 border-amber-300';
+          iconHtml = '<i class="fa-solid fa-clock"></i>';
+          badgeLabel = 'Sedang Mediasi Keluarga';
         }
 
         return `
@@ -6632,7 +7014,7 @@
                 <span>${iconHtml}</span>
                 <span>${badgeLabel}</span>
               </div>
-              <button onclick="openGuruDetailScreen(${c.id})" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center space-x-1 shadow-xs transition">
+              <button onclick="openGuruDetailScreen('${c.id}')" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center space-x-1 shadow-xs transition">
                 <span>Detail</span>
                 <i class="fa-solid fa-angle-right text-[10px]"></i>
               </button>
@@ -6640,49 +7022,80 @@
 
             <div>
               <h4 class="font-black text-base text-slate-900">${c.patient_name}</h4>
-              <p class="text-xs text-slate-500 font-medium">${c.patient_address || c.village_name}</p>
+              <p class="text-xs text-slate-500 font-medium">${c.patient_address || c.village_name || 'Desa Kokop'}</p>
             </div>
 
             <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
-              Puskesmas meminta bantuan pendekatan keagamaan & rembuk santun kepada keluarga agar berkenan dilakukan evakuasi medis.
+              Laporan butuh pendampingan dari Puskesmas Kokop untuk penanganan medis warga.
             </p>
 
             <div class="space-y-2 pt-1">
-              <button onclick="mobileGuruRespond(${c.id}, 'AGREE')" class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md shadow-emerald-900/10 flex items-center justify-center ${isAgreed ? 'opacity-50 pointer-events-none' : ''}">
-                ${isAgreed ? '✓ Sudah Konfirmasi Membantu' : 'Saya Siap Membantu'}
-              </button>
-              <button onclick="mobileGuruRespond(${c.id}, 'NEED_TIME')" class="w-full py-2.5 rounded-xl border ${isNeedTime ? 'border-amber-500 bg-amber-100 text-amber-900 font-black ring-2 ring-amber-300' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'} font-bold text-xs flex items-center justify-center space-x-1.5 transition">
-                <i class="fa-solid fa-phone mr-1"></i>
-                <span>${isNeedTime ? '⏳ Sedang Menghubungi / Butuh Waktu' : 'Saya Butuh Waktu / Telepon Dahulu'}</span>
-              </button>
+              ${isAgreed ? `
+                <button disabled class="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 cursor-default opacity-95">
+                  <i class="fa-solid fa-circle-check text-sm"></i>
+                  <span>✓ Sudah Konfirmasi Siap Dampingi</span>
+                </button>
+              ` : `
+                <button onclick="mobileGuruRespond('${c.id}', 'AGREE')" class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md shadow-emerald-900/10 flex items-center justify-center transition">
+                  Saya Siap Membantu
+                </button>
+                <button onclick="mobileGuruRespond('${c.id}', 'NEED_TIME')" class="w-full py-2.5 rounded-xl border ${isNeedTime ? 'border-amber-500 bg-amber-100 text-amber-900 font-black ring-2 ring-amber-300' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'} font-bold text-xs flex items-center justify-center space-x-1.5 transition">
+                  <i class="fa-solid fa-phone mr-1"></i>
+                  <span>${isNeedTime ? '⏳ Sedang Mediasi / Butuh Waktu' : 'Saya Butuh Waktu / Hubungi Dahulu'}</span>
+                </button>
+              `}
             </div>
           </div>
         `;
       }).join('');
+
+      renderPaginationControls({
+        containerId: 'guruPaginationContainer',
+        totalItems: totalItems,
+        currentPage: paginationState.guruRequests.page,
+        perPage: perPage,
+        onPageChangeName: 'changeGuruPage',
+        entityName: 'laporan'
+      });
     }
 
     function renderRatoMobileRequests(cases) {
       const container = document.getElementById('ratoRequestsContainer');
+      const pagContainer = document.getElementById('ratoPaginationContainer');
       if (!container) return;
 
-      const active = cases.filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION');
-      if (active.length === 0) {
-        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Tidak ada instruksi pengawalan evakuasi aktif dari Puskesmas saat ini. Wilayah aman terkendali.</div>`;
+      const active = (cases || []).filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION');
+      const q = paginationState.ratoRequests.query || '';
+      const filtered = q
+        ? active.filter(c => (c.patient_name || '').toLowerCase().includes(q) || (c.patient_address || '').toLowerCase().includes(q) || (c.village_name || '').toLowerCase().includes(q))
+        : active;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Tidak ada laporan yang membutuhkan pengawalan saat ini.</div>`;
+        if (pagContainer) pagContainer.innerHTML = '';
         return;
       }
 
-      container.innerHTML = active.map(c => {
+      const totalItems = filtered.length;
+      const perPage = paginationState.ratoRequests.perPage;
+      const totalPages = Math.ceil(totalItems / perPage) || 1;
+      if (paginationState.ratoRequests.page > totalPages) paginationState.ratoRequests.page = totalPages;
+
+      const start = (paginationState.ratoRequests.page - 1) * perPage;
+      const paged = filtered.slice(start, start + perPage);
+
+      container.innerHTML = paged.map(c => {
         const myPart = c.participants ? c.participants.find(p => p.participant_role === 'RATO') : null;
-        const isReady = myPart && myPart.response === 'READY';
+        const isReady = myPart && (myPart.response === 'READY' || myPart.response === 'AGREE' || myPart.response === 'SIAP');
 
         return `
-          <div class="bg-white/95 backdrop-blur-md p-5 rounded-3xl border ${isReady ? 'border-indigo-300 bg-indigo-50/30' : 'border-red-200/90'} space-y-3.5 shadow-sm hover:shadow-md transition">
+          <div class="bg-white/95 backdrop-blur-md p-5 rounded-3xl border ${isReady ? 'border-emerald-300 bg-emerald-50/40 ring-1 ring-emerald-300/60' : 'border-red-200/90'} space-y-3.5 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between">
-              <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black border ${isReady ? 'bg-indigo-100 text-indigo-800 border-indigo-200' : 'bg-red-100 text-red-700 border-red-200'}">
-                <i class="fa-solid ${isReady ? 'fa-shield-halved' : 'fa-triangle-exclamation'}"></i>
-                <span>${isReady ? 'Aparat Siap Mengawal' : 'Koordinasi Evakuasi'}</span>
+              <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black border ${isReady ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-red-100 text-red-700 border-red-200'}">
+                <i class="fa-solid ${isReady ? 'fa-circle-check text-emerald-600' : 'fa-shield'}"></i>
+                <span>${isReady ? '✓ Terkonfirmasi Siap' : 'Laporan Butuh Pengawalan'}</span>
               </div>
-              <button onclick="openRatoDetailScreen(${c.id})" class="text-xs font-bold text-indigo-700 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200 flex items-center space-x-1 shadow-xs transition">
+              <button onclick="openRatoDetailScreen('${c.id}')" class="text-xs font-bold text-indigo-700 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200 flex items-center space-x-1 shadow-xs transition">
                 <span>Detail</span>
                 <i class="fa-solid fa-angle-right text-[10px]"></i>
               </button>
@@ -6690,30 +7103,48 @@
 
             <div>
               <h4 class="font-black text-base text-slate-900">${c.patient_name}</h4>
-              <p class="text-xs text-slate-500 font-medium">${c.patient_address || c.village_name}</p>
+              <p class="text-xs text-slate-500 font-medium">${c.patient_address || c.village_name || 'Desa Kokop'}</p>
             </div>
 
             <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
-              Puskesmas membutuhkan pengawalan keamanan aparat desa dan Linmas saat proses penjemputan warga.
+              Laporan butuh pendampingan pengawalan aparat desa dan Linmas untuk penanganan medis warga.
             </p>
 
             <div class="pt-1">
-              <button onclick="mobileRatoRespond(${c.id}, 'READY')" class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md shadow-emerald-900/10 flex items-center justify-center ${isReady ? 'opacity-50 pointer-events-none' : ''}">
-                ${isReady ? '✓ Sudah Konfirmasi Siap Kawal' : 'Siap Mengawal'}
-              </button>
+              ${isReady ? `
+                <button disabled class="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 cursor-default opacity-95">
+                  <i class="fa-solid fa-circle-check text-sm"></i>
+                  <span>✓ Sudah Konfirmasi Siap Kawal</span>
+                </button>
+              ` : `
+                <button onclick="mobileRatoRespond('${c.id}', 'READY')" class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md shadow-emerald-900/10 flex items-center justify-center transition">
+                  Siap Mengawal
+                </button>
+              `}
             </div>
           </div>
         `;
       }).join('');
+
+      renderPaginationControls({
+        containerId: 'ratoPaginationContainer',
+        totalItems: totalItems,
+        currentPage: paginationState.ratoRequests.page,
+        perPage: perPage,
+        onPageChangeName: 'changeRatoPage',
+        entityName: 'laporan'
+      });
     }
 
     let mGuruMapInstance = null;
     let mRatoMapInstance = null;
 
     function openGuruDetailScreen(caseId) {
-      const targetCase = currentCases.find(c => c.id === caseId);
+      const targetCase = currentCases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
       if (!targetCase) return;
 
+      const guruRiwayat = document.getElementById('mobileGuruSubRiwayat');
+      if (guruRiwayat) guruRiwayat.classList.add('hidden');
       document.getElementById('mobileScreenGuru').classList.add('hidden');
       document.getElementById('mobileGuruSubDetail').classList.remove('hidden');
 
@@ -6722,17 +7153,22 @@
       document.getElementById('mGuruDetailBadge').innerText = formatStatusIndo(targetCase.status);
 
       const myPart = targetCase.participants ? targetCase.participants.find(p => p.participant_role === 'GURU') : null;
-      const isAgreed = myPart && myPart.response === 'AGREE';
+      const isAgreed = myPart && (myPart.response === 'AGREE' || myPart.response === 'SIAP' || myPart.response === 'READY');
       const isNeedTime = myPart && myPart.response === 'NEED_TIME';
 
       const actionContainer = document.getElementById('mGuruDetailActionBtns');
-      actionContainer.innerHTML = `
-        <button onclick="mobileGuruRespond(${targetCase.id}, 'AGREE'); closeGuruDetailScreen();" class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow flex items-center justify-center ${isAgreed ? 'opacity-50 pointer-events-none' : ''}">
-          ${isAgreed ? '✓ Sudah Konfirmasi Membantu' : 'Saya Siap Membantu'}
+      actionContainer.innerHTML = isAgreed ? `
+        <button disabled class="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow flex items-center justify-center space-x-1.5 cursor-default opacity-95">
+          <i class="fa-solid fa-circle-check text-sm"></i>
+          <span>✓ Sudah Konfirmasi Siap Dampingi</span>
         </button>
-        <button onclick="mobileGuruRespond(${targetCase.id}, 'NEED_TIME'); closeGuruDetailScreen();" class="w-full py-2.5 rounded-xl border ${isNeedTime ? 'border-amber-500 bg-amber-100 text-amber-900 font-black ring-2 ring-amber-300' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'} font-bold text-xs flex items-center justify-center space-x-1.5">
+      ` : `
+        <button onclick="mobileGuruRespond('${targetCase.id}', 'AGREE'); closeGuruDetailScreen();" class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow flex items-center justify-center transition">
+          Saya Siap Membantu
+        </button>
+        <button onclick="mobileGuruRespond('${targetCase.id}', 'NEED_TIME'); closeGuruDetailScreen();" class="w-full py-2.5 rounded-xl border ${isNeedTime ? 'border-amber-500 bg-amber-100 text-amber-900 font-black ring-2 ring-amber-300' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'} font-bold text-xs flex items-center justify-center space-x-1.5 transition">
           <i class="fa-solid fa-phone mr-1"></i>
-          <span>${isNeedTime ? '⏳ Sedang Menghubungi / Butuh Waktu' : 'Saya Butuh Waktu / Telepon Dahulu'}</span>
+          <span>${isNeedTime ? '⏳ Sedang Mediasi / Butuh Waktu' : 'Saya Butuh Waktu / Hubungi Dahulu'}</span>
         </button>
       `;
 
@@ -6783,9 +7219,11 @@
     }
 
     function openRatoDetailScreen(caseId) {
-      const targetCase = currentCases.find(c => c.id === caseId);
+      const targetCase = currentCases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
       if (!targetCase) return;
 
+      const ratoRiwayat = document.getElementById('mobileRatoSubRiwayat');
+      if (ratoRiwayat) ratoRiwayat.classList.add('hidden');
       document.getElementById('mobileScreenRato').classList.add('hidden');
       document.getElementById('mobileRatoSubDetail').classList.remove('hidden');
 
@@ -6794,12 +7232,17 @@
       document.getElementById('mRatoDetailBadge').innerText = formatStatusIndo(targetCase.status);
 
       const myPart = targetCase.participants ? targetCase.participants.find(p => p.participant_role === 'RATO') : null;
-      const isReady = myPart && myPart.response === 'READY';
+      const isReady = myPart && (myPart.response === 'READY' || myPart.response === 'AGREE' || myPart.response === 'SIAP');
 
       const actionContainer = document.getElementById('mRatoDetailActionBtns');
-      actionContainer.innerHTML = `
-        <button onclick="mobileRatoRespond(${targetCase.id}, 'READY'); closeRatoDetailScreen();" class="w-full py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow flex items-center justify-center ${isReady ? 'opacity-50 pointer-events-none' : ''}">
-          ${isReady ? '✓ Sudah Konfirmasi Siap Kawal' : 'Siap Mengawal'}
+      actionContainer.innerHTML = isReady ? `
+        <button disabled class="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow flex items-center justify-center space-x-1.5 cursor-default opacity-95">
+          <i class="fa-solid fa-circle-check text-sm"></i>
+          <span>✓ Sudah Konfirmasi Siap Kawal</span>
+        </button>
+      ` : `
+        <button onclick="mobileRatoRespond('${targetCase.id}', 'READY'); closeRatoDetailScreen();" class="w-full py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow flex items-center justify-center transition">
+          Siap Mengawal
         </button>
       `;
 
@@ -6860,59 +7303,177 @@
       const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
       const waText = encodeURIComponent(`*NOTIFIKASI EWS PUSKESMAS KOKOP (${nowStr})*\n\n*Topik:* ${topic}\n\n${detailMessage}\n\n_Segera buka Dashboard EWS Puskesmas Kokop untuk pemantauan & tindakan._`);
       const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waText}`;
-      window.open(waUrl, '_blank');
+      try {
+        window.open(waUrl, '_blank');
+      } catch (e) {}
     }
 
     async function mobileGuruRespond(caseId, responseVal) {
       try {
-        if (window.firebaseAdapter && window.firebaseAdapter.respondParticipant) {
-          const note = (responseVal === 'NEED_TIME')
-            ? 'Kiai meminta waktu untuk menghubungi keluarga secara persuasif terlebih dahulu.'
-            : 'Kiai siap mendampingi rembuk santun dan evakuasi.';
-          await window.firebaseAdapter.respondParticipant(caseId, currentUser.id, responseVal, note);
+        const uid = currentUser ? currentUser.id : 4;
+        const note = (responseVal === 'NEED_TIME')
+          ? 'Kiai meminta waktu untuk mediasi keluarga terlebih dahulu.'
+          : 'Kiai siap mendampingi penanganan medis warga.';
 
-          const targetCase = currentCases.find(c => c.id === caseId);
-          const patientName = targetCase ? targetCase.patient_name : 'Warga Kokop';
-          const villageName = targetCase ? (targetCase.village_name || 'Kokop') : 'Kokop';
-          const senderName = cleanRoleAccountName(currentUser ? currentUser.name : "Bhu' Ghuru");
-
-          // Kirim tembusan otomatis ke WhatsApp Nakes
-          const respLabel = (responseVal === 'AGREE') ? 'SETUJU (Siap Mendampingi Rembuk/Evakuasi)' : 'BUTUH WAKTU (Sedang Menghubungi Keluarga Persuasif)';
-          dispatchWaToNakes("Konfirmasi Bhu' Ghuru", `Dari: ${senderName}\nPasien: ${patientName} (${villageName})\nTanggapan: *${respLabel}*\nCatatan: "${note}"`);
-
-          if (responseVal === 'NEED_TIME') {
-            alert('Status tersimpan: Bhu\' Ghuru Butuh Waktu (Sedang Menghubungi Keluarga).\nNotifikasi otomatis dikirim ke Dashboard dan WhatsApp Nakes!');
-          } else {
-            alert('Terima kasih Bhu\' Ghuru! Konfirmasi kesiapan Anda telah tercatat di Dashboard dan WhatsApp Nakes!');
-          }
-          fetchCases();
-          return;
+        // 1. Simpan ke Adapter Firebase / Malekkas
+        const adapter = window.firebaseAdapter || window.malekkasEngine;
+        if (adapter && adapter.respondParticipant) {
+          await adapter.respondParticipant(caseId, uid, responseVal, note, 'GURU');
         }
+
+        // 2. Update Cache Lokal Kasus Seketika
+        const targetCase = currentCases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
+        if (targetCase) {
+          if (!targetCase.participants) targetCase.participants = [];
+          let foundP = targetCase.participants.find(p => p.participant_role === 'GURU' || String(p.user_id) === String(uid));
+          if (foundP) {
+            foundP.response = responseVal;
+            foundP.responded_at = new Date().toISOString();
+            foundP.note = note;
+            foundP.response_note = note;
+          } else {
+            targetCase.participants.push({
+              participant_role: 'GURU',
+              user_id: uid,
+              name: currentUser ? currentUser.name : "Bhu' Ghuru",
+              response: responseVal,
+              responded_at: new Date().toISOString(),
+              note: note,
+              response_note: note
+            });
+          }
+
+          let readyCount = 0;
+          let hasAny = false;
+          targetCase.participants.forEach(p => {
+            if (p.response && p.response !== 'PENDING') hasAny = true;
+            if (p.response === 'AGREE' || p.response === 'READY' || p.response === 'SIAP') readyCount++;
+          });
+          if (readyCount >= 2) targetCase.status = 'READY_FOR_EVACUATION';
+          else if (hasAny && targetCase.status === 'SIAGA') targetCase.status = 'COORDINATION';
+
+          try {
+            localStorage.setItem('cases', JSON.stringify(currentCases));
+          } catch (err) {}
+        }
+
+        // 3. Render Ulang Seketika di Layar Guru & Sub-Detail
+        renderGuruMobileRequests(currentCases);
+        if (typeof renderGuruRiwayatList === 'function') renderGuruRiwayatList();
+        updateRoleMetricCounters();
+
+        // Jika sub-detail Guru sedang dibuka untuk kasus ini, refresh tombolnya
+        const subDetailName = document.getElementById('mGuruDetailName');
+        if (subDetailName && targetCase && subDetailName.innerText === targetCase.patient_name) {
+          openGuruDetailScreen(targetCase.id);
+        }
+
+        // 4. Sinkronkan Detail Kasus & Dashboard Nakes
+        if (activeSelectedCase && (String(activeSelectedCase.id) === String(caseId) || activeSelectedCase.case_number === caseId)) {
+          if (targetCase) activeSelectedCase = targetCase;
+          selectCaseDetail(activeSelectedCase.id);
+        }
+        renderNakesDashboardCases(currentCases);
+
+        // Notifikasi visual sukses
+        alert(responseVal === 'AGREE' 
+          ? '✓ Konfirmasi kesiapan Bhu\' Ghuru berhasil disimpan dan dikirim ke Puskesmas.' 
+          : '⏳ Respon sedang butuh waktu berhasil dicatat.');
+
+        // 5. Notifikasi WA ke Nakes
+        const patientName = targetCase ? targetCase.patient_name : 'Warga Kokop';
+        const villageName = targetCase ? (targetCase.village_name || 'Kokop') : 'Kokop';
+        const senderName = cleanRoleAccountName(currentUser ? currentUser.name : "Bhu' Ghuru");
+        const respLabel = (responseVal === 'AGREE') ? 'SIAP MENDAMPINGI' : 'BUTUH WAKTU';
+        dispatchWaToNakes("Konfirmasi Bhu' Ghuru", `Dari: ${senderName}\nPasien: ${patientName} (${villageName})\nTanggapan: *${respLabel}*\nCatatan: "${note}"`);
+
+        // 6. Broadcast event & sinkronisasi data Firestore di Background
+        window.dispatchEvent(new Event('storage'));
+        fetchCases();
       } catch (e) {
-        alert('Tanggapan tersimpan.');
+        console.warn('Error mobileGuruRespond:', e);
       }
     }
 
     async function mobileRatoRespond(caseId, responseVal) {
       try {
-        if (window.firebaseAdapter && window.firebaseAdapter.respondParticipant) {
-          const note = 'Aparat desa dan linmas siap mengawal proses evakuasi medis.';
-          await window.firebaseAdapter.respondParticipant(caseId, currentUser.id, responseVal, note);
+        const uid = currentUser ? currentUser.id : 5;
+        const note = 'Aparat desa dan linmas siap mengawal proses evakuasi medis.';
 
-          const targetCase = currentCases.find(c => c.id === caseId);
-          const patientName = targetCase ? targetCase.patient_name : 'Warga Kokop';
-          const villageName = targetCase ? (targetCase.village_name || 'Kokop') : 'Kokop';
-          const senderName = cleanRoleAccountName(currentUser ? currentUser.name : 'Klebun Kokop');
-
-          // Kirim tembusan otomatis ke WhatsApp Nakes
-          dispatchWaToNakes('Konfirmasi Pengawalan Rato', `Dari: ${senderName}\nPasien: ${patientName} (${villageName})\nTanggapan: *SIAP MENGAWAL*\nCatatan: "${note}"`);
-
-          alert('Terima kasih Pak Kades! Konfirmasi pengamanan telah tercatat di Dashboard dan WhatsApp Nakes!');
-          fetchCases();
-          return;
+        // 1. Simpan ke Adapter Firebase / Malekkas
+        const adapter = window.firebaseAdapter || window.malekkasEngine;
+        if (adapter && adapter.respondParticipant) {
+          await adapter.respondParticipant(caseId, uid, responseVal, note, 'RATO');
         }
+
+        // 2. Update Cache Lokal Kasus Seketika
+        const targetCase = currentCases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
+        if (targetCase) {
+          if (!targetCase.participants) targetCase.participants = [];
+          let foundP = targetCase.participants.find(p => p.participant_role === 'RATO' || String(p.user_id) === String(uid));
+          if (foundP) {
+            foundP.response = responseVal;
+            foundP.responded_at = new Date().toISOString();
+            foundP.note = note;
+            foundP.response_note = note;
+          } else {
+            targetCase.participants.push({
+              participant_role: 'RATO',
+              user_id: uid,
+              name: currentUser ? currentUser.name : 'Klebun Kokop',
+              response: responseVal,
+              responded_at: new Date().toISOString(),
+              note: note,
+              response_note: note
+            });
+          }
+
+          let readyCount = 0;
+          let hasAny = false;
+          targetCase.participants.forEach(p => {
+            if (p.response && p.response !== 'PENDING') hasAny = true;
+            if (p.response === 'AGREE' || p.response === 'READY' || p.response === 'SIAP') readyCount++;
+          });
+          if (readyCount >= 2) targetCase.status = 'READY_FOR_EVACUATION';
+          else if (hasAny && targetCase.status === 'SIAGA') targetCase.status = 'COORDINATION';
+
+          try {
+            localStorage.setItem('cases', JSON.stringify(currentCases));
+          } catch (err) {}
+        }
+
+        // 3. Render Ulang Seketika di Layar Rato & Sub-Detail
+        renderRatoMobileRequests(currentCases);
+        if (typeof renderRatoRiwayatList === 'function') renderRatoRiwayatList();
+        updateRoleMetricCounters();
+
+        // Jika sub-detail Rato sedang dibuka untuk kasus ini, refresh tombolnya
+        const subDetailName = document.getElementById('mRatoDetailName');
+        if (subDetailName && targetCase && subDetailName.innerText === targetCase.patient_name) {
+          openRatoDetailScreen(targetCase.id);
+        }
+
+        // 4. Sinkronkan Detail Kasus & Dashboard Nakes
+        if (activeSelectedCase && (String(activeSelectedCase.id) === String(caseId) || activeSelectedCase.case_number === caseId)) {
+          if (targetCase) activeSelectedCase = targetCase;
+          selectCaseDetail(activeSelectedCase.id);
+        }
+        renderNakesDashboardCases(currentCases);
+
+        // Notifikasi visual sukses
+        alert('✓ Konfirmasi pengawalan Rato (Kepala Desa) berhasil disimpan dan dikirim ke Puskesmas.');
+
+        // 5. Notifikasi WA ke Nakes
+        const patientName = targetCase ? targetCase.patient_name : 'Warga Kokop';
+        const villageName = targetCase ? (targetCase.village_name || 'Kokop') : 'Kokop';
+        const senderName = cleanRoleAccountName(currentUser ? currentUser.name : 'Klebun Kokop');
+        dispatchWaToNakes('Konfirmasi Pengawalan Rato', `Dari: ${senderName}\nPasien: ${patientName} (${villageName})\nTanggapan: *SIAP MENGAWAL*\nCatatan: "${note}"`);
+
+        // 6. Broadcast event & sinkronisasi data Firestore di Background
+        window.dispatchEvent(new Event('storage'));
+        fetchCases();
       } catch (e) {
-        alert('Tanggapan tersimpan.');
+        console.warn('Error mobileRatoRespond:', e);
       }
     }
 
@@ -6939,6 +7500,7 @@
 
     function renderGuruRiwayatList() {
       const container = document.getElementById('mGuruRiwayatListContainer');
+      const pagContainer = document.getElementById('guruRiwayatPaginationContainer');
       if (!container) return;
 
       const uid = currentUser ? currentUser.id : null;
@@ -6948,12 +7510,26 @@
         return c.participants.some(p => p.participant_role === 'GURU' && (String(p.user_id) === String(uid) || !uid || p.response));
       });
 
-      if (assistedCases.length === 0) {
-        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Belum ada riwayat pendampingan keagamaan yang tercatat.</div>`;
+      const q = paginationState.guruRiwayat.query || '';
+      const filtered = q
+        ? assistedCases.filter(c => (c.patient_name || '').toLowerCase().includes(q) || (c.case_number || '').toLowerCase().includes(q) || (c.village_name || '').toLowerCase().includes(q))
+        : assistedCases;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Belum ada riwayat pendampingan yang tercatat.</div>`;
+        if (pagContainer) pagContainer.innerHTML = '';
         return;
       }
 
-      container.innerHTML = assistedCases.map(c => {
+      const totalItems = filtered.length;
+      const perPage = paginationState.guruRiwayat.perPage;
+      const totalPages = Math.ceil(totalItems / perPage) || 1;
+      if (paginationState.guruRiwayat.page > totalPages) paginationState.guruRiwayat.page = totalPages;
+
+      const start = (paginationState.guruRiwayat.page - 1) * perPage;
+      const paged = filtered.slice(start, start + perPage);
+
+      container.innerHTML = paged.map(c => {
         const myPart = (c.participants || []).find(p => p.participant_role === 'GURU');
         const isDone = c.status === 'CLOSED' || c.status === 'MONITORING';
         return `
@@ -6961,7 +7537,7 @@
             <div class="flex justify-between items-start">
               <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-base font-bold shrink-0">
-                  <i class="fa-solid fa-hands-praying"></i>
+                  <i class="fa-solid fa-hand-holding-heart"></i>
                 </div>
                 <div>
                   <h4 class="font-black text-sm sm:text-base text-slate-900">${c.patient_name}</h4>
@@ -6969,16 +7545,16 @@
                 </div>
               </div>
               <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide shrink-0 ${isDone ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}">
-                ${isDone ? '✓ Bebas Pasung' : '▲ Dampingan Aktif'}
+                ${isDone ? '✓ Selesai' : '▲ Pendampingan Aktif'}
               </span>
             </div>
             <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
               <i class="fa-solid fa-circle-info mr-1 text-emerald-700"></i>
-              <strong>Status Rembuk Batin:</strong> ${myPart?.response === 'AGREE' ? 'Keluarga menerima nasehat & ridho evakuasi medis' : myPart?.response === 'NEED_TIME' ? 'Proses pendekatan persuasif bertahap' : 'Menunggu rembuk santun'}
+              <strong>Status Pendampingan:</strong> ${myPart?.response === 'AGREE' ? 'Pendampingan terkonfirmasi siap' : myPart?.response === 'NEED_TIME' ? 'Proses mediasi keluarga' : 'Menunggu pendampingan'}
             </p>
             <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-100">
               <span>Status Kasus: <strong class="text-slate-700">${c.status}</strong></span>
-              <button onclick="openGuruDetailScreen(${c.id})" class="text-emerald-700 font-bold hover:text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center space-x-1.5 shadow-xs transition">
+              <button onclick="openGuruDetailScreen('${c.id}')" class="text-emerald-700 font-bold hover:text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center space-x-1.5 shadow-xs transition">
                 <span>Buka Detail</span>
                 <i class="fa-solid fa-angle-right text-[10px]"></i>
               </button>
@@ -6986,6 +7562,15 @@
           </div>
         `;
       }).join('');
+
+      renderPaginationControls({
+        containerId: 'guruRiwayatPaginationContainer',
+        totalItems: totalItems,
+        currentPage: paginationState.guruRiwayat.page,
+        perPage: perPage,
+        onPageChangeName: 'changeGuruRiwayatPage',
+        entityName: 'riwayat'
+      });
     }
 
     function openRatoRiwayatScreen() {
@@ -7008,6 +7593,7 @@
 
     function renderRatoRiwayatList() {
       const container = document.getElementById('mRatoRiwayatListContainer');
+      const pagContainer = document.getElementById('ratoRiwayatPaginationContainer');
       if (!container) return;
 
       const uid = currentUser ? currentUser.id : null;
@@ -7016,12 +7602,27 @@
         return c.participants.some(p => p.participant_role === 'RATO' && (String(p.user_id) === String(uid) || !uid || p.response));
       });
 
-      if (escortedCases.length === 0) {
-        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Belum ada riwayat pengawalan desa yang tercatat.</div>`;
+      const q = paginationState.ratoRiwayat.query || '';
+      const filtered = q
+        ? escortedCases.filter(c => (c.patient_name || '').toLowerCase().includes(q) || (c.case_number || '').toLowerCase().includes(q) || (c.village_name || '').toLowerCase().includes(q))
+        : escortedCases;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-500 bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-sm">Belum ada riwayat pengawalan yang tercatat.</div>`;
+        if (pagContainer) pagContainer.innerHTML = '';
         return;
       }
 
-      container.innerHTML = escortedCases.map(c => {
+      const totalItems = filtered.length;
+      const perPage = paginationState.ratoRiwayat.perPage;
+      const totalPages = Math.ceil(totalItems / perPage) || 1;
+      if (paginationState.ratoRiwayat.page > totalPages) paginationState.ratoRiwayat.page = totalPages;
+
+      const start = (paginationState.ratoRiwayat.page - 1) * perPage;
+      const paged = filtered.slice(start, start + perPage);
+
+      container.innerHTML = paged.map(c => {
+        const myPart = (c.participants || []).find(p => p.participant_role === 'RATO');
         const isDone = c.status === 'CLOSED' || c.status === 'MONITORING';
         return `
           <div class="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/90 p-5 space-y-3.5 shadow-sm hover:shadow-md hover:border-indigo-400 transition">
@@ -7036,16 +7637,16 @@
                 </div>
               </div>
               <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide shrink-0 ${isDone ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-indigo-100 text-indigo-800 border border-indigo-200'}">
-                ${isDone ? '✓ Bebas Pasung' : '▲ Siaga Kawal'}
+                ${isDone ? '✓ Selesai' : '▲ Siaga Kawal'}
               </span>
             </div>
             <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
               <i class="fa-solid fa-shield-halved mr-1 text-indigo-700"></i>
-              <strong>Pengamanan Linmas:</strong> Koordinasi aparatur desa dan rute aman penjemputan warga telah tercatat.
+              <strong>Status Pengawalan:</strong> ${myPart?.response === 'READY' ? 'Pengawalan terkonfirmasi siap' : 'Menunggu pengawalan'}
             </p>
             <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-100">
               <span>Status Kasus: <strong class="text-slate-700">${c.status}</strong></span>
-              <button onclick="openRatoDetailScreen(${c.id})" class="text-indigo-700 font-bold hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200 flex items-center space-x-1.5 shadow-xs transition">
+              <button onclick="openRatoDetailScreen('${c.id}')" class="text-indigo-700 font-bold hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200 flex items-center space-x-1.5 shadow-xs transition">
                 <span>Buka Detail</span>
                 <i class="fa-solid fa-angle-right text-[10px]"></i>
               </button>
@@ -7053,6 +7654,15 @@
           </div>
         `;
       }).join('');
+
+      renderPaginationControls({
+        containerId: 'ratoRiwayatPaginationContainer',
+        totalItems: totalItems,
+        currentPage: paginationState.ratoRiwayat.page,
+        perPage: perPage,
+        onPageChangeName: 'changeRatoRiwayatPage',
+        entityName: 'riwayat'
+      });
     }
 
     function syncNavHighlight(type) {

@@ -370,9 +370,13 @@
       let reports = getLocalStore("reports", DEFAULT_SEED.reports);
       if (role === "KADER") {
         reports = reports.filter(r => {
+          // 1. Laporan buatan sendiri selalu tampil untuk kader pelapor
+          if (reporterId && String(r.reporter_id) === String(reporterId)) return true;
+          // 2. Laporan di desa binaan kader
           if (villageId && String(r.village_id) === String(villageId)) return true;
           if (villageName && (r.village_name || '').trim().toLowerCase() === villageName.trim().toLowerCase()) return true;
-          if (!villageId && !villageName && reporterId && String(r.reporter_id) === String(reporterId)) return true;
+          // 3. Jika kader belum memiliki asosiasi desa spesifik
+          if (!villageId && !villageName) return true;
           return false;
         });
       } else if (reporterId) {
@@ -511,16 +515,20 @@
       const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,"");
       const reportNumber = `LAP-${dateStr}-${String(newId).padStart(3, '0')}`;
 
+      const villages = getLocalStore("villages", DEFAULT_SEED.villages);
+      const matchedVillage = villages.find(v => String(v.id) === String(reportInput.village_id));
+      const resolvedVillageName = reportInput.village_name || (matchedVillage ? matchedVillage.name : (currentUser ? currentUser.village_name : "Kokop")) || "Kokop";
+
       const newReport = {
         id: newId,
         report_number: reportNumber,
         reporter_id: currentUser ? currentUser.id : 3,
         reporter_name: currentUser ? currentUser.name : "Siti",
         reporter_phone: currentUser ? currentUser.phone : "081234567891",
-        village_id: reportInput.village_id || 1,
-        village_name: "Kokop",
+        village_id: reportInput.village_id || (currentUser ? currentUser.village_id : 1) || 1,
+        village_name: resolvedVillageName,
         patient_name_input: reportInput.patient_name,
-        address_input: reportInput.address || "Desa Kokop",
+        address_input: reportInput.address || `Desa ${resolvedVillageName}`,
         report_type: reportInput.report_type || "Pasung",
         description: reportInput.description || "",
         latitude: reportInput.latitude || -7.0145,
@@ -534,6 +542,78 @@
       setLocalStore("reports", reports);
 
       return { success: true, message: "Laporan berhasil dikirim ke Puskesmas.", data: { report_id: newId, report_number: reportNumber } };
+    },
+
+    validateReport: async function(reportId, validationData = {}) {
+      const reports = getLocalStore("reports", DEFAULT_SEED.reports);
+      const cases = getLocalStore("cases", DEFAULT_SEED.cases);
+
+      const rep = reports.find(r => String(r.id) === String(reportId));
+      if (!rep) return { success: false, message: "Laporan tidak ditemukan." };
+
+      const priority = validationData.priority || "HIGH";
+      const notes = validationData.notes || "Laporan tervalidasi oleh Petugas Nakes Puskesmas Kokop.";
+
+      rep.status = "VALIDATED";
+      rep.priority = priority;
+      rep.validated_at = new Date().toISOString();
+      rep.nakes_notes = notes;
+
+      let assignedCaseId = rep.case_id;
+
+      if (!assignedCaseId) {
+        assignedCaseId = cases.length + 1;
+        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+        const caseNumber = `CAS-${dateStr}-${String(assignedCaseId).padStart(3, "0")}`;
+
+        const newCase = {
+          id: assignedCaseId,
+          case_number: caseNumber,
+          report_id: rep.id,
+          patient_id: assignedCaseId,
+          patient_name: rep.patient_name_input || "Pasien Baru",
+          gender: rep.gender || "L",
+          patient_address: rep.address_input || `Desa ${rep.village_name || 'Kokop'}`,
+          village_id: rep.village_id || 1,
+          village_name: rep.village_name || "Kokop",
+          report_type: rep.report_type || "Pasung",
+          priority: priority,
+          status: (priority === "HIGH" || priority === "EMERGENCY") ? "SIAGA" : "VALIDATED",
+          activated_at: new Date().toISOString(),
+          reporter_id: rep.reporter_id,
+          reporter_name: rep.reporter_name || "Kader Jiwa",
+          reporter_phone: rep.reporter_phone || "081234567891",
+          latitude: rep.latitude || -7.0145,
+          longitude: rep.longitude || 113.0234,
+          photo_path: rep.photo_path || null,
+          notes: notes,
+          participants: [
+            { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "PENDING" },
+            { participant_role: "RATO", name: "Klebun Kokop", phone: "081234567893", user_id: 5, response: "PENDING" }
+          ]
+        };
+
+        rep.case_id = assignedCaseId;
+        cases.unshift(newCase);
+        setLocalStore("cases", cases);
+      } else {
+        const existingCase = cases.find(c => String(c.id) === String(assignedCaseId));
+        if (existingCase) {
+          existingCase.priority = priority;
+          existingCase.notes = notes;
+          if (existingCase.status === "REPORTED" || existingCase.status === "NEW") {
+            existingCase.status = (priority === "HIGH" || priority === "EMERGENCY") ? "SIAGA" : "VALIDATED";
+          }
+          setLocalStore("cases", cases);
+        }
+      }
+
+      setLocalStore("reports", reports);
+      return {
+        success: true,
+        message: "Laporan berhasil divalidasi dan tersimpan di basis data kasus Puskesmas.",
+        data: { report_id: rep.id, case_id: assignedCaseId }
+      };
     },
 
     activateSiagaEws: async function(payload, currentUser) {
@@ -591,32 +671,43 @@
       return { success: true, message: "Tombol Siaga EWS Berhasil Diaktifkan!", data: { case_id: caseId } };
     },
 
-    respondParticipant: async function(caseId, userId, responseVal, note = "") {
+    respondParticipant: async function(caseId, userId, responseVal, note = "", userRole = "") {
       const cases = getLocalStore("cases", DEFAULT_SEED.cases);
-      const targetCase = cases.find(c => c.id === caseId);
+      const targetCase = cases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
       if (!targetCase) return { success: false, message: "Kasus tidak ditemukan." };
 
-      if (targetCase.participants) {
-        const p = targetCase.participants.find(item => String(item.user_id) === String(userId) || (userId === 4 && item.participant_role === "GURU") || (userId === 5 && item.participant_role === "RATO"));
-        if (p) {
-          p.response = responseVal;
-          p.response_note = note;
-        }
-      }
-
       let readyCount = 0;
-      if (targetCase.participants) {
+      let hasAnyResponse = false;
+      if (targetCase.participants && Array.isArray(targetCase.participants)) {
         targetCase.participants.forEach(p => {
-          if (p.response === "AGREE" || p.response === "READY") readyCount++;
+          const matchId = userId && String(p.user_id) === String(userId);
+          const matchRole = userRole && p.participant_role === userRole;
+          const matchInferred = (responseVal === 'AGREE' || responseVal === 'NEED_TIME')
+            ? p.participant_role === 'GURU'
+            : (responseVal === 'READY' ? p.participant_role === 'RATO' : false);
+
+          if (matchId || matchRole || matchInferred) {
+            p.response = responseVal;
+            p.responded_at = new Date().toISOString();
+            if (note) {
+              p.note = note;
+              p.response_note = note;
+            }
+          }
+          if (p.response && p.response !== "PENDING") hasAnyResponse = true;
+          if (p.response === "AGREE" || p.response === "READY" || p.response === "SIAP") readyCount++;
         });
       }
 
       if (readyCount >= 2) {
         targetCase.status = "READY_FOR_EVACUATION";
+      } else if (hasAnyResponse && targetCase.status === "SIAGA") {
+        targetCase.status = "COORDINATION";
       }
 
       setLocalStore("cases", cases);
-      return { success: true, message: "Tanggapan berhasil dicatat.", data: { ready_count: readyCount } };
+      window.dispatchEvent(new Event("storage"));
+      return { success: true, message: "Tanggapan berhasil dicatat.", data: { ready_count: readyCount, status: targetCase.status } };
     },
 
     updateCaseStatus: async function(caseId, newStatus, note = "") {
@@ -729,4 +820,8 @@
   window.firebaseAdapter = engine;
   window.fb = engine;
 
-})(window);
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = engine;
+  }
+
+})(typeof window !== 'undefined' ? window : global);

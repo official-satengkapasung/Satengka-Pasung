@@ -26,6 +26,30 @@ jobs:
           node --check js/malekkas-engine.js
           node --check sw.js
 
+      - name: Verify Inline Scripts & HTML Integrity
+        run: |
+          node -e "
+            const fs = require('fs');
+            const files = ['index.html', 'login.html', 'register.html'];
+            files.forEach(f => {
+              if (!fs.existsSync(f)) return;
+              const content = fs.readFileSync(f, 'utf8');
+              const scripts = content.match(/<script[\s\S]*?<\/script>/gi) || [];
+              scripts.forEach((s, idx) => {
+                if (s.includes('type=\"module\"')) return;
+                const code = s.replace(/<script[\s\S]*?>/i, '').replace(/<\/script>/i, '');
+                if (!code.trim()) return;
+                try {
+                  new Function(code);
+                } catch (err) {
+                  console.error('Syntax error in ' + f + ' (script ' + idx + '):', err.message);
+                  process.exit(1);
+                }
+              });
+              console.log('✅ Syntax valid for all scripts in:', f);
+            });
+          "
+
       - name: Run DevSecOps & Anti-Slop Audit
         run: |
           node scripts/anti-slop-audit.js
@@ -41,3 +65,7 @@ jobs:
             }
             console.log('✅ PWA Manifest valid:', manifest.name);
           "
+
+      - name: Test Netlify Build Pre-Process
+        run: |
+          node scripts/build-netlify.js

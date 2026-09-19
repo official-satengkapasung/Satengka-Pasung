@@ -552,9 +552,13 @@ export async function getReports(reporterId = null, villageId = null, role = nul
 
   if (role === "KADER") {
     reports = reports.filter(r => {
+      // 1. Laporan yang dibuat sendiri oleh kader WAJIB selalu tampil
+      if (reporterId && String(r.reporter_id) === String(reporterId)) return true;
+      // 2. Laporan di desa binaan kader
       if (villageId && String(r.village_id) === String(villageId)) return true;
       if (villageName && (r.village_name || '').trim().toLowerCase() === villageName.trim().toLowerCase()) return true;
-      if (!villageId && !villageName && reporterId && String(r.reporter_id) === String(reporterId)) return true;
+      // 3. Jika kader belum memiliki asosiasi desa spesifik, tampilkan seluruh laporan wilayah
+      if (!villageId && !villageName) return true;
       return false;
     });
   } else if (reporterId) {
@@ -568,9 +572,10 @@ function filterCasesForUser(cases, filterParams = {}) {
   let list = [...cases];
   if (role === "KADER") {
     list = list.filter(c => {
+      if (userId && String(c.reporter_id) === String(userId)) return true;
       if (villageId && String(c.village_id) === String(villageId)) return true;
       if (villageName && (c.village_name || '').trim().toLowerCase() === (villageName || '').trim().toLowerCase()) return true;
-      if (!villageId && !villageName && userId && String(c.reporter_id) === String(userId)) return true;
+      if (!villageId && !villageName) return true;
       return false;
     });
   } else if (userId && (role === "GURU" || role === "RATO")) {
@@ -589,9 +594,13 @@ function filterReportsForUser(reports, filterParams = {}) {
   let list = [...reports];
   if (role === "KADER") {
     list = list.filter(r => {
+      // 1. Laporan yang dibuat sendiri oleh kader WAJIB selalu tampil
+      if (reporterId && String(r.reporter_id) === String(reporterId)) return true;
+      // 2. Laporan di desa binaan kader
       if (villageId && String(r.village_id) === String(villageId)) return true;
       if (villageName && (r.village_name || '').trim().toLowerCase() === (villageName || '').trim().toLowerCase()) return true;
-      if (!villageId && !villageName && reporterId && String(r.reporter_id) === String(reporterId)) return true;
+      // 3. Jika kader belum memiliki asosiasi desa spesifik, tampilkan seluruh laporan wilayah
+      if (!villageId && !villageName) return true;
       return false;
     });
   } else if (reporterId) {
@@ -812,16 +821,21 @@ export async function createReport(reportInput, currentUser) {
   const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,"");
   const reportNumber = `LAP-${dateStr}-${String(newId).padStart(3, '0')}`;
 
+  // Cari nama desa yang sesuai
+  const villages = getLocalStore("villages", DEFAULT_SEED.villages);
+  const matchedVillage = villages.find(v => String(v.id) === String(reportInput.village_id));
+  const resolvedVillageName = reportInput.village_name || (matchedVillage ? matchedVillage.name : (currentUser ? currentUser.village_name : "Kokop")) || "Kokop";
+
   const newReport = {
     id: newId,
     report_number: reportNumber,
     reporter_id: currentUser ? currentUser.id : 3,
     reporter_name: currentUser ? currentUser.name : "Siti",
     reporter_phone: currentUser ? currentUser.phone : "081234567891",
-    village_id: reportInput.village_id || 1,
-    village_name: "Kokop",
+    village_id: reportInput.village_id || (currentUser ? currentUser.village_id : 1) || 1,
+    village_name: resolvedVillageName,
     patient_name_input: reportInput.patient_name,
-    address_input: reportInput.address || "Desa Kokop",
+    address_input: reportInput.address || `Desa ${resolvedVillageName}`,
     report_type: reportInput.report_type || "Pasung",
     description: reportInput.description || "",
     latitude: reportInput.latitude || -7.0145,
@@ -847,6 +861,116 @@ export async function createReport(reportInput, currentUser) {
 
   window.dispatchEvent(new Event("storage"));
   return { success: true, message: "Laporan berhasil dikirim ke Puskesmas.", data: { report_id: newId, report_number: reportNumber } };
+}
+
+export async function validateReport(reportId, validationData = {}) {
+  const reports = getLocalStore("reports", DEFAULT_SEED.reports);
+  const cases = getLocalStore("cases", DEFAULT_SEED.cases);
+
+  const rep = reports.find(r => String(r.id) === String(reportId));
+  if (!rep) {
+    return { success: false, message: "Laporan tidak ditemukan." };
+  }
+
+  const priority = validationData.priority || "HIGH";
+  const notes = validationData.notes || "Laporan tervalidasi oleh Petugas Nakes Puskesmas Kokop.";
+
+  rep.status = "VALIDATED";
+  rep.priority = priority;
+  rep.validated_at = new Date().toISOString();
+  rep.nakes_notes = notes;
+
+  let assignedCaseId = rep.case_id;
+
+  // Jika laporan belum dikaitkan dengan kasus manapun di basis data kasus, buat entri kasus baru
+  if (!assignedCaseId) {
+    assignedCaseId = cases.length + 1;
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const caseNumber = `CAS-${dateStr}-${String(assignedCaseId).padStart(3, "0")}`;
+
+    const newCase = {
+      id: assignedCaseId,
+      case_number: caseNumber,
+      report_id: rep.id,
+      patient_id: assignedCaseId,
+      patient_name: rep.patient_name_input || "Pasien Baru",
+      gender: rep.gender || "L",
+      patient_address: rep.address_input || `Desa ${rep.village_name || 'Kokop'}`,
+      village_id: rep.village_id || 1,
+      village_name: rep.village_name || "Kokop",
+      report_type: rep.report_type || "Pasung",
+      priority: priority,
+      status: (priority === "HIGH" || priority === "EMERGENCY") ? "SIAGA" : "VALIDATED",
+      activated_at: new Date().toISOString(),
+      reporter_id: rep.reporter_id,
+      reporter_name: rep.reporter_name || "Kader Jiwa",
+      reporter_phone: rep.reporter_phone || "081234567891",
+      latitude: rep.latitude || -7.0145,
+      longitude: rep.longitude || 113.0234,
+      photo_path: rep.photo_path || null,
+      notes: notes,
+      participants: [
+        { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "PENDING" },
+        { participant_role: "RATO", name: "Klebun Kokop", phone: "081234567893", user_id: 5, response: "PENDING" }
+      ]
+    };
+
+    rep.case_id = assignedCaseId;
+    cases.unshift(newCase);
+    setLocalStore("cases", cases);
+
+    // Sinkronisasi kasus baru ke Firestore
+    if (isFirebaseActive && db) {
+      try {
+        await setDoc(doc(db, "cases", String(assignedCaseId)), { ...newCase, updated_at: serverTimestamp() }, { merge: true });
+      } catch (e) {
+        console.warn("⚠️ Gagal simpan kasus baru hasil validasi ke Firestore:", e);
+      }
+    }
+  } else {
+    // Jika kasus sudah ada, perbarui status dan prioritasnya
+    const existingCase = cases.find(c => String(c.id) === String(assignedCaseId));
+    if (existingCase) {
+      existingCase.priority = priority;
+      existingCase.notes = notes;
+      if (existingCase.status === "REPORTED" || existingCase.status === "NEW") {
+        existingCase.status = (priority === "HIGH" || priority === "EMERGENCY") ? "SIAGA" : "VALIDATED";
+      }
+      setLocalStore("cases", cases);
+      if (isFirebaseActive && db) {
+        try {
+          await setDoc(doc(db, "cases", String(assignedCaseId)), { ...existingCase, updated_at: serverTimestamp() }, { merge: true });
+        } catch (e) {
+          console.warn("⚠️ Gagal update kasus hasil validasi ke Firestore:", e);
+        }
+      }
+    }
+  }
+
+  setLocalStore("reports", reports);
+
+  // Sinkronisasi pembaruan status laporan ke Firestore
+  if (isFirebaseActive && db) {
+    try {
+      await setDoc(doc(db, "reports", String(rep.id)), {
+        status: "VALIDATED",
+        priority: priority,
+        case_id: assignedCaseId,
+        validated_at: rep.validated_at,
+        nakes_notes: notes,
+        updated_at: serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.warn("⚠️ Gagal update laporan validasi ke Firestore:", e);
+    }
+  }
+
+  window.dispatchEvent(new Event("storage"));
+  return {
+    success: true,
+    message: "Laporan berhasil divalidasi dan tersimpan di basis data kasus Puskesmas.",
+    data: { report_id: rep.id, case_id: assignedCaseId }
+  };
 }
 
 export async function activateSiagaEws(payload, currentUser) {
@@ -898,7 +1022,7 @@ export async function activateSiagaEws(payload, currentUser) {
       }
     }
   } else {
-    const c = cases.find(item => item.id === caseId);
+    const c = cases.find(item => String(item.id) === String(caseId) || (item.case_number && item.case_number === caseId));
     if (c) {
       c.status = "SIAGA";
       c.activated_at = new Date().toISOString();
@@ -909,7 +1033,7 @@ export async function activateSiagaEws(payload, currentUser) {
 
       if (isFirebaseActive && db) {
         try {
-          await setDoc(doc(db, "cases", String(caseId)), { ...c, updated_at: serverTimestamp() }, { merge: true });
+          await setDoc(doc(db, "cases", String(c.id)), { ...c, updated_at: serverTimestamp() }, { merge: true });
         } catch (e) {
           console.warn("⚠️ Gagal update kasus ke Firestore:", e);
         }
@@ -924,19 +1048,28 @@ export async function activateSiagaEws(payload, currentUser) {
   return { success: true, message: "Tombol Siaga EWS Berhasil Diaktifkan!", data: { case_id: caseId } };
 }
 
-export async function respondParticipant(caseId, userId, responseVal, note = "") {
+export async function respondParticipant(caseId, userId, responseVal, note = "", userRole = "") {
   const cases = getLocalStore("cases", DEFAULT_SEED.cases);
-  const targetCase = cases.find(c => c.id === caseId);
+  const targetCase = cases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
   if (!targetCase) return { success: false, message: "Kasus tidak ditemukan." };
 
   let readyCount = 0;
   let hasAnyResponse = false;
-  if (targetCase.participants) {
+  if (targetCase.participants && Array.isArray(targetCase.participants)) {
     targetCase.participants.forEach(p => {
-      if (String(p.user_id) === String(userId)) {
+      const matchId = userId && String(p.user_id) === String(userId);
+      const matchRole = userRole && p.participant_role === userRole;
+      const matchInferred = (responseVal === 'AGREE' || responseVal === 'NEED_TIME')
+        ? p.participant_role === 'GURU'
+        : (responseVal === 'READY' ? p.participant_role === 'RATO' : false);
+
+      if (matchId || matchRole || matchInferred) {
         p.response = responseVal;
         p.responded_at = new Date().toISOString();
-        if (note) p.note = note;
+        if (note) {
+          p.note = note;
+          p.response_note = note;
+        }
       }
       if (p.response && p.response !== "PENDING") {
         hasAnyResponse = true;
@@ -958,7 +1091,7 @@ export async function respondParticipant(caseId, userId, responseVal, note = "")
 
   if (isFirebaseActive && db) {
     try {
-      await setDoc(doc(db, "cases", String(caseId)), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
+      await setDoc(doc(db, "cases", String(targetCase.id)), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
     } catch (e) {
       console.warn("⚠️ Gagal update respon ke Firestore:", e);
     }
