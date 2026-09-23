@@ -110,19 +110,22 @@
   <div
     class="max-w-[480px] w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/60 shadow-2xl overflow-hidden p-6 sm:p-8 space-y-4 relative z-10 my-4">
 
-    <!-- BRANDING LOGO DENGAN RING CRAYON SKETSA FLEKSIBEL & BACKGROUND BULAT #145861 -->
+    <!-- BRANDING LOGO RESMI DENGAN LINGKARAN EMBLEM BACKGROUND KLIEN (SERAGAM MENU AWAL) -->
     <div class="text-center space-y-2 pt-1">
-      <!-- Logo Resmi Satengka Pasung Bersih Tanpa Outline -->
-      <div class="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto flex items-center justify-center transition-transform transform hover:scale-105 duration-300">
+      <!-- Lingkaran Emblem Medallion Resmi Klien -->
+      <div
+        class="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full p-2 flex items-center justify-center shadow-lg border-2 border-[#2ca3ab]/30 relative overflow-hidden transition-transform transform hover:scale-105 duration-300"
+        style="background: #17656e url('./assets/background_opt.webp') center center / cover no-repeat; box-shadow: 0 10px 25px -5px rgba(20, 88, 97, 0.4), 0 0 0 4px rgba(44, 163, 171, 0.15);">
+        <!-- Inner Overlay Lembut agar tekstur menyatu -->
+        <div class="absolute inset-0 bg-gradient-to-b from-[#145861]/40 via-transparent to-[#0e434a]/60 pointer-events-none"></div>
         <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" 
-          class="w-full h-full object-contain filter drop-shadow-md">
+             class="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] relative z-10">
       </div>
       <div>
         <h1 class="text-xl sm:text-2xl font-black text-[#145861] tracking-tight uppercase">DAFTAR AKUN MANDIRI</h1>
-        <p class="text-[10px] sm:text-[11px] font-bold text-[#2ca3ab] uppercase tracking-wider">SATENGKA PASUNG (BHUPPA’
-          BHU’ GHURU RATO’)</p>
+        <p class="text-[10px] sm:text-[11px] font-bold text-[#2ca3ab] uppercase tracking-wider">SATENGKA PASUNG (BHUPA’ BHABHU’ GHURU RATO’)</p>
         <p class="text-[11px] text-slate-500 font-medium mt-0.5 leading-snug">
-          Kemitraan Terpadu Kesehatan Jiwa & Evakuasi Pasung Puskesmas Kokop
+          Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung
         </p>
       </div>
     </div>
@@ -148,36 +151,45 @@
         <label class="block font-semibold text-slate-700 mb-1.5">Pilih Peran Pilar Anda</label>
         <div class="grid grid-cols-2 gap-2 text-left">
 
-          <!-- 1. BHUPA' -->
+          <!-- 1. BHUPA' BHABU' -->
           <label class="cursor-pointer group">
             <input type="radio" name="regRole" value="KADER" checked class="hidden role-card-radio">
             <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
               <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
-                <img src="./assets/icons/role_bhupa.png" alt="Bhupa'" class="role-icon-img w-full h-full object-contain transition-all duration-200">
+                <img src="./assets/icons/role_bhupa.png" alt="Bhupa' Bhabu'" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
-              <p class="font-bold text-slate-800 text-xs sm:text-sm">Bhupa'</p>
+              <div class="min-w-0">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm truncate">Bhupa' Bhabu'</p>
+                <p class="text-[9px] text-slate-400 font-medium truncate">Orang tua / Kader jiwa</p>
+              </div>
             </div>
           </label>
 
-          <!-- 2. BHU' GHURU -->
+          <!-- 2. GHURU -->
           <label class="cursor-pointer group">
             <input type="radio" name="regRole" value="GURU" class="hidden role-card-radio">
             <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
               <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
-                <img src="./assets/icons/role_bhu-ghuru.png" alt="Bhu' Ghuru" class="role-icon-img w-full h-full object-contain transition-all duration-200">
+                <img src="./assets/icons/role_bhu-ghuru.png" alt="Ghuru" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
-              <p class="font-bold text-slate-800 text-xs sm:text-sm">Bhu' Ghuru</p>
+              <div class="min-w-0">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm truncate">Ghuru</p>
+                <p class="text-[9px] text-slate-400 font-medium truncate">Kiai / Ustadz</p>
+              </div>
             </div>
           </label>
 
-          <!-- 3. RATO -->
+          <!-- 3. RATO' -->
           <label class="cursor-pointer group">
             <input type="radio" name="regRole" value="RATO" class="hidden role-card-radio">
             <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
               <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
-                <img src="./assets/icons/role_rato.png" alt="Rato" class="role-icon-img w-full h-full object-contain transition-all duration-200">
+                <img src="./assets/icons/role_rato.png" alt="Rato'" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
-              <p class="font-bold text-slate-800 text-xs sm:text-sm">Rato</p>
+              <div class="min-w-0">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm truncate">Rato'</p>
+                <p class="text-[9px] text-slate-400 font-medium truncate">Lintas sektor / Pemangku</p>
+              </div>
             </div>
           </label>
 
@@ -188,7 +200,10 @@
               <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
                 <img src="./assets/icons/role_nakes.png" alt="Nakes" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
-              <p class="font-bold text-slate-800 text-xs sm:text-sm">Nakes</p>
+              <div class="min-w-0">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm truncate">Nakes</p>
+                <p class="text-[9px] text-slate-400 font-medium truncate">Tenaga Kesehatan</p>
+              </div>
             </div>
           </label>
 
@@ -295,16 +310,17 @@
     <!-- FOOTER RESMI PENELITIAN UTM -->
     <div class="border-t border-slate-100 pt-2.5 text-center space-y-0.5">
       <p class="text-[10px] text-slate-500 font-medium">
-        Kemitraan Terpadu <span class="font-semibold text-slate-700">Puskesmas Kokop & LPPM UTM</span>
+        Tim Penelitian Skema Terapan 2026 • <span class="font-semibold text-slate-700">Universitas Trunodjoyo Madura</span>
       </p>
       <p class="text-[9px] text-slate-400 font-medium">
-        Tim Peneliti Riset Terapan Universitas Trunojoyo Madura
+        Kemitraan Terpadu Bersama Puskesmas Kokop Bangkalan
       </p>
     </div>
 
   </div>
 
   <!-- SCRIPT LOGIKA REGISTRASI MANDIRI & PWA INSTALL -->
+  <script src="./js/app-helpers.js"></script>
   <script src="./js/malekkas-engine.js"></script>
   <script>
     // Inisialisasi daftar desa dari data engine jika tersedia
@@ -375,7 +391,7 @@
         const existingUsers = JSON.parse(localStorage.getItem('malekkas_users') || '[]');
         const duplicate = existingUsers.find(u => u.phone === phone);
         if (duplicate) {
-          const roleDisplay = duplicate.role === 'KADER' ? "Bhupa'" : (duplicate.role === 'GURU' ? "Bhu' Ghuru" : (duplicate.role === 'RATO' ? 'Rato' : 'Nakes'));
+          const roleDisplay = duplicate.role === 'KADER' ? "Bhupa' Bhabu'" : (duplicate.role === 'GURU' ? "Ghuru" : (duplicate.role === 'RATO' ? "Rato'" : 'Nakes'));
           showAlert(`Nomor ${phone} sudah terdaftar sebagai ${roleDisplay} (${duplicate.name}). Silakan masuk langsung.`);
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-user-plus mr-2"></i><span>Daftar Sekarang & Masuk</span>';
@@ -466,7 +482,6 @@
       dismissSplashScreen(1400);
     });
   </script>
-  <script src="./js/malekkas-engine.js"></script>
   <script type="module">
     // Sinkronkan Firebase Auth Cloud jika diakses via Web Server / Firebase Hosting (HTTP/HTTPS)
     window.firebaseReadyPromise = (async () => {

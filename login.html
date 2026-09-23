@@ -109,7 +109,7 @@
       <div>
         <h1 class="text-2xl font-black text-[#145861] tracking-tight uppercase">SATENGKA PASUNG</h1>
         <p class="text-[11px] text-slate-500 font-medium mt-1 leading-snug">
-          Sistem Komunikasi Terapeutik & Koordinasi<br>Evakuasi Humanis Terintegrasi Puskesmas Kokop.
+          Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung
         </p>
       </div>
     </div>
@@ -139,20 +139,18 @@
         </div>
       </div>
 
-      <button type="submit" id="btnSubmit"
-        class="w-full btn-satengka text-white font-bold py-3.5 rounded-xl shadow-lg shadow-[#145861]/25 transition flex items-center justify-center text-sm">
+      <button type="submit" id="btnLoginSubmit"
+        class="w-full btn-satengka text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-[#145861]/25 transition flex items-center justify-center text-sm">
         <span>Masuk</span>
       </button>
 
-      <!-- LINK DAFTAR AKUN MANDIRI & LUPA PASSWORD INTERAKTIF -->
-      <div class="flex items-center justify-between pt-1 px-1 text-xs">
-        <a href="register.html"
-          class="text-[#2ca3ab] hover:text-[#145861] font-bold hover:underline flex items-center space-x-1">
-          <i class="fa-solid fa-user-plus text-[11px]"></i>
+      <div class="flex items-center justify-between pt-1.5 text-xs">
+        <a href="register.html" class="inline-flex items-center space-x-1.5 font-bold text-[#145861] hover:text-[#0e434a] transition">
+          <i class="fa-solid fa-user-plus text-xs"></i>
           <span>Daftar Akun Baru</span>
         </a>
         <button type="button" onclick="openForgotPasswordModal()"
-          class="text-slate-500 hover:text-[#145861] hover:underline font-semibold transition">
+          class="text-slate-500 hover:text-slate-700 font-medium transition text-xs">
           Lupa kata sandi?
         </button>
       </div>
@@ -177,10 +175,10 @@
       </button>
     </div>
 
-    <!-- FOOTER: TIM PENELITIAN UNIVERSITAS TRUNOJOYO MADURA (UTM) & PUSKESMAS KOKOP -->
-    <footer class="text-center text-[10px] text-slate-400 space-y-1 pt-2 border-t border-slate-100">
-      <p class="font-bold text-slate-600">Puskesmas Kokop &bull; Universitas Trunojoyo Madura</p>
-      <p>Kecamatan Kokop, Kabupaten Bangkalan</p>
+    <!-- FOOTER: TIM PENELITIAN SKEMA TERAPAN 2026 UNIVERSITAS TRUNODJOYO MADURA & PUSKESMAS KOKOP -->
+    <footer class="text-center text-[10px] text-slate-400 space-y-0.5 pt-2 border-t border-slate-100">
+      <p class="font-bold text-slate-700">Tim Penelitian Skema Terapan 2026</p>
+      <p class="text-slate-500">Universitas Trunodjoyo Madura &bull; Puskesmas Kokop</p>
     </footer>
 
   </div>
@@ -356,7 +354,7 @@
         if (res && res.success) {
           const matched = res.data.user;
           const ticketId = res.data.ticketId;
-          const roleTitle = matched.role === 'NAKES' ? 'Nakes' : (matched.role === 'KADER' ? "Bhupa'" : (matched.role === 'GURU' ? "Bhu' Ghuru" : 'Rato'));
+          const roleTitle = matched.role === 'NAKES' ? 'Nakes' : (matched.role === 'KADER' ? "Bhupa' Bhabu'" : (matched.role === 'GURU' ? "Ghuru" : "Rato'"));
 
           verifiedResetUser = matched;
           verifiedResetIdentifier = input;
@@ -405,10 +403,12 @@
       }
       const phone = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
-      const btn = document.getElementById('btnSubmit');
+      const btn = document.getElementById('btnLoginSubmit') || document.getElementById('btnSubmit');
 
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...';
+      }
       document.getElementById('alertBox').classList.add('hidden');
 
       try {
@@ -439,8 +439,10 @@
       } catch (err) {
         showAlert('Terjadi kesalahan sistem.');
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<span>Masuk ke Sistem</span>';
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>Masuk</span>';
+        }
       }
     }
 
@@ -508,6 +510,7 @@
     // Safety fallback: pastikan splash screen hilang maksimal dalam 2 detik
     setTimeout(() => dismissSplashScreen(0), 2000);
   </script>
+  <script src="./js/app-helpers.js"></script>
   <script src="./js/malekkas-engine.js"></script>
   <script type="module">
     // Sinkronkan Firebase Auth Cloud jika diakses via Web Server / Firebase Hosting (HTTP/HTTPS)
