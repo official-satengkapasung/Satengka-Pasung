@@ -1,5 +1,5 @@
 // Service Worker for BHUPA' BHABHU' GHURU RATO' PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v15';
+const CACHE_NAME = 'satengka-pasung-pwa-v16';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

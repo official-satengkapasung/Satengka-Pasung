@@ -344,6 +344,39 @@
 
     getCases: async function(userId = null, role = null, villageId = null, villageName = null) {
       let cases = getLocalStore("cases", DEFAULT_SEED.cases);
+
+      // Rekonsiliasi data pelapor dari laporan terkait (self-healing jika c.reporter_name belum terisi / fallback Siti)
+      const allReports = getLocalStore("reports", DEFAULT_SEED.reports);
+      let didEnrich = false;
+      cases.forEach(c => {
+        if (c.report_id) {
+          const rep = allReports.find(r => String(r.id) === String(c.report_id));
+          if (rep) {
+            if (!c.reporter_name || c.reporter_name === "Siti") {
+              c.reporter_name = rep.reporter_name || "Kader Jiwa";
+              didEnrich = true;
+            }
+            if (!c.reporter_phone || c.reporter_phone === "081234567891") {
+              c.reporter_phone = rep.reporter_phone || "-";
+              didEnrich = true;
+            }
+            if (!c.reporter_id && rep.reporter_id) {
+              c.reporter_id = rep.reporter_id;
+              didEnrich = true;
+            }
+            if (!c.village_name || c.village_name === "Kokop") {
+              if (rep.village_name) {
+                c.village_name = rep.village_name;
+                didEnrich = true;
+              }
+            }
+          }
+        }
+      });
+      if (didEnrich) {
+        setLocalStore("cases", cases);
+      }
+
       if (role === "KADER") {
         cases = cases.filter(c => {
           if (villageId && String(c.village_id) === String(villageId)) return true;
@@ -519,13 +552,18 @@
       const matchedVillage = villages.find(v => String(v.id) === String(reportInput.village_id));
       const resolvedVillageName = reportInput.village_name || (matchedVillage ? matchedVillage.name : (currentUser ? currentUser.village_name : "Kokop")) || "Kokop";
 
+      const activeUser = currentUser || (typeof localStorage !== "undefined" ? JSON.parse(localStorage.getItem("malekkas_user") || "null") : null);
+      const fallbackReporterId = activeUser ? activeUser.id : 3;
+      const fallbackReporterName = activeUser ? activeUser.name : "Kader Jiwa";
+      const fallbackReporterPhone = activeUser ? (activeUser.phone || "-") : "-";
+
       const newReport = {
         id: newId,
         report_number: reportNumber,
-        reporter_id: currentUser ? currentUser.id : 3,
-        reporter_name: currentUser ? currentUser.name : "Siti",
-        reporter_phone: currentUser ? currentUser.phone : "081234567891",
-        village_id: reportInput.village_id || (currentUser ? currentUser.village_id : 1) || 1,
+        reporter_id: fallbackReporterId,
+        reporter_name: fallbackReporterName,
+        reporter_phone: fallbackReporterPhone,
+        village_id: reportInput.village_id || (activeUser ? activeUser.village_id : 1) || 1,
         village_name: resolvedVillageName,
         patient_name_input: reportInput.patient_name,
         address_input: reportInput.address || `Desa ${resolvedVillageName}`,
@@ -580,14 +618,15 @@
           priority: priority,
           status: (priority === "HIGH" || priority === "EMERGENCY") ? "SIAGA" : "VALIDATED",
           activated_at: new Date().toISOString(),
-          reporter_id: rep.reporter_id,
+          reporter_id: rep.reporter_id || null,
           reporter_name: rep.reporter_name || "Kader Jiwa",
-          reporter_phone: rep.reporter_phone || "081234567891",
+          reporter_phone: rep.reporter_phone || "-",
           latitude: rep.latitude || -7.0145,
           longitude: rep.longitude || 113.0234,
           photo_path: rep.photo_path || null,
           notes: notes,
           participants: [
+            { participant_role: "BHUPA", name: rep.reporter_name || "Kader Jiwa", phone: rep.reporter_phone || "-", user_id: rep.reporter_id || null, response: "READY" },
             { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "PENDING" },
             { participant_role: "RATO", name: "Klebun Kokop", phone: "081234567893", user_id: 5, response: "PENDING" }
           ]
@@ -634,20 +673,35 @@
         const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,"");
         const caseNumber = `CAS-${dateStr}-${String(caseId).padStart(3, '0')}`;
 
+        const repReporterName = rep ? (rep.reporter_name || "Kader Jiwa") : (currentUser ? currentUser.name : "Kader Jiwa");
+        const repReporterPhone = rep ? (rep.reporter_phone || "-") : (currentUser ? (currentUser.phone || "-") : "-");
+        const repReporterId = rep ? rep.reporter_id : (currentUser ? currentUser.id : null);
+        const repVillageId = rep ? (rep.village_id || 1) : 1;
+        const repVillageName = rep ? (rep.village_name || "Kokop") : "Kokop";
+
         const newCase = {
           id: caseId,
           case_number: caseNumber,
           report_id: payload.report_id,
           patient_id: caseId,
-          patient_name: rep ? rep.patient_name_input : "Pasien Baru",
-          gender: "L",
-          patient_address: rep ? rep.address_input : "Desa Kokop",
-          village_name: "Kokop",
-          priority: "HIGH",
+          patient_name: rep ? (rep.patient_name_input || rep.patient_name || "Pasien Baru") : "Pasien Baru",
+          gender: rep ? (rep.gender || "L") : "L",
+          patient_address: rep ? (rep.address_input || rep.patient_address || `Desa ${repVillageName}`) : `Desa ${repVillageName}`,
+          village_id: repVillageId,
+          village_name: repVillageName,
+          report_type: rep ? (rep.report_type || "Pasung") : "Pasung",
+          priority: payload.priority || "HIGH",
           status: "SIAGA",
           activated_at: new Date().toISOString(),
+          reporter_id: repReporterId,
+          reporter_name: repReporterName,
+          reporter_phone: repReporterPhone,
+          latitude: rep ? (rep.latitude || -7.0145) : -7.0145,
+          longitude: rep ? (rep.longitude || 113.0234) : 113.0234,
+          photo_path: rep ? rep.photo_path : null,
           notes: payload.notes || "Aktivasi EWS Siaga",
           participants: [
+            { participant_role: "BHUPA", name: repReporterName, phone: repReporterPhone, user_id: repReporterId, response: "READY" },
             { participant_role: "GURU", name: guru.name, phone: guru.phone, user_id: guru.id, response: "PENDING" },
             { participant_role: "RATO", name: rato.name, phone: rato.phone, user_id: rato.id, response: "PENDING" }
           ]

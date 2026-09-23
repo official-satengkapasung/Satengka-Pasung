@@ -3795,6 +3795,24 @@
           const res = await window.firebaseAdapter.getCases(uid, urole, uvillageId, uvillageName);
           if (res.success) {
             currentCases = res.data;
+
+            // Rekonsiliasi kasus dengan laporan terkait secara instan
+            let cachedReports = currentReports;
+            if (!cachedReports || cachedReports.length === 0) {
+              try { cachedReports = JSON.parse(localStorage.getItem('malekkas_reports') || '[]'); } catch (e) { cachedReports = []; }
+            }
+            if (Array.isArray(cachedReports) && cachedReports.length > 0) {
+              currentCases.forEach(c => {
+                if (c.report_id) {
+                  const mRep = cachedReports.find(r => String(r.id) === String(c.report_id));
+                  if (mRep && mRep.reporter_name && (!c.reporter_name || c.reporter_name === 'Siti')) {
+                    c.reporter_name = mRep.reporter_name;
+                    if (mRep.reporter_phone) c.reporter_phone = mRep.reporter_phone;
+                  }
+                }
+              });
+            }
+
             renderNakesDashboardCases(currentCases);
             renderGuruMobileRequests(currentCases);
             renderRatoMobileRequests(currentCases);
@@ -3831,6 +3849,17 @@
             updateRoleMetricCounters();
             // Sinkronkan Dashboard & Counter Nakes jika login sebagai NAKES/ADMIN
             if (currentUser && (currentUser.role === 'NAKES' || currentUser.role === 'ADMIN')) {
+              if (Array.isArray(currentCases) && currentCases.length > 0) {
+                currentCases.forEach(c => {
+                  if (c.report_id) {
+                    const mRep = currentReports.find(r => String(r.id) === String(c.report_id));
+                    if (mRep && mRep.reporter_name && (!c.reporter_name || c.reporter_name === 'Siti')) {
+                      c.reporter_name = mRep.reporter_name;
+                      if (mRep.reporter_phone) c.reporter_phone = mRep.reporter_phone;
+                    }
+                  }
+                });
+              }
               renderNakesDashboardCases(currentCases);
               updateNakesCounters(currentCases);
             }
@@ -4033,8 +4062,31 @@
           }
 
           // Info Narahubung Pelapor & Tokoh Kemitraan
-          const reporterName = cleanRoleAccountName(c.reporter_name || "Siti");
-          const reporterPhone = c.reporter_phone || '081234567891';
+          let repName = c.reporter_name;
+          let repPhone = c.reporter_phone;
+          if ((!repName || repName === 'Siti') && c.report_id) {
+            const matchedRep = (currentReports || []).find(r => String(r.id) === String(c.report_id));
+            if (matchedRep && matchedRep.reporter_name) {
+              repName = matchedRep.reporter_name;
+              if (matchedRep.reporter_phone) repPhone = matchedRep.reporter_phone;
+            }
+          }
+          if (!repName || repName === 'Siti') {
+            const bhupaP = parts.find(p => p.participant_role === 'BHUPA');
+            if (bhupaP && bhupaP.name) {
+              repName = bhupaP.name;
+              if (bhupaP.phone) repPhone = bhupaP.phone;
+            }
+          }
+          if (!repName || repName === 'Siti') {
+            const matchedKader = (currentUsers || []).find(u => u.role === 'KADER' && (String(u.id) === String(c.reporter_id) || (u.village_id && String(u.village_id) === String(c.village_id))));
+            if (matchedKader) {
+              repName = matchedKader.name;
+              if (matchedKader.phone) repPhone = matchedKader.phone;
+            }
+          }
+          const reporterName = cleanRoleAccountName(repName || "Kader Jiwa");
+          const reporterPhone = repPhone || '-';
           const cleanRepPhone = reporterPhone.replace(/\D/g, '').replace(/^0/, '62');
 
           const guruName = cleanRoleAccountName((guruP && guruP.name) ? guruP.name : "Kiai H. Kholil");
@@ -5869,9 +5921,31 @@
       document.getElementById('detailCaseNumber').innerText = activeSelectedCase.case_number;
       document.getElementById('detailPatientName').innerText = activeSelectedCase.patient_name;
       document.getElementById('detailPatientMeta').innerText = `${activeSelectedCase.gender === 'P' ? 'Perempuan' : 'Laki-laki'}, 32 tahun • ${activeSelectedCase.patient_address || activeSelectedCase.village_name}`;
-      const rawRepName = activeSelectedCase.nakes_name || activeSelectedCase.reporter_name || 'Siti';
-      const repName = cleanRoleAccountName(rawRepName);
-      const repPhone = activeSelectedCase.reporter_phone || '081234567891';
+      let rawRepName = activeSelectedCase.reporter_name;
+      let repPhone = activeSelectedCase.reporter_phone;
+      if ((!rawRepName || rawRepName === 'Siti') && activeSelectedCase.report_id) {
+        const matchedRep = (currentReports || []).find(r => String(r.id) === String(activeSelectedCase.report_id));
+        if (matchedRep && matchedRep.reporter_name) {
+          rawRepName = matchedRep.reporter_name;
+          if (matchedRep.reporter_phone) repPhone = matchedRep.reporter_phone;
+        }
+      }
+      if (!rawRepName || rawRepName === 'Siti') {
+        const bhupaObj = (activeSelectedCase.participants || []).find(p => p.participant_role === 'BHUPA');
+        if (bhupaObj && bhupaObj.name) {
+          rawRepName = bhupaObj.name;
+          if (bhupaObj.phone) repPhone = bhupaObj.phone;
+        }
+      }
+      if (!rawRepName || rawRepName === 'Siti') {
+        const matchedKader = (currentUsers || []).find(u => u.role === 'KADER' && (String(u.id) === String(activeSelectedCase.reporter_id) || (u.village_id && String(u.village_id) === String(activeSelectedCase.village_id))));
+        if (matchedKader) {
+          rawRepName = matchedKader.name;
+          if (matchedKader.phone) repPhone = matchedKader.phone;
+        }
+      }
+      const repName = cleanRoleAccountName(rawRepName || 'Kader Jiwa');
+      repPhone = repPhone || '-';
       document.getElementById('detailReporterName').innerText = repName;
       document.getElementById('detailReporterPhone').innerText = repPhone;
       const cleanRepPhone = repPhone.replace(/\D/g, '').replace(/^0/, '62');
