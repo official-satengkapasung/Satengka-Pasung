@@ -3168,6 +3168,9 @@
   <script type="module" src="./src/features/roles/mitra-view.js"></script>
   <script type="module" src="./src/features/roles/kader-view.js"></script>
   <script type="module" src="./src/features/nakes/nakes-view.js"></script>
+  <script type="module" src="./src/features/nakes/map-controller.js"></script>
+  <script type="module" src="./src/features/nakes/monitoring-controller.js"></script>
+  <script type="module" src="./src/features/nakes/table-controller.js"></script>
   <script type="module" src="./src/services/mock-engine.js"></script>
   <script type="module">
     window.firebaseReadyPromise = (async () => {
@@ -4128,157 +4131,8 @@
       initOrUpdateLeafletMap();
     }
 
-    function updateMapFilterCounters() {
-      const cAll = document.getElementById('mapCount_ALL');
-      const cEvac = document.getElementById('mapCount_EVAC_NEEDED');
-      const cCoord = document.getElementById('mapCount_COORDINATION');
-      const cReady = document.getElementById('mapCount_READY_EVAC');
-      const cMon = document.getElementById('mapCount_MONITORING');
-
-      const evacCount = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED').length;
-      const coordCount = currentCases.filter(c => c.status === 'COORDINATION').length;
-      const readyCount = currentCases.filter(c => c.status === 'READY_FOR_EVACUATION').length;
-      const monCount = currentCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED').length;
-
-      if (cAll) cAll.innerText = currentCases.length;
-      if (cEvac) cEvac.innerText = evacCount;
-      if (cCoord) cCoord.innerText = coordCount;
-      if (cReady) cReady.innerText = readyCount;
-      if (cMon) cMon.innerText = monCount;
-    }
-
-    function initOrUpdateLeafletMap() {
-      const mapEl = document.getElementById('nakesLeafletMap');
-      if (!mapEl || typeof L === 'undefined') return;
-
-      const kokopCenter = [-7.0145, 113.0234];
-
-      if (!leafletMapInstance) {
-        leafletMapInstance = L.map('nakesLeafletMap', {
-          zoomControl: true,
-          attributionControl: true
-        }).setView(kokopCenter, 12);
-
-        // Primary: ESRI WorldStreetMap (Hospital/Enterprise grade, zero policy block, detailed road network)
-        const primaryTile = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-          maxZoom: 19,
-          attribution: 'Tiles &copy; Esri &mdash; Puskesmas Kokop Bangkalan'
-        });
-
-        // Error fallback ke CartoDB Voyager
-        primaryTile.on('tileerror', function () {
-          console.warn('Fallback ke CartoDB Voyager Tile');
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '&copy; CARTO &copy; OSM contributors'
-          }).addTo(leafletMapInstance);
-        });
-
-        primaryTile.addTo(leafletMapInstance);
-        leafletMarkerGroup = L.layerGroup().addTo(leafletMapInstance);
-      } else {
-        leafletMapInstance.invalidateSize();
-      }
-
-      updateMapFilterCounters();
-
-      if (leafletMarkerGroup) {
-        leafletMarkerGroup.clearLayers();
-        const markerBounds = [];
-
-        // 1. Marker Faskes Induk: Puskesmas Kokop (Dupok)
-        if (activeMapCategoryFilter === 'ALL' || activeMapCategoryFilter === 'FASKES') {
-          const puskesmasIcon = L.divIcon({
-            className: 'custom-pin-pusk',
-            html: `<div class="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-sm shadow-lg border-2 border-white font-bold"><i class="fa-solid fa-hospital"></i></div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-          });
-          L.marker(kokopCenter, { icon: puskesmasIcon })
-            .bindPopup(`
-              <div class="space-y-1.5 p-0.5">
-                <strong>Puskesmas Kokop</strong><br>
-                <span class="text-slate-500 text-[10px]">Jl. KH Abdul Mukti, Desa Dupok</span><br>
-                <span class="text-emerald-700 font-bold text-[10px]">Posko Induk Siaga EWS</span>
-                <div class="pt-1">
-                  <button type="button" onclick="openExternalMapsModal(${kokopCenter[0]}, ${kokopCenter[1]}, 'Puskesmas Kokop Bangkalan', 'Posko Induk Siaga EWS')" class="w-full px-2 py-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded text-[10px] flex items-center justify-center space-x-1 shadow-sm">
-                    <i class="fa-solid fa-diamond-turn-right text-[9px]"></i>
-                    <span>Buka di Aplikasi Maps</span>
-                  </button>
-                </div>
-              </div>
-            `)
-            .addTo(leafletMarkerGroup);
-          markerBounds.push(kokopCenter);
-        }
-
-        // 2. Filter & Render Marker Kasus Berdasarkan Kategori yang Dipilih
-        if (activeMapCategoryFilter !== 'FASKES') {
-          let casesToDisplay = currentCases;
-          if (activeMapCategoryFilter === 'EVAC_NEEDED') {
-            casesToDisplay = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED');
-          } else if (activeMapCategoryFilter === 'COORDINATION') {
-            casesToDisplay = currentCases.filter(c => c.status === 'COORDINATION');
-          } else if (activeMapCategoryFilter === 'READY_EVAC') {
-            casesToDisplay = currentCases.filter(c => c.status === 'READY_FOR_EVACUATION');
-          } else if (activeMapCategoryFilter === 'MONITORING') {
-            casesToDisplay = currentCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED');
-          }
-
-          casesToDisplay.forEach(c => {
-            const lat = parseFloat(c.latitude) || (kokopCenter[0] + (Math.random() - 0.5) * 0.03);
-            const lng = parseFloat(c.longitude) || (kokopCenter[1] + (Math.random() - 0.5) * 0.03);
-
-            let pinColor = 'bg-amber-500';
-            let statusLabel = 'Sedang Koordinasi';
-            if (c.status === 'SIAGA' || c.status === 'REPORTED') {
-              pinColor = 'bg-red-600 animate-bounce';
-              statusLabel = 'Butuh Evakuasi';
-            } else if (c.status === 'READY_FOR_EVACUATION') {
-              pinColor = 'bg-emerald-600';
-              statusLabel = 'Siap Evakuasi';
-            } else if (c.status === 'MONITORING' || c.status === 'CLOSED') {
-              pinColor = 'bg-blue-600';
-              statusLabel = 'Kontrol Obat';
-            }
-
-            const caseIcon = L.divIcon({
-              className: 'custom-pin-case',
-              html: `<div class="w-6 h-6 rounded-full ${pinColor} text-white flex items-center justify-center text-xs shadow-md border border-white font-bold"><i class="fa-solid fa-location-dot"></i></div>`,
-              iconSize: [24, 24],
-              iconAnchor: [12, 24]
-            });
-
-            L.marker([lat, lng], { icon: caseIcon })
-              .bindPopup(`
-                <div class="space-y-1.5 p-0.5">
-                  <p class="font-bold text-slate-800 text-xs">${c.patient_name} (${c.village_name || 'Desa Kokop'})</p>
-                  <p class="text-[10px] text-slate-500">${c.case_number} • ${c.report_type || 'Pasung'}</p>
-                  <span class="px-2 py-0.5 rounded text-[9px] font-bold text-white ${pinColor.split(' ')[0]}">${statusLabel}</span>
-                  <div class="pt-1.5 flex space-x-1.5">
-                    <button onclick="selectCaseDetail('${c.id}')" class="px-2 py-1 bg-slate-800 text-white font-bold rounded text-[9px] hover:bg-black">Detail</button>
-                    <button onclick="openExternalMapsModal(${lat}, ${lng}, '${c.patient_name.replace(/'/g, "\\'")}', '${(c.village_name || 'Desa Kokop').replace(/'/g, "\\'")}')" class="px-2 py-1 bg-emerald-700 text-white font-bold rounded text-[9px] hover:bg-emerald-800 flex items-center space-x-1">
-                      <i class="fa-solid fa-diamond-turn-right text-[8px]"></i>
-                      <span>Maps</span>
-                    </button>
-                  </div>
-                </div>
-              `)
-              .addTo(leafletMarkerGroup);
-
-            markerBounds.push([lat, lng]);
-          });
-        }
-
-        // Auto Zoom/Focus ke Marker yang Ditampilkan jika ada titik koordinat
-        if (markerBounds.length > 1) {
-          leafletMapInstance.fitBounds(L.latLngBounds(markerBounds), { padding: [35, 35], maxZoom: 15 });
-        } else if (markerBounds.length === 1) {
-          leafletMapInstance.setView(markerBounds[0], 14);
-        }
-      }
-    }
+    // Logika Peta Spasial Leaflet Puskesmas Kokop & Marker Kasus telah diekstrak ke
+    // src/features/nakes/map-controller.js (ES6 Module) dan tersedia via window.NakesMap
 
     // Switch Navigasi Desktop Nakes
     function switchNakesTab(tab) {
@@ -6080,103 +5934,8 @@
       switchNakesTab('dashboard');
     }
 
-    // Stopwatch Timer & Stepper Synchronization for Monitoring Koordinasi (Bebas NaN)
-    function startMonitoringWatch(startTimeStr) {
-      if (monitoringTimer) clearInterval(monitoringTimer);
-
-      if (startTimeStr) {
-        const parsed = Date.parse(startTimeStr);
-        monitoringStartTime = (!isNaN(parsed) && parsed > 0) ? parsed : Date.now();
-      } else if (!monitoringStartTime || isNaN(monitoringStartTime)) {
-        monitoringStartTime = Date.now();
-      }
-
-      function updateWatch() {
-        const diffMs = Math.max(0, Date.now() - monitoringStartTime);
-        const totalSec = Math.floor(diffMs / 1000);
-        const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
-        const mins = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
-        const secs = String(totalSec % 60).padStart(2, '0');
-        const timerEl = document.getElementById('monStopwatchTimer');
-        if (timerEl) timerEl.innerText = `${hrs}:${mins}:${secs}`;
-      }
-
-      updateWatch();
-      monitoringTimer = setInterval(updateWatch, 1000);
-    }
-
-    function updateMonitoringStepper(currentCase) {
-      if (!currentCase) return;
-
-      const statusBadge = document.getElementById('monStatusBadge');
-      if (statusBadge) {
-        statusBadge.innerText = formatStatusIndo(currentCase.status);
-        if (currentCase.status === 'READY_FOR_EVACUATION') {
-          statusBadge.className = 'text-xl font-black text-emerald-600 badge-siaga mt-0.5';
-        } else if (currentCase.status === 'COORDINATION') {
-          statusBadge.className = 'text-xl font-black text-amber-600 badge-siaga mt-0.5';
-        } else {
-          statusBadge.className = 'text-xl font-black text-red-600 badge-siaga mt-0.5';
-        }
-      }
-
-      const parts = currentCase.participants || [];
-      const guruPart = parts.find(p => p.participant_role === 'GURU');
-      const ratoPart = parts.find(p => p.participant_role === 'RATO');
-
-      const guruIcon = document.getElementById('monIconGuru');
-      const guruText = document.getElementById('monTextGuru');
-      if (guruPart && guruPart.response === 'AGREE') {
-        if (guruIcon) {
-          guruIcon.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5';
-          guruIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
-        }
-        if (guruText) {
-          guruText.className = 'text-emerald-700 font-medium';
-          guruText.innerText = 'Siap membantu (Terkonfirmasi)';
-        }
-      } else if (guruPart && guruPart.response === 'NEED_TIME') {
-        if (guruIcon) {
-          guruIcon.className = 'w-7 h-7 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 animate-pulse';
-          guruIcon.innerHTML = '<i class="fa-solid fa-phone-volume"></i>';
-        }
-        if (guruText) {
-          guruText.className = 'text-amber-700 font-semibold';
-          guruText.innerText = 'Kiai Butuh Waktu (Sedang Telepon Keluarga)';
-        }
-      } else {
-        if (guruIcon) {
-          guruIcon.className = 'w-7 h-7 rounded-full bg-slate-400 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5';
-          guruIcon.innerHTML = '<i class="fa-solid fa-clock"></i>';
-        }
-        if (guruText) {
-          guruText.className = 'text-slate-500 font-medium';
-          guruText.innerText = 'Menunggu konfirmasi Kiai...';
-        }
-      }
-
-      const ratoIcon = document.getElementById('monIconRato');
-      const ratoText = document.getElementById('monTextRato');
-      if (ratoPart && ratoPart.response === 'READY') {
-        if (ratoIcon) {
-          ratoIcon.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5';
-          ratoIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
-        }
-        if (ratoText) {
-          ratoText.className = 'text-emerald-700 font-medium';
-          ratoText.innerText = 'Siap mengawal (Terkonfirmasi)';
-        }
-      } else {
-        if (ratoIcon) {
-          ratoIcon.className = 'w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 animate-pulse';
-          ratoIcon.innerHTML = '<i class="fa-solid fa-clock"></i>';
-        }
-        if (ratoText) {
-          ratoText.className = 'text-amber-600 font-medium';
-          ratoText.innerText = 'Menunggu konfirmasi Kades...';
-        }
-      }
-    }
+    // Stopwatch Timer & Stepper Synchronization for Monitoring Koordinasi telah diekstrak ke
+    // src/features/nakes/monitoring-controller.js (ES6 Module) dan tersedia via window.NakesMonitoring
 
     async function executeEwsActivation() {
       const guruId = document.getElementById('ewsGuruSelect').value;
