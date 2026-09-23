@@ -23,7 +23,7 @@ export function formatStatusIndo(status) {
   return map[status] || status || 'Menunggu';
 }
 
-// 2. Format Prioritas Kasus
+// 2. Format Prioritas Kasus / Triage
 export function formatPriorityIndo(priority) {
   const map = {
     'EMERGENCY': 'Gawat Darurat',
@@ -32,6 +32,24 @@ export function formatPriorityIndo(priority) {
     'LOW': 'Rendah'
   };
   return map[priority] || priority || 'Normal';
+}
+
+export const formatTriageIndo = formatPriorityIndo;
+
+// 2b. Format Tanggal Standar Bahasa Indonesia
+export function formatDateIndo(dateStr) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return String(dateStr);
+    return d.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return String(dateStr);
+  }
 }
 
 // 3. Format Kepatuhan Minum Obat
@@ -90,6 +108,8 @@ export function getRoleVisualMeta(role) {
 if (typeof window !== 'undefined') {
   window.formatStatusIndo = formatStatusIndo;
   window.formatPriorityIndo = formatPriorityIndo;
+  window.formatTriageIndo = formatTriageIndo;
+  window.formatDateIndo = formatDateIndo;
   window.formatComplianceIndo = formatComplianceIndo;
   window.formatParticipantResponseIndo = formatParticipantResponseIndo;
   window.cleanRoleAccountName = cleanRoleAccountName;
