@@ -21,7 +21,7 @@ const ASSETS_TO_CACHE = [
   './assets/icons/role_nakes_white.png',
   './assets/pdf_extracted/page_3_img_2.jpeg',
   './assets/pdf_extracted/page_1_img_2.png',
-  './js/malekkas-engine.js',
+  './src/services/mock-engine.js',
   './src/constants/roles.js',
   './src/utils/formatters.js',
   './src/services/storage.js',
@@ -31,7 +31,8 @@ const ASSETS_TO_CACHE = [
   './src/components/ui/toast.js',
   './src/components/ui/modal-controller.js',
   './src/features/roles/mitra-view.js',
-  './src/features/roles/kader-view.js'
+  './src/features/roles/kader-view.js',
+  './src/features/nakes/nakes-view.js'
 ];
 
 self.addEventListener('install', (event) => {
