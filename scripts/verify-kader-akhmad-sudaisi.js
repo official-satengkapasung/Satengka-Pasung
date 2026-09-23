@@ -101,21 +101,29 @@ const { chromium } = require('../node_modules/playwright-core');
       localStorage.setItem('malekkas_token', 'token_nakes_' + Date.now());
     });
 
-    await page.reload();
-    await page.waitForTimeout(2000);
+    await page.goto('http://127.0.0.1:5500/index.html');
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Tunggu hingga nakesAksiList selesai diisi oleh loadData()
+    await page.waitForFunction(() => {
+      const el = document.getElementById('nakesAksiList');
+      return el && el.children.length > 0;
+    }, { timeout: 15000 });
+
+    const currentUrl = page.url();
+    console.log('Current URL setelah navigasi:', currentUrl);
 
     // Ambil teks dari kartu kasus di UI
     const debugInfo = await page.evaluate(() => {
       const container = document.getElementById('nakesAksiList');
-      const cases = window.currentCases || [];
       const cards = container ? Array.from(container.children).map(c => c.innerText.replace(/\s+/g, ' ').trim()) : [];
       return {
         cardsCount: cards.length,
-        cards,
-        casesCount: cases.length,
-        firstCase: cases[0] ? { name: cases[0].patient_name, reporter: cases[0].reporter_name } : null
+        cards
       };
     });
+
+    console.log('\n--- Debug UI Nakes ---', JSON.stringify(debugInfo, null, 2));
 
     console.log('\n--- Debug UI Nakes ---', JSON.stringify(debugInfo, null, 2));
 

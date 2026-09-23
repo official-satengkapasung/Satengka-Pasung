@@ -13,3 +13,10 @@
    - Wajib gunakan pencarian grep langsung ke ID elemen, nama class, atau selector target.
 3. **LANGSUNG EKSEKUSI TARGET:**
    - Setelah baris target ditemukan, agen langsung memodifikasi file via `replace_file_content` tanpa overthinking.
+
+## ⛔ STRICT RESTRICTIONS (ATURAN KETAT)
+4. **DILARANG PUSH OTOMATIS (NO AUTO-PUSH):**
+   - Agen DILARANG MENJALANKAN `git push` tanpa izin atau instruksi eksplisit dari user.
+5. **STRICT SCOPE (HANYA UBAH YANG DISURUH):**
+   - Agen HANYA BOLEH mengubah kode/elemen yang secara spesifik diminta oleh user.
+   - Dilarang merapikan, memodifikasi, atau menyentuh file/fitur lain di luar instruksi.

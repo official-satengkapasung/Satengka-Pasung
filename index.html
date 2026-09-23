@@ -180,7 +180,7 @@
             </div>
             <div>
               <h2 class="font-black text-white text-sm tracking-wider leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">SATENGKA PASUNG</h2>
-              <h3 class="font-bold text-[#b8fbfa] text-[10px] tracking-wider uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">BHUPPA’ BHU’ GHURU RATO’</h3>
+              <h3 class="font-bold text-[#b8fbfa] text-[10px] tracking-wider uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">BHUPPA’ BHU’ GHURU RATO</h3>
             </div>
           </div>
           <!-- Tombol Tutup Sidebar Khusus Mobile -->
@@ -327,7 +327,7 @@
               <i class="fa-solid fa-user-doctor"></i>
             </div>
             <div class="text-left text-xs hidden md:block">
-              <p id="nakesHeaderName" class="font-bold text-slate-800 truncate text-xs">dr. Siti Amelia</p>
+              <p id="nakesHeaderName" class="font-bold text-slate-800 truncate text-xs">Petugas Nakes</p>
               <p class="text-slate-400 text-[10px]">Nakes Puskesmas</p>
             </div>
           </button>
@@ -352,8 +352,7 @@
                 </span>
               </div>
               <p class="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                Selamat datang, <strong id="nakesWelcomeName" class="text-emerald-800 font-bold">dr. Siti
-                  Amelia</strong>. Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung.
+                Selamat datang, <strong id="nakesWelcomeName" class="text-emerald-800 font-bold">Petugas Nakes</strong>. Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung.
               </p>
             </div>
             <div class="flex items-center space-x-2 shrink-0 self-start md:self-auto">
@@ -620,8 +619,8 @@
                       <span class="text-[9px] font-bold uppercase text-emerald-700 flex items-center gap-1 tracking-wider">
                         <img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Bhupa' Bhabu'"> Bhupa' Bhabu'
                       </span>
-                      <p id="detailReporterName" class="font-bold text-slate-900 text-xs truncate">Siti</p>
-                      <p id="detailReporterPhone" class="text-[10px] text-slate-500 font-mono">081234567891</p>
+                      <p id="detailReporterName" class="font-bold text-slate-900 text-xs truncate">Kader Pelapor</p>
+                      <p id="detailReporterPhone" class="text-[10px] text-slate-500 font-mono">-</p>
                     </div>
                     <a id="detailReporterWaBtn" href="#" target="_blank"
                       class="w-8 h-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-sm shrink-0 transition shadow-xs"
@@ -1378,7 +1377,7 @@
                 <span id="mobileRoleBadgeTitle">Bhupa' Bhabu'</span>
               </div>
             </div>
-            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden xs:block">Puskesmas Kokop • Bhupa' Bhabhu' Ghuru Rato'</p>
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden xs:block">Puskesmas Kokop • Bhupa' Bhabhu' Ghuru Rato</p>
           </div>
         </div>
 
@@ -1864,7 +1863,7 @@
               <button type="button" onclick="openGuruRiwayatScreen()"
                 class="text-xs text-emerald-700 hover:underline font-bold">Lihat Semua Riwayat</button>
             </div>
-            <div onclick="openGuruRiwayatScreen()"
+            <div id="guruRecentCompletedCard" onclick="openGuruRiwayatScreen()"
               class="p-4 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 border border-slate-200 cursor-pointer flex justify-between items-center text-xs transition shadow-sm">
               <div class="flex items-center space-x-3">
                 <div
@@ -1872,11 +1871,11 @@
                   <i class="fa-solid fa-check"></i>
                 </div>
                 <div>
-                  <p class="font-black text-slate-800 text-sm">Siti</p>
-                  <p class="text-xs text-slate-500">Desa Kokop • Pendampingan Selesai</p>
+                  <p class="font-black text-slate-800 text-sm">Buku Rekap Dampingan</p>
+                  <p class="text-xs text-slate-500">Ketuk untuk membuka rekap riwayat pendampingan</p>
                 </div>
               </div>
-              <span class="text-emerald-700 font-bold bg-emerald-100/70 px-3 py-1 rounded-full">✓ Selesai</span>
+              <span class="text-emerald-700 font-bold bg-emerald-100/70 px-3 py-1 rounded-full">Buka Riwayat</span>
             </div>
           </div>
         </div>
@@ -2006,7 +2005,7 @@
               <button type="button" onclick="openRatoRiwayatScreen()"
                 class="text-xs text-indigo-700 hover:underline font-bold">Lihat Semua Riwayat</button>
             </div>
-            <div onclick="openRatoRiwayatScreen()"
+            <div id="ratoRecentCompletedCard" onclick="openRatoRiwayatScreen()"
               class="p-4 rounded-2xl bg-slate-50 hover:bg-indigo-50/50 border border-slate-200 cursor-pointer flex justify-between items-center text-xs transition shadow-sm">
               <div class="flex items-center space-x-3">
                 <div
@@ -2014,11 +2013,11 @@
                   <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <div>
-                  <p class="font-black text-slate-800 text-sm">Siti</p>
-                  <p class="text-xs text-slate-500">Desa Kokop • Pengawalan Selesai</p>
+                  <p class="font-black text-slate-800 text-sm">Buku Rekap Pengawalan</p>
+                  <p class="text-xs text-slate-500">Ketuk untuk membuka rekap riwayat pengawalan linmas</p>
                 </div>
               </div>
-              <span class="text-emerald-700 font-bold bg-emerald-100/70 px-3 py-1 rounded-full">✓ Selesai</span>
+              <span class="text-indigo-700 font-bold bg-indigo-100/70 px-3 py-1 rounded-full">Buka Riwayat</span>
             </div>
           </div>
         </div>
@@ -2234,7 +2233,7 @@
 
         <!-- Universal Footer Khusus Tampilan Scroll Konten (Mobile & Tablet) -->
         <div class="pt-4 pb-2 border-t border-slate-200/80 text-center space-y-1 block sm:hidden">
-          <p class="text-[11px] font-bold text-slate-700">SATENGKA PASUNG • BHUPA' BHABHU' GHURU RATO'</p>
+          <p class="text-[11px] font-bold text-slate-700">SATENGKA PASUNG • BHUPA' BHABHU' GHURU RATO</p>
           <p class="text-[10px] text-slate-500 font-medium">Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung</p>
           <p class="text-[9px] text-slate-400">Tim Penelitian Skema Terapan 2026 • Universitas Trunodjoyo Madura - Puskesmas Kokop</p>
         </div>
@@ -3641,37 +3640,6 @@
       if (document.getElementById('userProfileDisplayName')) document.getElementById('userProfileDisplayName').innerText = newName;
 
       closeUserProfileModal();
-      alert('✓ Profil berhasil diperbarui dan tersimpan.');
-    }
-
-    // Mode Fleksibel: Default Responsif Penuh (Tablet & Desktop) vs Simulasi HP
-    let isMobileEmulationMode = false;
-    function toggleMobileFullWidth() {
-      const frame = document.getElementById('mobileDeviceFrame');
-      const wrapper = document.getElementById('viewMobilePwa');
-      const btnTxt = document.getElementById('txtToggleResponsive');
-      const btn = document.getElementById('btnToggleResponsive');
-      if (!frame || !wrapper) return;
-
-      isMobileEmulationMode = !isMobileEmulationMode;
-
-      if (isMobileEmulationMode) {
-        // Mode Simulasi HP Khusus Testing Mobile
-        frame.classList.remove('max-w-5xl');
-        frame.classList.add('max-w-[420px]', 'md:border-8', 'md:border-slate-800', 'shadow-2xl');
-        if (btnTxt) btnTxt.innerText = 'Responsif Lebar';
-        if (btn) btn.innerHTML = '<i class="fa-solid fa-expand text-[9px]"></i> <span id="txtToggleResponsive">Responsif Lebar</span>';
-      } else {
-        // Mode Default: Responsif Penuh Modern (Desktop & Tablet Natural)
-        frame.classList.remove('max-w-[420px]', 'md:border-8', 'md:border-slate-800', 'shadow-2xl');
-        frame.classList.add('max-w-5xl');
-        if (btnTxt) btnTxt.innerText = 'Simulasi HP';
-        if (btn) btn.innerHTML = '<i class="fa-solid fa-mobile-screen text-[9px]"></i> <span id="txtToggleResponsive">Simulasi HP</span>';
-      }
-
-      // Invalidate leaf map if visible
-      if (mGuruMapInstance) setTimeout(() => mGuruMapInstance.invalidateSize(), 200);
-      if (mRatoMapInstance) setTimeout(() => mRatoMapInstance.invalidateSize(), 200);
     }
 
     // Load Master Data Villages (Zero-Cost Engine / Firebase)
@@ -8071,7 +8039,7 @@
       const token = localStorage.getItem('malekkas_token') || '';
 
       const senderId = currentUser ? currentUser.id : 1;
-      const senderName = cleanRoleAccountName(currentUser ? currentUser.name : 'dr. Siti Amelia');
+      const senderName = cleanRoleAccountName(currentUser ? currentUser.name : 'Pengguna Faskes');
       const senderRole = currentUser ? currentUser.role : 'NAKES';
 
       // Kirim via Realtime Chat Engine (Zero-Cost / Firebase)
