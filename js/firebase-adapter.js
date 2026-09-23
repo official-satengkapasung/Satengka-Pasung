@@ -143,7 +143,7 @@ export async function loginUser(identifier, password) {
     try {
       const cred = await signInWithEmailAndPassword(auth, emailToAuth, password);
       const fbUser = cred.user;
-      let userRole = matchedLocal ? matchedLocal.role : "NAKES";
+      let userRole = matchedLocal ? matchedLocal.role : "KADER";
       let userName = fbUser.displayName || (matchedLocal ? matchedLocal.name : identifier);
       let userVillage = matchedLocal ? (matchedLocal.village_name || "Kokop") : "Kokop";
       let userVillageId = matchedLocal ? (matchedLocal.village_id || 1) : 1;
@@ -218,13 +218,22 @@ export async function loginUser(identifier, password) {
             }
           } catch (createErr) {
             console.warn("Auto-register to Firebase Auth fallback:", createErr.code);
-            // Jika kata sandi salah saat mencoba pendaftaran yang sudah ada
             if (createErr.code === "auth/email-already-in-use") {
+              const expectedPass = matchedLocal.password || "satengka123";
+              if (password === expectedPass) {
+                const token = "token_" + Math.random().toString(36).substring(2) + Date.now();
+                return { success: true, message: "Login berhasil menggunakan kredensial faskes.", data: { token, user: matchedLocal } };
+              }
               return { success: false, message: "Kata sandi salah. Silakan periksa kembali." };
             }
           }
         }
       } else if (authErr.code === "auth/wrong-password") {
+        const expectedPass = matchedLocal ? (matchedLocal.password || "satengka123") : "satengka123";
+        if (matchedLocal && password === expectedPass) {
+          const token = "token_" + Math.random().toString(36).substring(2) + Date.now();
+          return { success: true, message: "Login berhasil menggunakan kredensial faskes.", data: { token, user: matchedLocal } };
+        }
         return { success: false, message: "Kata sandi salah. Silakan periksa kembali." };
       }
     }
@@ -233,6 +242,11 @@ export async function loginUser(identifier, password) {
   // Fallback ke penyimpanan lokal faskes (resiliensi offline)
   if (!matchedLocal) {
     return { success: false, message: "Nomor WhatsApp atau Email belum terdaftar di sistem faskes." };
+  }
+
+  const expectedPass = matchedLocal.password || "satengka123";
+  if (password !== expectedPass) {
+    return { success: false, message: "Kata sandi salah. Silakan periksa kembali." };
   }
 
   const token = "token_" + Math.random().toString(36).substring(2) + Date.now();

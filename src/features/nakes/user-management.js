@@ -145,7 +145,7 @@ export function openAdminResetPasswordModal(userId, userName, userPhone) {
   document.getElementById('resetTargetUserId').value = userId;
   document.getElementById('resetTargetUserName').textContent = userName || '-';
   document.getElementById('resetTargetUserPhone').textContent = userPhone || '-';
-  document.getElementById('resetNewPasswordInput').value = 'satengka123';
+  document.getElementById('resetNewPasswordInput').value = '';
 
   const successBox = document.getElementById('resetSuccessBox');
   if (successBox) successBox.classList.add('hidden');

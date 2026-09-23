@@ -5,6 +5,7 @@ export default defineConfig({
   root: '.',
   publicDir: 'public',
   server: {
+    host: true,
     port: 3000,
     open: false,
     strictPort: true
