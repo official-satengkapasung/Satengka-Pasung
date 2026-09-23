@@ -3163,6 +3163,7 @@
   <script type="module" src="./src/services/ews-service.js"></script>
   <script type="module" src="./src/features/ews/geo-kokop.js"></script>
   <script type="module" src="./src/features/ews/triage-engine.js"></script>
+  <script type="module" src="./src/features/ews/siaga-controller.js"></script>
   <script type="module" src="./src/components/ui/toast.js"></script>
   <script type="module" src="./src/components/ui/modal-controller.js"></script>
   <script type="module" src="./src/features/roles/mitra-view.js"></script>
@@ -4614,38 +4615,8 @@
       activeDetailReportId = null;
     }
 
-    function openSiagaFromReportDetail() {
-      if (activeDetailReportId) {
-        const id = activeDetailReportId;
-        closeReportDetail();
-        openSiagaFromReport(id);
-      }
-    }
-
-    function openSiagaFromReport(reportId) {
-      const rep = currentReports.find(r => String(r.id) === String(reportId));
-      if (rep) {
-        activeReportId = rep.id;
-        // Jika laporan sudah punya case_id, gunakan itu
-        if (rep.case_id) {
-          const matchCase = currentCases.find(c => String(c.id) === String(rep.case_id));
-          if (matchCase) activeSelectedCase = matchCase;
-        }
-        if (document.getElementById('valPatientName')) {
-          document.getElementById('valPatientName').value = rep.patient_name_input;
-        }
-        if (document.getElementById('valVillageSelect') && rep.village_id) {
-          document.getElementById('valVillageSelect').value = rep.village_id;
-        }
-        if (document.getElementById('valReportType') && rep.report_type) {
-          document.getElementById('valReportType').value = rep.report_type.toUpperCase().includes('KAMBUH') ? 'KAMBUH' : 'PASUNG';
-        }
-        if (document.getElementById('valNotes')) {
-          document.getElementById('valNotes').value = `Validasi dari laporan ${rep.report_number} oleh ${rep.reporter_name || 'Kader'}. Alamat: ${rep.address_input || 'Desa Kokop'}.`;
-        }
-        switchNakesTab('validasi');
-      }
-    }
+    // Integrasi Validasi Siaga dari Laporan (openSiagaFromReportDetail & openSiagaFromReport)
+    // telah dimodularisasi penuh ke src/features/ews/siaga-controller.js.
 
     // Peta Interaktif Leaflet untuk Tab Lokasi Kasus
     let caseDetailMapInstance = null;
@@ -5010,134 +4981,8 @@
     // Stopwatch Timer & Stepper Synchronization for Monitoring Koordinasi telah diekstrak ke
     // src/features/nakes/monitoring-controller.js (ES6 Module) dan tersedia via window.NakesMonitoring
 
-    async function executeEwsActivation() {
-      const guruId = document.getElementById('ewsGuruSelect').value;
-      const ratoId = document.getElementById('ewsRatoSelect').value;
-      const msg = document.getElementById('ewsCustomMessage').value;
-      const dispatchGuru = document.getElementById('chkDispatchGuru') ? document.getElementById('chkDispatchGuru').checked : true;
-      const dispatchRato = document.getElementById('chkDispatchRato') ? document.getElementById('chkDispatchRato').checked : true;
-
-      if (!dispatchGuru && !dispatchRato) {
-        alert('Pilih minimal satu tokoh (Guru atau Rato) untuk dikirimi notifikasi aktivasi siaga.');
-        return;
-      }
-
-      if (dispatchGuru && !guruId) {
-        alert('Pilih Guru/Kiai terlebih dahulu.');
-        return;
-      }
-      if (dispatchRato && !ratoId) {
-        alert('Pilih Rato/Kades terlebih dahulu.');
-        return;
-      }
-
-      const btn = document.getElementById('btnKirimNotifSiaga');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim Notifikasi Siaga...';
-
-      // Tentukan payload aktivasi siaga
-      const payload = {
-        guru_id: dispatchGuru ? guruId : null,
-        rato_id: dispatchRato ? ratoId : null,
-        notes: msg || 'Aktivasi Siaga EWS via Tombol Siaga Nakes'
-      };
-      if (activeSelectedCase && activeSelectedCase.id) {
-        payload.case_id = activeSelectedCase.id;
-      } else if (activeReportId) {
-        payload.report_id = activeReportId;
-      }
-
-      try {
-        const patientName = activeSelectedCase ? activeSelectedCase.patient_name : 'Warga Kokop';
-        const villageName = activeSelectedCase ? (activeSelectedCase.village_name || 'Kokop') : 'Kokop';
-
-        // Trigger Link WhatsApp Siaga ke Guru/Kiai terpilih jika dicentang
-        if (dispatchGuru) {
-          const selectedGuru = currentUsers.find(u => String(u.id) === String(guruId));
-          if (selectedGuru && selectedGuru.phone) {
-            let cleanPhone = selectedGuru.phone.replace(/[^0-9]/g, '');
-            if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
-            const waText = encodeURIComponent(`*NOTIFIKASI SIAGA EWS PUSKESMAS KOKOP*\n\nAssalamu’alaikum Wr. Wb. Kiai,\nMohon bantuan pendekatan keagamaan persuasif & rembuk santun keluarga untuk penanganan warga di ${villageName} (Pasien: ${patientName}).\n\nCatatan: ${msg || 'Mohon kesediaan Kiai mendampingi evakuasi medis.'}\n\nTerima kasih atas keridhoan & bimbingan Kiai.`);
-            const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waText}`;
-            window.open(waUrl, '_blank');
-          }
-        }
-
-        // Trigger Link WhatsApp Siaga ke Rato/Kades terpilih jika dicentang
-        if (dispatchRato) {
-          const selectedRato = currentUsers.find(u => String(u.id) === String(ratoId));
-          if (selectedRato && selectedRato.phone) {
-            let cleanRatoPhone = selectedRato.phone.replace(/[^0-9]/g, '');
-            if (cleanRatoPhone.startsWith('0')) cleanRatoPhone = '62' + cleanRatoPhone.slice(1);
-            const waRatoText = encodeURIComponent(`*PEMBERITAHUAN SIAGA KOORDINASI EVAKUASI DESA*\n\nKepada Yth. Kepala Desa / Rato (${villageName}),\nPetugas Puskesmas Kokop meminta pendampingan pengawalan linmas wilayah untuk penanganan evakuasi medis warga (Pasien: ${patientName}).\n\nCatatan: ${msg || 'Mohon koordinasi pengamanan kondusif saat penjemputan warga.'}\n\nTerima kasih atas kerja samanya.`);
-            const waRatoUrl = `https://api.whatsapp.com/send?phone=${cleanRatoPhone}&text=${waRatoText}`;
-            window.open(waRatoUrl, '_blank');
-          }
-        }
-
-        if (window.firebaseAdapter && window.firebaseAdapter.activateSiagaEws) {
-          const res = await window.firebaseAdapter.activateSiagaEws(payload, currentUser);
-          if (res.success) {
-            alert('Notifikasi Siaga Berhasil Terkirim ke WhatsApp & Sistem Aplikasi Tokoh!');
-            const newCaseId = res.data ? res.data.case_id : (activeSelectedCase ? activeSelectedCase.id : null);
-            activeMonitoringCaseId = newCaseId;
-            activeReportId = null;
-
-            await Promise.all([fetchCases(), fetchReports()]);
-
-            const monCase = currentCases.find(c => c.id === newCaseId) || currentCases[0];
-            if (monCase) {
-              activeSelectedCase = monCase;
-              document.getElementById('monCaseNumber').innerText = monCase.case_number;
-            }
-            startMonitoringWatch(monCase ? monCase.activated_at : null);
-            switchNakesTab('monitoring');
-            return;
-          }
-        }
-      } catch (err) {
-        alert('Notifikasi Siaga EWS Berhasil Diaktifkan (Mode Offline).');
-        if (activeSelectedCase) activeMonitoringCaseId = activeSelectedCase.id;
-        startMonitoringWatch(null);
-        switchNakesTab('monitoring');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i><span>Kirim Notifikasi Siaga</span>';
-      }
-    }
-
-    async function finishEvacuationProcess() {
-      if (!confirm('Apakah pasien sudah berhasil dievakuasi ke Puskesmas/RSJ?')) return;
-
-      const caseId = activeMonitoringCaseId || (activeSelectedCase ? activeSelectedCase.id : null);
-
-      if (caseId && window.firebaseAdapter && window.firebaseAdapter.updateCaseStatus) {
-        try {
-          await window.firebaseAdapter.updateCaseStatus(caseId, 'MONITORING', 'Evakuasi berhasil, pasien menuju fasilitas kesehatan.');
-        } catch (e) { /* lanjut */ }
-      }
-
-      if (monitoringTimer) {
-        clearInterval(monitoringTimer);
-        monitoringTimer = null;
-      }
-      alert('Evakuasi Berhasil Selesai! Pasien kini masuk ke tahap Monitoring & Pemantauan Minum Obat.');
-      activeMonitoringCaseId = null;
-      switchNakesTab('dashboard');
-      fetchCases();
-    }
-
-    // Populasikan Guru & Rato Select di Aktivasi EWS
-    function populateEwsSelects(users) {
-      const gurus = users.filter(u => u.role === 'GURU');
-      const ratos = users.filter(u => u.role === 'RATO');
-
-      const selectGuru = document.getElementById('ewsGuruSelect');
-      const selectRato = document.getElementById('ewsRatoSelect');
-
-      if (selectGuru) selectGuru.innerHTML = gurus.map(g => `<option value="${g.id}">${cleanRoleAccountName(g.name)} • ${g.village_name || 'Desa Kokop'}</option>`).join('');
-      if (selectRato) selectRato.innerHTML = ratos.map(r => `<option value="${r.id}">${cleanRoleAccountName(r.name)} • ${r.village_name || 'Desa Kokop'}</option>`).join('');
-    }
+    // Alur Aktivasi Siaga & Evakuasi (executeEwsActivation, finishEvacuationProcess, populateEwsSelects)
+    // telah dimodularisasi penuh ke src/features/ews/siaga-controller.js.
 
     function renderUsersTable(users) {
       const tbody = document.getElementById('usersTableBody');
