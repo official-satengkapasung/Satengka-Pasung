@@ -510,7 +510,9 @@
     // Safety fallback: pastikan splash screen hilang maksimal dalam 2 detik
     setTimeout(() => dismissSplashScreen(0), 2000);
   </script>
-  <script src="./js/app-helpers.js"></script>
+  <script type="module" src="./src/utils/formatters.js"></script>
+  <script type="module" src="./src/services/storage.js"></script>
+  <script type="module" src="./src/services/ews-service.js"></script>
   <script src="./js/malekkas-engine.js"></script>
   <script type="module">
     // Sinkronkan Firebase Auth Cloud jika diakses via Web Server / Firebase Hosting (HTTP/HTTPS)

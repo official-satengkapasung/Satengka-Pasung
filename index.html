@@ -3157,8 +3157,16 @@
       </div>
     </div>
   </div>
-  <!-- ZERO-COST CLIENT DATA & STORAGE ENGINE (UNIVERSAL SCRIPT, BEBAS CORS PROTOCOL) -->
-  <script src="./js/app-helpers.js"></script>
+  <!-- CORE SHARED MODULES (VITE ES6 NATIVE MODULE) -->
+  <script type="module" src="./src/utils/formatters.js"></script>
+  <script type="module" src="./src/services/storage.js"></script>
+  <script type="module" src="./src/services/ews-service.js"></script>
+  <script type="module" src="./src/features/ews/geo-kokop.js"></script>
+  <script type="module" src="./src/features/ews/triage-engine.js"></script>
+  <script type="module" src="./src/components/ui/toast.js"></script>
+  <script type="module" src="./src/components/ui/modal-controller.js"></script>
+  <script type="module" src="./src/features/roles/mitra-view.js"></script>
+  <script type="module" src="./src/features/roles/kader-view.js"></script>
   <script src="./js/malekkas-engine.js"></script>
   <script type="module">
     window.firebaseReadyPromise = (async () => {
@@ -3180,61 +3188,8 @@
 
   <!-- JAVASCRIPT APP LOGIC TERPADU -->
   <script>
-    // Helper format status dan prioritas berbahasa Indonesia resmi
-    function formatStatusIndo(status) {
-      const map = {
-        'SIAGA': 'Siaga',
-        'READY_FOR_EVACUATION': 'Siap Evakuasi',
-        'COORDINATION': 'Koordinasi Terpadu',
-        'EVACUATION': 'Proses Evakuasi',
-        'MONITORING': 'Pemantauan & Kontrol',
-        'CLOSED': 'Bebas Pasung / Selesai',
-        'NEW': 'Laporan Baru',
-        'VALIDATED': 'Tervalidasi',
-        'REPORTED': 'Dilaporkan',
-        'PROCESS': 'Sedang Diproses',
-        'DONE': 'Selesai'
-      };
-      return map[status] || status || 'Menunggu';
-    }
-
-    function formatPriorityIndo(priority) {
-      const map = {
-        'EMERGENCY': 'Gawat Darurat',
-        'HIGH': 'Prioritas Tinggi',
-        'NORMAL': 'Normal',
-        'LOW': 'Rendah'
-      };
-      return map[priority] || priority || 'Normal';
-    }
-
-    function formatComplianceIndo(compliance) {
-      const map = {
-        'RUTIN': 'Rutin & Teratur',
-        'PERLU_PERHATIAN': 'Perlu Perhatian',
-        'PUTUS_OBAT': 'Putus Obat'
-      };
-      return map[compliance] || compliance || 'Rutin';
-    }
-
-    // Helper Format Respon Partisipan / Pilar Berbahasa Indonesia Resmi
-    function formatParticipantResponseIndo(response) {
-      const map = {
-        'AGREE': 'Siap Mendampingi (Setuju)',
-        'READY': 'Siap Mengawal (Terkonfirmasi)',
-        'SIAP': 'Siap Terkonfirmasi',
-        'NEED_TIME': 'Sedang Menghubungi / Butuh Waktu',
-        'PENDING': 'Menunggu Konfirmasi',
-        'REJECT': 'Berhalangan'
-      };
-      return map[response] || response || 'Menunggu Konfirmasi';
-    }
-
-    // Helper sanitasi nama akun dari tanda kurung peran secara menyeluruh
-    function cleanRoleAccountName(name) {
-      if (!name || typeof name !== 'string') return name || '';
-      return name.replace(/\s*\([^)]*\)/g, '').trim();
-    }
+    // Formatters & shared utilities telah diekstraksi ke src/utils/formatters.js (ES6 Module)
+    // dan tersedia secara global via window.*
 
     // State Global
     let currentUser = null;
@@ -5468,27 +5423,8 @@
       }
     }
 
-    // =========================================================================
-    // TOAST NOTIFICATION UTILITY
-    // =========================================================================
-    function showToast(message, type = 'success') {
-      let toast = document.getElementById('appToastNotification');
-      if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'appToastNotification';
-        toast.className = 'fixed bottom-5 right-5 z-[9999] px-4 py-3 rounded-2xl shadow-2xl text-xs font-bold transition-all duration-300 transform translate-y-10 opacity-0 pointer-events-none flex items-center gap-2 max-w-sm';
-        document.body.appendChild(toast);
-      }
-      const isSuccess = type === 'success';
-      toast.className = `fixed bottom-5 right-5 z-[9999] px-4 py-3 rounded-2xl shadow-2xl text-xs font-bold transition-all duration-300 transform translate-y-0 opacity-100 flex items-center gap-2 max-w-sm ${
-        isSuccess ? 'bg-emerald-800 text-white' : 'bg-slate-900 text-white'
-      }`;
-      toast.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-circle-check text-emerald-300' : 'fa-info-circle text-blue-300'} text-base"></i> <span>${escapeHtml(message)}</span>`;
-      setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('translate-y-10', 'opacity-0');
-      }, 3500);
-    }
+    // TOAST NOTIFICATION UTILITY telah diekstrak ke src/components/ui/toast.js (ES6 Module)
+    // dan tersedia secara global via window.showToast
 
     // -------------------------------------------------------------------------
     // 5. MODUL SEMUA LAPORAN MASUK (PAGINATION, SEARCH, FILTER, SORT)
@@ -8085,67 +8021,8 @@
       }
     }
 
-    // =========================================================================
-    // FITUR INTEGRASI APLIKASI MAPS EKSTERNAL (NAVIGATOR PERANGKAT USER)
-    // =========================================================================
-    let activeExtMapsCoords = { lat: -7.014523, lng: 113.023412, title: 'Puskesmas Kokop', address: 'Kec. Kokop' };
-
-    function openExternalMapsModal(lat, lng, title, address) {
-      if (lat !== undefined && lng !== undefined) {
-        activeExtMapsCoords.lat = parseFloat(lat);
-        activeExtMapsCoords.lng = parseFloat(lng);
-        activeExtMapsCoords.title = title || 'Pasien Kokop';
-        activeExtMapsCoords.address = address || 'Desa Kokop';
-      } else if (activeSelectedCase) {
-        activeExtMapsCoords.lat = parseFloat(activeSelectedCase.latitude) || -7.014523;
-        activeExtMapsCoords.lng = parseFloat(activeSelectedCase.longitude) || 113.023412;
-        activeExtMapsCoords.title = activeSelectedCase.patient_name || 'Pasien Kokop';
-        activeExtMapsCoords.address = (activeSelectedCase.village_name || 'Desa Kokop') + ' — Kec. Kokop';
-      }
-
-      const titleEl = document.getElementById('extMapsTargetTitle');
-      const coordsEl = document.getElementById('extMapsTargetCoords');
-      if (titleEl) titleEl.innerText = `${activeExtMapsCoords.title} (${activeExtMapsCoords.address})`;
-      if (coordsEl) coordsEl.innerText = `${activeExtMapsCoords.lat.toFixed(6)}, ${activeExtMapsCoords.lng.toFixed(6)}`;
-
-      const modal = document.getElementById('modalExternalMapsChooser');
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closeExternalMapsModal() {
-      const modal = document.getElementById('modalExternalMapsChooser');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function launchNavigationTarget(type) {
-      const { lat, lng, title } = activeExtMapsCoords;
-      const label = encodeURIComponent(title || 'Titik Evakuasi Puskesmas Kokop');
-      let targetUrl = '';
-
-      switch (type) {
-        case 'google_maps':
-          // Universal Google Maps URL (Membuka aplikasi jika ada, atau fallback ke web)
-          targetUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=&travelmode=driving`;
-          break;
-        case 'waze':
-          // Waze Deep Link
-          targetUrl = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes&zoom=17`;
-          break;
-        case 'apple_maps':
-          // Apple Maps URI Scheme (iOS / macOS)
-          targetUrl = `https://maps.apple.com/?daddr=${lat},${lng}&q=${label}`;
-          break;
-        case 'geo_intent':
-          // Standard Geo URI for Android Intent App Chooser
-          targetUrl = `geo:${lat},${lng}?q=${lat},${lng}(${label})`;
-          break;
-        default:
-          targetUrl = `https://maps.google.com/?q=${lat},${lng}`;
-      }
-
-      closeExternalMapsModal();
-      window.open(targetUrl, '_blank');
-    }
+    // Logika Integrasi Aplikasi Maps Eksternal telah diekstrak ke src/components/ui/modal-controller.js
+    // dan tersedia secara global via window.openExternalMapsModal, window.closeExternalMapsModal, dll.
 
     // =========================================================================
     // FITUR INSTALASI PWA MANDIRI (DESKTOP, TABLET, & SMARTPHONE)

@@ -1,0 +1,15 @@
+{
+  "name": "satengka-pasung-ews",
+  "version": "1.0.0",
+  "description": "Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung (Puskesmas Kokop)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

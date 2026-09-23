@@ -1,5 +1,5 @@
 // Service Worker for BHUPA' BHABHU' GHURU RATO PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v17';
+const CACHE_NAME = 'satengka-pasung-pwa-v18';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -21,7 +21,17 @@ const ASSETS_TO_CACHE = [
   './assets/icons/role_nakes_white.png',
   './assets/pdf_extracted/page_3_img_2.jpeg',
   './assets/pdf_extracted/page_1_img_2.png',
-  './js/malekkas-engine.js'
+  './js/malekkas-engine.js',
+  './src/constants/roles.js',
+  './src/utils/formatters.js',
+  './src/services/storage.js',
+  './src/services/ews-service.js',
+  './src/features/ews/geo-kokop.js',
+  './src/features/ews/triage-engine.js',
+  './src/components/ui/toast.js',
+  './src/components/ui/modal-controller.js',
+  './src/features/roles/mitra-view.js',
+  './src/features/roles/kader-view.js'
 ];
 
 self.addEventListener('install', (event) => {

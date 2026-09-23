@@ -1,6 +1,8 @@
 # Node & dependencies
 node_modules/
 package-lock.json
+dist/
+*.bak
 
 # Local Dev Servers & Logs
 firebase-debug.log*
