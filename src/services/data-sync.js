@@ -154,6 +154,11 @@ export async function loadData() {
   // Inisialisasi subscription real-time Firestore untuk Kasus & Laporan
   initRealtimeSubscriptions();
 
+  if (window.firebaseAdapter && window.firebaseAdapter.isFirebaseActive) {
+    await fetchUsers();
+    return;
+  }
+
   await Promise.all([fetchCases(), fetchReports(), fetchUsers()]);
 }
 

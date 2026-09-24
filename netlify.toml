@@ -92,6 +92,12 @@
   to = "/register.html"
   status = 200
 
+[[redirects]]
+  from = "/test.html"
+  to = "/index.html"
+  status = 404
+  force = true
+
 # Blokir injeksi Netlify Drawer HUD / Feedback Badge di pojokan
 [[redirects]]
   from = "/.netlify/scripts/hud*"

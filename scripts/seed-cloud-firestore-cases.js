@@ -1,5 +1,10 @@
 const { chromium } = require('../node_modules/playwright-core');
 
+if (process.env.SATENGKA_ALLOW_PROD_SEED !== '1') {
+  console.error('Ditolak: skrip ini menulis ke Firebase. Set SATENGKA_ALLOW_PROD_SEED=1 hanya untuk emulator.');
+  process.exit(1);
+}
+
 (async () => {
   console.log('================================================================');
   console.log('🔥 SINKRONISASI DATA KASUS & DESA KOKOP KE CLOUD FIRESTORE');

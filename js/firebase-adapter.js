@@ -6,8 +6,11 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, 
-  collection, 
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  collection,
   doc, 
   getDoc, 
   getDocs, 
@@ -50,7 +53,13 @@ export let isFirebaseActive = false;
 try {
   if (firebaseConfig && firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("DUMMY")) {
     const app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
+    try {
+      db = initializeFirestore(app, {
+        localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+      });
+    } catch (cacheErr) {
+      db = getFirestore(app);
+    }
     auth = getAuth(app);
     if (firebaseConfig.storageBucket) {
       storage = getStorage(app);
@@ -389,7 +398,7 @@ export async function createUser(userData) {
   if (!userData.password || String(userData.password).length < 6) {
     throw new Error("Kata sandi wajib diisi, minimal 6 karakter.");
   }
-  const publicRoles = ["KADER", "GURU", "RATO"];
+  const publicRoles = ["KADER", "GURU", "RATO", "NAKES"];
   const role = publicRoles.includes(userData.role) ? userData.role : "KADER";
   const password = userData.password;
 
@@ -659,26 +668,37 @@ export async function selfResetPassword() {
   };
 }
 
+function mapDoc(d) {
+  const data = d.data();
+  return { ...data, id: data.id !== undefined ? data.id : d.id };
+}
+
+function scopedQuery(name, filterParams = {}) {
+  const role = filterParams.role;
+  const villageId = filterParams.villageId;
+  const constraints = [limit(50)];
+  if (villageId && role !== "NAKES" && role !== "ADMIN") {
+    constraints.unshift(where("village_id", "==", villageId));
+  }
+  return query(collection(db, name), ...constraints);
+}
+
 export async function getCases(userId = null, role = null, villageId = null, villageName = null) {
   let cases = getLocalStore("cases", DEFAULT_SEED.cases);
 
-  // Jika Firestore aktif, sinkronkan kasus dari Firestore
   if (isFirebaseActive && db) {
     try {
-      const snap = await getDocs(collection(db, "cases"));
-      if (!snap.empty) {
-        const cloudCases = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-        if (cloudCases.length > 0) {
-          cases = cloudCases;
-          setLocalStore("cases", cases);
-        }
+      const snap = await getDocs(scopedQuery("cases", { role, villageId }));
+      const cloudCases = snap.docs.map(mapDoc);
+      if (cloudCases.length > 0) {
+        cases = cloudCases;
+        setLocalStore("cases", cases);
       }
     } catch (e) {
       console.warn("⚠️ Gagal mengambil kasus dari Firestore, fallback lokal:", e);
     }
   }
 
-  // Rekonsiliasi data pelapor dari laporan terkait (self-healing jika c.reporter_name belum terisi / fallback Siti)
   const allReports = getLocalStore("reports", DEFAULT_SEED.reports);
   let didEnrich = false;
   cases.forEach(c => {
@@ -710,54 +730,27 @@ export async function getCases(userId = null, role = null, villageId = null, vil
     setLocalStore("cases", cases);
   }
 
-  if (role === "KADER") {
-    cases = cases.filter(c => {
-      if (villageId && String(c.village_id) === String(villageId)) return true;
-      if (villageName && (c.village_name || '').trim().toLowerCase() === villageName.trim().toLowerCase()) return true;
-      if (!villageId && !villageName && userId && String(c.reporter_id) === String(userId)) return true;
-      return false;
-    });
-  } else if (userId && (role === "GURU" || role === "RATO")) {
-    cases = cases.filter(c => c.participants && c.participants.some(p => String(p.user_id) === String(userId) || p.participant_role === role));
-  }
-  return { success: true, data: cases };
+  return { success: true, data: filterCasesForUser(cases, { userId, role, villageId, villageName }) };
 }
 
 
 export async function getReports(reporterId = null, villageId = null, role = null, villageName = null) {
   let reports = getLocalStore("reports", DEFAULT_SEED.reports);
 
-  // Jika Firestore aktif, sinkronkan laporan dari Firestore
   if (isFirebaseActive && db) {
     try {
-      const snap = await getDocs(collection(db, "reports"));
-      if (!snap.empty) {
-        const cloudReports = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-        if (cloudReports.length > 0) {
-          reports = cloudReports;
-          setLocalStore("reports", reports);
-        }
+      const snap = await getDocs(scopedQuery("reports", { role, villageId }));
+      const cloudReports = snap.docs.map(mapDoc);
+      if (cloudReports.length > 0) {
+        reports = cloudReports;
+        setLocalStore("reports", reports);
       }
     } catch (e) {
       console.warn("⚠️ Gagal mengambil laporan dari Firestore, fallback lokal:", e);
     }
   }
 
-  if (role === "KADER") {
-    reports = reports.filter(r => {
-      // 1. Laporan yang dibuat sendiri oleh kader WAJIB selalu tampil
-      if (reporterId && String(r.reporter_id) === String(reporterId)) return true;
-      // 2. Laporan di desa binaan kader
-      if (villageId && String(r.village_id) === String(villageId)) return true;
-      if (villageName && (r.village_name || '').trim().toLowerCase() === villageName.trim().toLowerCase()) return true;
-      // 3. Jika kader belum memiliki asosiasi desa spesifik, tampilkan seluruh laporan wilayah
-      if (!villageId && !villageName) return true;
-      return false;
-    });
-  } else if (reporterId) {
-    reports = reports.filter(r => String(r.reporter_id) === String(reporterId));
-  }
-  return { success: true, data: reports };
+  return { success: true, data: filterReportsForUser(reports, { reporterId, villageId, role, villageName }) };
 }
 
 function filterCasesForUser(cases, filterParams = {}) {
@@ -815,15 +808,10 @@ export function subscribeCases(onUpdate, filterParams = {}) {
   let unsubscribeFirestore = null;
   if (isFirebaseActive && db) {
     try {
-      unsubscribeFirestore = onSnapshot(collection(db, "cases"), (snapshot) => {
-        if (!snapshot.empty) {
-          const cloudCases = snapshot.docs.map(d => {
-            const data = d.data();
-            return { ...data, id: data.id !== undefined ? data.id : d.id };
-          });
-          setLocalStore("cases", cloudCases);
-          onUpdate(filterCasesForUser(cloudCases, filterParams));
-        }
+      unsubscribeFirestore = onSnapshot(scopedQuery("cases", filterParams), (snapshot) => {
+        const cloudCases = snapshot.docs.map(mapDoc);
+        setLocalStore("cases", cloudCases);
+        onUpdate(filterCasesForUser(cloudCases, filterParams));
       }, (err) => {
         console.warn("⚠️ Firestore cases snapshot fallback:", err);
       });
@@ -854,15 +842,10 @@ export function subscribeReports(onUpdate, filterParams = {}) {
   let unsubscribeFirestore = null;
   if (isFirebaseActive && db) {
     try {
-      unsubscribeFirestore = onSnapshot(collection(db, "reports"), (snapshot) => {
-        if (!snapshot.empty) {
-          const cloudReports = snapshot.docs.map(d => {
-            const data = d.data();
-            return { ...data, id: data.id !== undefined ? data.id : d.id };
-          });
-          setLocalStore("reports", cloudReports);
-          onUpdate(filterReportsForUser(cloudReports, filterParams));
-        }
+      unsubscribeFirestore = onSnapshot(scopedQuery("reports", filterParams), (snapshot) => {
+        const cloudReports = snapshot.docs.map(mapDoc);
+        setLocalStore("reports", cloudReports);
+        onUpdate(filterReportsForUser(cloudReports, filterParams));
       }, (err) => {
         console.warn("⚠️ Firestore reports snapshot fallback:", err);
       });
@@ -1009,7 +992,7 @@ export async function deletePatient(caseId) {
 
       // Hapus akun otentikasi di Firestore users jika terikat dengan pasien/keluarga ini
       if (famPhone || patPhone || caseUserId) {
-        const usersSnap = await getDocs(collection(db, "users")).catch(() => null);
+        const usersSnap = await getDocs(query(collection(db, "users"), where("phone", "==", famPhone || patPhone), limit(5))).catch(() => null);
         if (usersSnap && !usersSnap.empty) {
           for (const uDoc of usersSnap.docs) {
             const uData = uDoc.data();
@@ -1081,9 +1064,7 @@ export function subscribeTherapeuticChat(caseId, onUpdate) {
   // 1. Jika Firestore aktif, gunakan onSnapshot listener tanpa orderBy agar tidak membutuhkan composite index
   if (isFirebaseActive && db) {
     try {
-      const q = possibleIds.length > 1
-        ? query(collection(db, "chats"), where("case_id", "in", possibleIds.slice(0, 10)))
-        : query(collection(db, "chats"), where("case_id", "==", strCaseId));
+      const q = query(collection(db, "chats"), where("case_id", "==", strCaseId), limit(50));
 
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const cloudMessages = snapshot.docs.map(d => {
@@ -1183,9 +1164,7 @@ export async function getTherapeuticChats(caseId) {
 
   if (isFirebaseActive && db) {
     try {
-      const q = possibleIds.length > 1
-        ? query(collection(db, "chats"), where("case_id", "in", possibleIds.slice(0, 10)))
-        : query(collection(db, "chats"), where("case_id", "==", strCaseId));
+      const q = query(collection(db, "chats"), where("case_id", "==", strCaseId), limit(50));
 
       const snap = await getDocs(q);
       const cloudMessages = snap.docs.map(d => {

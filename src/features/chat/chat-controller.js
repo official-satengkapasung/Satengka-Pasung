@@ -97,8 +97,6 @@ export async function openTherapeuticChatModal(targetCaseId = null) {
     });
   } else {
     fetchTherapeuticChats();
-    if (chatPollInterval) clearInterval(chatPollInterval);
-    chatPollInterval = setInterval(fetchTherapeuticChats, 5000);
   }
 }
 
