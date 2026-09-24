@@ -4,17 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SATENGKA PASUNG — Masuk Akun EWS</title>
+  <meta name="description" content="SATENGKA PASUNG — Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung Puskesmas Kokop Bangkalan">
   <!-- PWA Manifest & Theme -->
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" href="./assets/logo_opt.png">
-  <meta name="theme-color" content="#2ca3ab">
+  <link rel="icon" type="image/png" href="./assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192x192.png">
+  <meta name="theme-color" content="#047857">
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <style>
+    /* Suppress Netlify Injected Drawer HUD / Feedback Badge */
+    netlify-drawer,
+    [data-netlify-feedback],
+    #netlify-collaborative-tools,
+    .netlify-feedback-drawer,
+    div[class*="netlify-feedback"],
+    iframe[src*="netlify"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: linear-gradient(180deg, rgba(16, 67, 73, 0.40) 0%, rgba(20, 88, 97, 0.35) 50%, rgba(14, 58, 64, 0.50) 100%), url('./assets/background_opt.webp') no-repeat center center fixed;
@@ -92,7 +108,7 @@
   <div class="fixed inset-0 bg-slate-900/15 backdrop-blur-[0.5px] pointer-events-none z-0">
   </div>
 
-  <div
+  <main
     class="max-w-[440px] w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/60 shadow-2xl overflow-hidden p-7 md:p-8 space-y-5 relative z-10">
 
     <!-- BRANDING LOGO RESMI DENGAN LINGKARAN EMBLEM BACKGROUND KLIEN -->
@@ -132,7 +148,7 @@
         <div class="relative">
           <input type="password" id="loginPassword" required placeholder="Masukkan kata sandi Anda" value=""
             class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50/70 focus:bg-white focus:border-[#145861] focus:ring-2 focus:ring-[#145861]/20 outline-none transition font-medium">
-          <button type="button" onclick="togglePasswordVisibility()"
+          <button type="button" onclick="togglePasswordVisibility()" aria-label="Tampilkan atau sembunyikan kata sandi"
             class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 text-xs">
             <i class="fa-solid fa-eye" id="eyeIcon"></i>
           </button>
@@ -181,7 +197,7 @@
       <p class="text-slate-500">Universitas Trunodjoyo Madura &bull; Puskesmas Kokop</p>
     </footer>
 
-  </div>
+  </main>
 
   <!-- ========================================================================= -->
   <!-- MODAL: LUPA KATA SANDI (REAL WORKING FORGOT PASSWORD FLOW)               -->
@@ -539,6 +555,17 @@
         }
       }
       return null;
+    })();
+
+    // Netlify Badge / Feedback Drawer Suppressor
+    (function () {
+      function removeNetlifyBadge() {
+        const els = document.querySelectorAll('netlify-drawer, [data-netlify-feedback], #netlify-collaborative-tools, .netlify-feedback-drawer');
+        els.forEach(el => el.remove());
+      }
+      removeNetlifyBadge();
+      const obs = new MutationObserver(removeNetlifyBadge);
+      obs.observe(document.documentElement, { childList: true, subtree: true });
     })();
   </script>
 </body>

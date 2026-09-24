@@ -4,17 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SATENGKA PASUNG — Registrasi Akun Mandiri</title>
+  <meta name="description" content="SATENGKA PASUNG — Registrasi Akun Mandiri Sistem EWS Penanganan Pasung Puskesmas Kokop Bangkalan">
   <!-- PWA Manifest & Theme -->
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" href="./assets/logo_opt.png">
-  <meta name="theme-color" content="#2ca3ab">
+  <link rel="icon" type="image/png" href="./assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192x192.png">
+  <meta name="theme-color" content="#047857">
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <style>
+    /* Suppress Netlify Injected Drawer HUD / Feedback Badge */
+    netlify-drawer,
+    [data-netlify-feedback],
+    #netlify-collaborative-tools,
+    .netlify-feedback-drawer,
+    div[class*="netlify-feedback"],
+    iframe[src*="netlify"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: linear-gradient(180deg, rgba(16, 67, 73, 0.40) 0%, rgba(20, 88, 97, 0.35) 50%, rgba(14, 58, 64, 0.50) 100%), url('./assets/background_opt.webp') no-repeat center center fixed;
@@ -487,6 +503,17 @@
         }
       }
       return null;
+    })();
+
+    // Netlify Badge / Feedback Drawer Suppressor
+    (function () {
+      function removeNetlifyBadge() {
+        const els = document.querySelectorAll('netlify-drawer, [data-netlify-feedback], #netlify-collaborative-tools, .netlify-feedback-drawer');
+        els.forEach(el => el.remove());
+      }
+      removeNetlifyBadge();
+      const obs = new MutationObserver(removeNetlifyBadge);
+      obs.observe(document.documentElement, { childList: true, subtree: true });
     })();
   </script>
 </body>

@@ -317,7 +317,7 @@ export function getMobileGps() {
 
 export async function submitMobileKaderReport() {
   if (typeof document === 'undefined') return;
-  const name = document.getElementById('kaderFormName')?.value.trim();
+  const name = (document.getElementById('kaderFormName')?.value.trim() || '').toUpperCase();
   const villageId = document.getElementById('kaderFormVillage')?.value;
   const vSelect = document.getElementById('kaderFormVillage');
   const vName = vSelect ? vSelect.options[vSelect.selectedIndex]?.text || 'Kokop' : 'Kokop';

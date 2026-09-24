@@ -52,7 +52,7 @@ export async function savePatientForm(event) {
   const vName = vSelect && vSelect.options[vSelect.selectedIndex] ? vSelect.options[vSelect.selectedIndex].text : 'Kokop';
 
   const payload = {
-    patient_name: document.getElementById('patientFormName')?.value.trim(),
+    patient_name: (document.getElementById('patientFormName')?.value.trim() || '').toUpperCase(),
     gender: document.getElementById('patientFormGender')?.value,
     village_id: vId,
     village_name: vName,

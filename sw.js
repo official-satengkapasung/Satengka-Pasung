@@ -1,11 +1,13 @@
 // Service Worker for BHUPA' BHABHU' GHURU RATO PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v18';
+const CACHE_NAME = 'satengka-pasung-pwa-v20';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './login.html',
   './register.html',
   './manifest.json',
+  './assets/icons/icon-192x192.png',
+  './assets/icons/icon-512x512.png',
   './assets/logo_opt.png',
   './assets/background_opt.webp',
   './assets/brand_text_official.png',

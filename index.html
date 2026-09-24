@@ -7,9 +7,26 @@
   <title>SATENGKA PASUNG — Sistem EWS Terpadu Penanganan Pasung (Bhuppa' Bhu' Ghuru Rato)</title>
   <!-- PWA Manifest & Theme -->
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" href="./assets/logo_opt.png">
-  <meta name="theme-color" content="#2ca3ab">
+  <link rel="icon" type="image/png" href="./assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192x192.png">
+  <meta name="theme-color" content="#047857">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <style>
+    /* Suppress Netlify Injected Drawer HUD / Feedback Badge */
+    netlify-drawer,
+    [data-netlify-feedback],
+    #netlify-collaborative-tools,
+    .netlify-feedback-drawer,
+    div[class*="netlify-feedback"],
+    iframe[src*="netlify"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+  </style>
   <!-- Tailwind CSS via CDN with Official Satengka Brand Palette -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -1604,9 +1621,11 @@
                 <div class="space-y-4">
                   <div>
                     <label class="block font-bold text-slate-700 mb-1.5">Nama Lengkap Pasien <span
-                        class="text-red-500">*</span></label>
-                    <input type="text" id="kaderFormName" placeholder="Contoh: Ahmad"
-                      class="w-full border border-slate-200 rounded-2xl p-3.5 bg-white font-medium outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-sm transition">
+                        class="text-red-500">*</span> <span class="text-xs text-slate-400 font-normal">(Otomatis Kapital)</span></label>
+                    <input type="text" id="kaderFormName" placeholder="Contoh: AHMAD"
+                      class="w-full border border-slate-200 rounded-2xl p-3.5 bg-white font-medium outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-sm transition uppercase"
+                      style="text-transform: uppercase;"
+                      oninput="this.value = this.value.toUpperCase()">
                   </div>
 
                   <div>
@@ -3029,9 +3048,11 @@
         <input type="hidden" id="patientFormCaseId" value="">
 
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Nama Lengkap Pasien <span class="text-red-500">*</span></label>
-          <input type="text" id="patientFormName" required placeholder="Contoh: Mat Hasan / Bu Siti"
-            class="w-full border border-slate-200 rounded-xl p-2.5 font-medium outline-none focus:border-emerald-600 bg-white">
+          <label class="block font-semibold text-slate-700 mb-1">Nama Lengkap Pasien <span class="text-red-500">*</span> <span class="text-xs text-slate-400 font-normal">(Otomatis Kapital)</span></label>
+          <input type="text" id="patientFormName" required placeholder="Contoh: MAT HASAN / BU SITI"
+            class="w-full border border-slate-200 rounded-xl p-2.5 font-medium outline-none focus:border-emerald-600 bg-white uppercase"
+            style="text-transform: uppercase;"
+            oninput="this.value = this.value.toUpperCase()">
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -3181,6 +3202,18 @@
   </div>
   <!-- VITE CENTRAL APPLICATION ENTRY POINT (ES6 NATIVE MODULE) -->
   <script type="module" src="./src/main.js"></script>
+  <script>
+    // Netlify Badge / Feedback Drawer Suppressor
+    (function () {
+      function removeNetlifyBadge() {
+        const els = document.querySelectorAll('netlify-drawer, [data-netlify-feedback], #netlify-collaborative-tools, .netlify-feedback-drawer');
+        els.forEach(el => el.remove());
+      }
+      removeNetlifyBadge();
+      const obs = new MutationObserver(removeNetlifyBadge);
+      obs.observe(document.documentElement, { childList: true, subtree: true });
+    })();
+  </script>
 </body>
 
 </html>

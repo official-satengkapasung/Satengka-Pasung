@@ -30,116 +30,8 @@
       { id: 4, name: "Kiai H. Kholil", phone: "081234567892", role: "GURU", village_id: 1, village_name: "Kokop" },
       { id: 5, name: "Klebun Kokop", phone: "081234567893", role: "RATO", village_id: 1, village_name: "Kokop" }
     ],
-    cases: [
-      {
-        id: 1,
-        case_number: "CAS-20260911-001",
-        report_id: 101,
-        patient_id: 1,
-        patient_name: "Ahmad",
-        gender: "L",
-        patient_address: "Dusun Morleke, Desa Kokop",
-        village_name: "Kokop",
-        priority: "HIGH",
-        status: "SIAGA",
-        report_type: "Pasung",
-        latitude: -7.014523,
-        longitude: 113.023412,
-        notes: "Pasien dipasung di bilik belakang rumah, keluarga kewalahan menghadapi kekambuhan. Membutuhkan rembuk santun Kiai dan Nakes.",
-        reporter_name: "Siti",
-        reporter_phone: "081234567891",
-        activated_at: "2026-09-11T09:15:00.000Z",
-        participants: [
-          { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "NEED_TIME", response_note: "Sedang sowan dan tabayyun ke pihak keluarga pasien agar ikhlas melepaskan pasung." },
-          { participant_role: "RATO", name: "Klebun Kokop", phone: "081234567893", user_id: 5, response: "READY", response_note: "Aparat Linmas dan Babinsa desa siap mengawal pengamanan rute evakuasi." }
-        ]
-      },
-      {
-        id: 2,
-        case_number: "CAS-20260911-002",
-        report_id: 102,
-        patient_id: 2,
-        patient_name: "Mat Hasan",
-        gender: "L",
-        patient_address: "Dusun Mandeman, Desa Durjan",
-        village_name: "Durjan",
-        priority: "EMERGENCY",
-        status: "READY_FOR_EVACUATION",
-        report_type: "Pasung",
-        latitude: -7.028911,
-        longitude: 113.041220,
-        notes: "Rantai pasung besi diikat pada balok kayu. Kiai dan Kades telah bermusyawarah dan keluarga menyetujui rujukan ke RS Jiwa Menur.",
-        reporter_name: "Kader Rudi",
-        reporter_phone: "081234567894",
-        activated_at: "2026-09-11T08:30:00.000Z",
-        participants: [
-          { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "AGREE", response_note: "Keluarga telah diberi pencerahan agama bahwa ODGJ berhak diobati secara medis." },
-          { participant_role: "RATO", name: "Klebun Durjan", phone: "081234567893", user_id: 5, response: "READY", response_note: "Kendaraan operasional desa dan linmas siap mengawal mobil ambulans Puskesmas." }
-        ]
-      },
-      {
-        id: 3,
-        case_number: "CAS-20260910-003",
-        report_id: 103,
-        patient_id: 3,
-        patient_name: "Bu Siti",
-        gender: "P",
-        patient_address: "Dusun Barat Sawah, Desa Dupok",
-        village_name: "Dupok",
-        priority: "NORMAL",
-        status: "MONITORING",
-        report_type: "Pasung",
-        latitude: -7.009854,
-        longitude: 113.018742,
-        notes: "Pasien bebas pasung sejak 1 bulan lalu. Rutin minum obat antipsikotik dari Puskesmas Kokop, saat ini dalam pendampingan kader dan pemulihan sosial.",
-        reporter_name: "Siti",
-        reporter_phone: "081234567891",
-        activated_at: "2026-09-12T08:30:00.000Z",
-        participants: [
-          { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "AGREE", response_note: "Keluarga telah ikhlas dan menyetujui pendekatan medis terpadu." },
-          { participant_role: "RATO", name: "Klebun Dupok", phone: "081234567893", user_id: 5, response: "READY", response_note: "Linmas Desa Durjan siap mengamankan lokasi evakuasi." }
-        ],
-        family_phone: "081987654321",
-        drug_compliance: "RUTIN",
-        drug_notes: "Kunjungan ke-2: Pasien tenang, mampu berinteraksi, obat diminum teratur didampingi suami.",
-        control_history: [
-          {
-            visit_number: 1,
-            date: "2026-09-02",
-            compliance: "RUTIN",
-            notes: "Kontrol pasca rawat RSJ/Puskesmas. Pasien menerima obat oral antipsikotik, keluarga komitmen mengawasi.",
-            recorded_by: "Ns. Farhan (Puskesmas Kokop)"
-          },
-          {
-            visit_number: 2,
-            date: "2026-09-12",
-            compliance: "RUTIN",
-            notes: "Kunjungan rumah bersama Kader Siti. Pasien tidur cukup, tidak ada agitasi, kepatuhan minum obat 100%.",
-            recorded_by: "Siti"
-          }
-        ]
-      }
-    ],
-    reports: [
-      {
-        id: 104,
-        report_number: "LAP-20260911-004",
-        reporter_id: 3,
-        reporter_name: "Kader Rudi",
-        reporter_phone: "081234567894",
-        village_id: 4,
-        village_name: "Banda Soleh",
-        patient_name_input: "Bahrul Ulum",
-        address_input: "Dusun Krajan RT 02 / RW 01, Desa Banda Soleh",
-        report_type: "Pasung",
-        description: "Warga melaporkan pemuda usia 28 tahun kembali dipasung balok kayu oleh keluarga setelah mengamuk dan membanting perabot rumah. Butuh intervensi segera.",
-        latitude: -7.034120,
-        longitude: 113.036780,
-        photo_path: null,
-        status: "NEW",
-        reported_at: "2026-09-11T10:10:00.000Z"
-      }
-    ],
+    cases: [],
+    reports: [],
     chats: {}
   };
 
@@ -154,6 +46,14 @@
 
   function setLocalStore(key, val) {
     localStorage.setItem("malekkas_" + key, JSON.stringify(val));
+  }
+
+  // 🧹 Auto-purge data mock agar pengguna dapat melakukan pengujian nyata (real testing)
+  if (typeof localStorage !== 'undefined' && !localStorage.getItem("satengka_clean_real_testing_v1")) {
+    localStorage.setItem("malekkas_cases", JSON.stringify([]));
+    localStorage.setItem("malekkas_reports", JSON.stringify([]));
+    localStorage.setItem("malekkas_chats", JSON.stringify({}));
+    localStorage.setItem("satengka_clean_real_testing_v1", "true");
   }
 
   // Inisialisasi awal
