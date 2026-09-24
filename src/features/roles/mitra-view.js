@@ -438,7 +438,16 @@ export async function mobileGuruRespond(caseId, responseVal) {
 
 export function openGuruNeedTimeModal() {
   if (typeof document === 'undefined') return;
-  document.getElementById('modalGuruNeedTime')?.classList.remove('hidden');
+  const modal = document.getElementById('modalGuruNeedTime');
+  if (modal) {
+    const input = document.getElementById('guruNeedTimeReason');
+    if (input) input.value = '';
+    modal.classList.remove('hidden');
+    setTimeout(() => { if (input) input.focus(); }, 50);
+  } else {
+    // Fallback jika elemen modal belum termuat di DOM: langsung simpan respon NEED_TIME
+    submitGuruNeedTime();
+  }
 }
 
 export function closeGuruNeedTimeModal() {
@@ -451,7 +460,7 @@ export async function submitGuruNeedTime() {
   const reason = document.getElementById('guruNeedTimeReason')?.value.trim();
   const caseId = window.activeGuruCaseId;
   const currentUser = window.currentUser;
-  const notes = reason || 'Sedang proses pendekatan dengan keluarga pasien.';
+  const notes = reason || 'Sedang proses pendekatan dan mediasi santun dengan keluarga pasien.';
 
   updateMemoryCaseParticipant(caseId, 'GURU', 'NEED_TIME', notes);
   renderGuruMobileRequests(window.currentCases || []);
@@ -467,7 +476,7 @@ export async function submitGuruNeedTime() {
       });
     }
     if (window.showToast) {
-      window.showToast('Status konfirmasi waktu berhasil disampaikan ke Tim Puskesmas.', 'info');
+      window.showToast('Status butuh waktu berhasil disampaikan ke Tim Puskesmas.', 'info');
     }
     closeGuruNeedTimeModal();
     if (window.fetchCases) await window.fetchCases();
@@ -475,6 +484,9 @@ export async function submitGuruNeedTime() {
     if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
   } catch (err) {
     console.warn('Need time error:', err);
+    if (window.showToast) {
+      window.showToast('Respon disimpan secara lokal.', 'info');
+    }
     closeGuruNeedTimeModal();
     renderGuruMobileRequests(window.currentCases || []);
   }

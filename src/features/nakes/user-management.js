@@ -56,26 +56,67 @@ export function renderUsersTable(users) {
   // Render Section Permintaan Registrasi Akun Baru
   if (pendingContainer) {
     if (pendingUsers.length > 0) {
+      if (!window.pendingUsersState) {
+        window.pendingUsersState = { page: 1, perPage: 4, search: '' };
+      }
+      const pState = window.pendingUsersState;
+      const q = (pState.search || '').toLowerCase().trim();
+      const filteredPending = q 
+        ? pendingUsers.filter(u => (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(q) || (u.village_name || '').toLowerCase().includes(q))
+        : pendingUsers;
+
+      const totalItems = filteredPending.length;
+      const totalPages = Math.ceil(totalItems / pState.perPage) || 1;
+      if (pState.page > totalPages) pState.page = totalPages;
+      if (pState.page < 1) pState.page = 1;
+
+      const start = (pState.page - 1) * pState.perPage;
+      const pagedPending = filteredPending.slice(start, start + pState.perPage);
+
       pendingContainer.classList.remove('hidden');
       pendingContainer.innerHTML = `
-        <div class="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-amber-500/10 via-amber-50/70 to-teal-500/10 border-2 border-amber-300 shadow-sm space-y-3">
-          <div class="flex items-center justify-between">
+        <div class="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-amber-500/10 via-amber-50/70 to-teal-500/10 border-2 border-amber-300 shadow-sm space-y-3.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center space-x-2.5">
               <span class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-sm shadow">
                 <i class="fa-solid fa-user-clock"></i>
               </span>
               <div>
-                <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2 flex-wrap">
                   Permintaan Registrasi Akun Baru
                   <span class="px-2 py-0.5 rounded-full text-xs font-black bg-amber-500 text-white">${pendingUsers.length} Menunggu</span>
                 </h3>
                 <p class="text-xs text-slate-600">Verifikasi identitas pendaftar sebelum memberikan izin masuk ke sistem Satengka Pasung.</p>
               </div>
             </div>
+
+            <!-- Tombol Aksi Massal Konfirmasi Semua -->
+            <div class="flex items-center gap-2 self-end sm:self-auto">
+              <button type="button" onclick="handleApproveAllPendingUsers()"
+                class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-check-double"></i>
+                <span>Konfirmasi Semua (${pendingUsers.length})</span>
+              </button>
+            </div>
           </div>
 
+          ${pendingUsers.length > 4 ? `
+          <!-- Bar Pencarian Pendaftar Jika Banyak -->
+          <div class="flex items-center justify-between gap-3 pt-1">
+            <div class="relative flex-1 max-w-xs">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" placeholder="Cari nama / nomor / desa..." value="${escapeHtml(pState.search || '')}"
+                oninput="searchPendingUsers(this.value)"
+                class="w-full pl-8 pr-3 py-1.5 bg-white border border-amber-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400">
+            </div>
+            <span class="text-[11px] font-semibold text-slate-500">
+              Menampilkan ${pagedPending.length} dari ${totalItems} akun
+            </span>
+          </div>
+          ` : ''}
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-            ${pendingUsers.map(u => {
+            ${pagedPending.map(u => {
               const safeName = (u.name || '').replace(/'/g, "\\'");
               const cleanPhone = (u.phone || '').replace(/[^0-9]/g, '');
               const intlPhone = cleanPhone.startsWith('0') ? '62' + cleanPhone.substring(1) : cleanPhone;
@@ -106,11 +147,11 @@ export function renderUsersTable(users) {
 
                 <div class="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
                   <button type="button" onclick="handleRejectUser('${u.id}', '${safeName}')"
-                    class="px-3 py-1.5 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-bold transition flex items-center gap-1.5">
+                    class="px-3 py-1.5 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-xmark"></i> Tolak
                   </button>
                   <button type="button" onclick="handleApproveUser('${u.id}', '${safeName}')"
-                    class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                    class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-check"></i> Konfirmasi Akun
                   </button>
                 </div>
@@ -118,6 +159,23 @@ export function renderUsersTable(users) {
               `;
             }).join('')}
           </div>
+
+          ${totalPages > 1 ? `
+          <!-- Kontrol Pagination Ringkas -->
+          <div class="flex items-center justify-between pt-2 border-t border-amber-200/80 text-xs text-slate-600">
+            <span>Halaman <b>${pState.page}</b> dari <b>${totalPages}</b></span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="changePendingUsersPage(-1)" ${pState.page <= 1 ? 'disabled class="opacity-40 cursor-not-allowed"' : 'class="hover:bg-amber-100 cursor-pointer"'}
+                class="px-2.5 py-1 rounded-lg border border-amber-300 bg-white font-bold transition">
+                <i class="fa-solid fa-chevron-left mr-1"></i>Sebelumnya
+              </button>
+              <button type="button" onclick="changePendingUsersPage(1)" ${pState.page >= totalPages ? 'disabled class="opacity-40 cursor-not-allowed"' : 'class="hover:bg-amber-100 cursor-pointer"'}
+                class="px-2.5 py-1 rounded-lg border border-amber-300 bg-white font-bold transition">
+                Selanjutnya<i class="fa-solid fa-chevron-right ml-1"></i>
+              </button>
+            </div>
+          </div>
+          ` : ''}
         </div>
       `;
     } else {
@@ -449,41 +507,150 @@ export async function handleDeleteUser(userId, userName) {
   }
 }
 
+export function changePendingUsersPage(delta) {
+  if (!window.pendingUsersState) {
+    window.pendingUsersState = { page: 1, perPage: 4, search: '' };
+  }
+  window.pendingUsersState.page += delta;
+  if (window.renderUsersTable && window.cachedUsersData) {
+    renderUsersTable(window.cachedUsersData);
+  }
+}
+
+export function searchPendingUsers(val) {
+  if (!window.pendingUsersState) {
+    window.pendingUsersState = { page: 1, perPage: 4, search: '' };
+  }
+  window.pendingUsersState.search = val || '';
+  window.pendingUsersState.page = 1;
+  if (window.renderUsersTable && window.cachedUsersData) {
+    renderUsersTable(window.cachedUsersData);
+  }
+}
+
 export async function handleApproveUser(userId, userName) {
   try {
-    if (window.firebaseAdapter && window.firebaseAdapter.approveUser) {
-      const res = await window.firebaseAdapter.approveUser(userId);
+    const adapter = window.firebaseAdapter || window.satengkaEngine || window.malekkasEngine;
+    if (adapter && adapter.approveUser) {
+      const res = await adapter.approveUser(userId);
       if (res.success) {
-        alert(res.message || `Akun ${userName} berhasil dikonfirmasi & diaktifkan.`);
+        if (window.showToast) {
+          window.showToast(res.message || `Akun ${userName} berhasil dikonfirmasi & diaktifkan.`, 'success');
+        } else {
+          alert(res.message || `Akun ${userName} berhasil dikonfirmasi & diaktifkan.`);
+        }
         if (window.fetchUsers) await window.fetchUsers();
       } else {
-        alert(res.message || 'Gagal menyetujui akun.');
+        if (window.showToast) {
+          window.showToast(res.message || 'Gagal menyetujui akun.', 'warning');
+        } else {
+          alert(res.message || 'Gagal menyetujui akun.');
+        }
       }
     }
   } catch (err) {
     console.error('Error approve user:', err);
-    alert('Terjadi kesalahan saat mengonfirmasi akun.');
+    if (window.showToast) {
+      window.showToast('Terjadi kesalahan saat mengonfirmasi akun.', 'danger');
+    } else {
+      alert('Terjadi kesalahan saat mengonfirmasi akun.');
+    }
+  }
+}
+
+export async function handleApproveAllPendingUsers() {
+  const users = window.cachedUsersData || [];
+  const pendingUsers = users.filter(u => u.status === 'PENDING_APPROVAL');
+  if (pendingUsers.length === 0) {
+    if (window.showToast) window.showToast('Tidak ada permintaan akun yang menunggu konfirmasi.', 'info');
+    return;
+  }
+
+  const proceed = async () => {
+    try {
+      const adapter = window.firebaseAdapter || window.satengkaEngine || window.malekkasEngine;
+      if (!adapter || !adapter.approveUser) return;
+
+      let successCount = 0;
+      for (const u of pendingUsers) {
+        try {
+          const res = await adapter.approveUser(u.id);
+          if (res.success) successCount++;
+        } catch (e) {
+          console.warn('Gagal approve user:', u.id, e);
+        }
+      }
+
+      if (window.showToast) {
+        window.showToast(`Berhasil mengonfirmasi ${successCount} dari ${pendingUsers.length} akun pendaftar baru.`, 'success', 4000);
+      }
+      if (window.fetchUsers) await window.fetchUsers();
+    } catch (err) {
+      console.error('Error approve all users:', err);
+      if (window.showToast) window.showToast('Terjadi kesalahan saat mengonfirmasi massal akun.', 'danger');
+    }
+  };
+
+  if (typeof window.showBatikConfirm === 'function') {
+    window.showBatikConfirm({
+      title: 'Konfirmasi Semua Akun Pendaftar',
+      message: `Yakin ingin mengonfirmasi dan mengaktifkan <strong>${pendingUsers.length} akun</strong> pendaftar baru sekaligus? Seluruh akun tersebut akan langsung dapat login ke sistem faskes.`,
+      confirmText: `Konfirmasi Semua (${pendingUsers.length})`,
+      cancelText: 'Batal',
+      isDanger: false,
+      onConfirm: proceed
+    });
+  } else {
+    if (confirm(`Konfirmasi dan aktifkan ${pendingUsers.length} akun sekaligus?`)) {
+      await proceed();
+    }
   }
 }
 
 export async function handleRejectUser(userId, userName) {
-  if (!confirm(`Tolak pendaftaran akun "${userName}"?\nPengguna ini tidak akan bisa masuk ke aplikasi.`)) {
-    return;
-  }
-
-  try {
-    if (window.firebaseAdapter && window.firebaseAdapter.rejectUser) {
-      const res = await window.firebaseAdapter.rejectUser(userId);
-      if (res.success) {
-        alert(res.message || `Pendaftaran akun ${userName} telah ditolak.`);
-        if (window.fetchUsers) await window.fetchUsers();
+  const proceed = async () => {
+    try {
+      const adapter = window.firebaseAdapter || window.satengkaEngine || window.malekkasEngine;
+      if (adapter && adapter.rejectUser) {
+        const res = await adapter.rejectUser(userId);
+        if (res.success) {
+          if (window.showToast) {
+            window.showToast(res.message || `Pendaftaran akun ${userName} telah ditolak.`, 'danger');
+          } else {
+            alert(res.message || `Pendaftaran akun ${userName} telah ditolak.`);
+          }
+          if (window.fetchUsers) await window.fetchUsers();
+        } else {
+          if (window.showToast) {
+            window.showToast(res.message || 'Gagal menolak akun.', 'warning');
+          } else {
+            alert(res.message || 'Gagal menolak akun.');
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error reject user:', err);
+      if (window.showToast) {
+        window.showToast('Terjadi kesalahan saat memproses penolakan akun.', 'danger');
       } else {
-        alert(res.message || 'Gagal menolak akun.');
+        alert('Terjadi kesalahan saat memproses penolakan akun.');
       }
     }
-  } catch (err) {
-    console.error('Error reject user:', err);
-    alert('Terjadi kesalahan saat memproses penolakan akun.');
+  };
+
+  if (typeof window.showBatikConfirm === 'function') {
+    window.showBatikConfirm({
+      title: 'Tolak Pendaftaran Akun',
+      message: `Tolak pendaftaran akun <strong>"${userName}"</strong>?<br><br><span class="text-xs text-rose-700 bg-rose-50 p-2 rounded-xl block border border-rose-200">Pengguna ini tidak akan dapat masuk ke aplikasi SATENGKA PASUNG.</span>`,
+      confirmText: 'Tolak Akun',
+      cancelText: 'Batal',
+      isDanger: true,
+      onConfirm: proceed
+    });
+  } else {
+    if (confirm(`Tolak pendaftaran akun "${userName}"?\nPengguna ini tidak akan bisa masuk ke aplikasi.`)) {
+      await proceed();
+    }
   }
 }
 
@@ -502,4 +669,7 @@ if (typeof window !== 'undefined') {
   window.handleDeleteUser = handleDeleteUser;
   window.handleApproveUser = handleApproveUser;
   window.handleRejectUser = handleRejectUser;
+  window.handleApproveAllPendingUsers = handleApproveAllPendingUsers;
+  window.changePendingUsersPage = changePendingUsersPage;
+  window.searchPendingUsers = searchPendingUsers;
 }

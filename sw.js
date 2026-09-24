@@ -1,5 +1,5 @@
-// Service Worker for BHUPA' BHABHU' GHURU RATO PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v20';
+// Service Worker for SATENGKA PASUNG PWA
+const CACHE_NAME = 'satengka-pasung-pwa-v21';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -23,6 +23,8 @@ const ASSETS_TO_CACHE = [
   './assets/icons/role_nakes_white.png',
   './assets/pdf_extracted/page_3_img_2.jpeg',
   './assets/pdf_extracted/page_1_img_2.png',
+  './js/satengka-engine.js',
+  './src/services/satengka-service.js',
   './src/services/mock-engine.js',
   './src/constants/roles.js',
   './src/utils/formatters.js',
@@ -31,6 +33,7 @@ const ASSETS_TO_CACHE = [
   './src/features/ews/geo-kokop.js',
   './src/features/ews/triage-engine.js',
   './src/components/ui/toast.js',
+  './src/components/ui/tanjung-bumi-toast.js',
   './src/components/ui/modal-controller.js',
   './src/features/roles/mitra-view.js',
   './src/features/roles/kader-view.js',

@@ -586,6 +586,41 @@ export async function deleteUser(userId) {
     }
   }
 
+  // Hapus akun dari Firebase Authentication via Google Identity Toolkit REST API
+  if (isFirebaseActive && firebaseConfig && firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("DUMMY")) {
+    try {
+      const cleanPhone = (targetUser.phone || '').replace(/\D/g, '');
+      const emailToAuth = (targetUser.email && targetUser.email.includes('@')) 
+        ? targetUser.email 
+        : `${cleanPhone || 'user'}@satengka-pasung.id`;
+      
+      const passwordsToTry = [targetUser.password, 'satengka123'].filter(Boolean);
+      for (const pass of passwordsToTry) {
+        try {
+          const authRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseConfig.apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailToAuth, password: pass, returnSecureToken: true })
+          });
+          const authData = await authRes.json();
+          if (authData && authData.idToken) {
+            await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:delete?key=${firebaseConfig.apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ idToken: authData.idToken })
+            });
+            console.log("Firebase Auth user deleted successfully:", emailToAuth);
+            break;
+          }
+        } catch (subErr) {
+          // Lanjutkan mencoba password fallback jika ada
+        }
+      }
+    } catch (authDelErr) {
+      console.warn("Gagal menghapus user dari Firebase Auth:", authDelErr);
+    }
+  }
+
   users = users.filter(u => String(u.id) !== String(userId) && (!u.uid || String(u.uid) !== String(userId)));
 
   // Hapus dari Firestore jika aktif
@@ -593,7 +628,7 @@ export async function deleteUser(userId) {
     try {
       const docId = targetUser.uid || String(targetUser.id);
       await deleteDoc(doc(db, "users", docId));
-      console.log("☁️ [Firestore] User dihapus dari Cloud:", docId);
+      console.log("Firestore document deleted:", docId);
     } catch (e) {
       console.warn("Gagal hapus user di Firestore:", e);
     }
@@ -601,7 +636,7 @@ export async function deleteUser(userId) {
 
   setLocalStore("users", users);
   window.dispatchEvent(new Event("storage"));
-  return { success: true, message: `Akun mitra ${targetUser.name} berhasil dihapus dari sistem.` };
+  return { success: true, message: `Akun mitra ${targetUser.name} berhasil dihapus dari sistem dan Firebase Auth.` };
 }
 
 export async function resetUserPasswordByAdmin(userId, newPassword = "satengka123") {
@@ -1082,20 +1117,26 @@ export async function deletePatient(caseId) {
 // =========================================================================
 export function subscribeTherapeuticChat(caseId, onUpdate) {
   const strCaseId = String(caseId);
+  const cases = getLocalStore("cases", DEFAULT_SEED.cases);
+  const targetCase = cases.find(c => String(c.id) === strCaseId || c.case_number === strCaseId);
+  const possibleIds = Array.from(new Set([
+    strCaseId,
+    targetCase ? String(targetCase.id) : null,
+    targetCase ? targetCase.case_number : null
+  ].filter(Boolean)));
+
   const chatsCache = getLocalStore("chats", DEFAULT_SEED.chats);
-  const initialMessages = chatsCache[strCaseId] || [];
+  const initialMessages = chatsCache[strCaseId] || (targetCase && chatsCache[String(targetCase.id)]) || [];
   if (typeof onUpdate === "function") {
     onUpdate(initialMessages);
   }
 
-  // 1. Jika Firestore aktif, gunakan onSnapshot listener untuk realtime live chat multi-role
+  // 1. Jika Firestore aktif, gunakan onSnapshot listener tanpa orderBy agar tidak membutuhkan composite index
   if (isFirebaseActive && db) {
     try {
-      const q = query(
-        collection(db, "chats"),
-        where("case_id", "==", strCaseId),
-        orderBy("created_at", "asc")
-      );
+      const q = possibleIds.length > 1
+        ? query(collection(db, "chats"), where("case_id", "in", possibleIds.slice(0, 10)))
+        : query(collection(db, "chats"), where("case_id", "==", strCaseId));
 
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const cloudMessages = snapshot.docs.map(d => {
@@ -1111,25 +1152,60 @@ export function subscribeTherapeuticChat(caseId, onUpdate) {
           };
         });
 
-        // Sinkronkan ke cache lokal
+        // Urutkan pesan berdasarkan timestamp secara andal di client
+        cloudMessages.sort((a, b) => {
+          const tA = (a.created_at && a.created_at.toMillis) ? a.created_at.toMillis() : (a.timestamp || 0);
+          const tB = (b.created_at && b.created_at.toMillis) ? b.created_at.toMillis() : (b.timestamp || 0);
+          return tA - tB;
+        });
+
+        // Sinkronkan ke cache lokal dengan merge deduplikasi agar pesan optimistik tidak hilang
         const currentChats = getLocalStore("chats", DEFAULT_SEED.chats);
-        currentChats[strCaseId] = cloudMessages;
+        const existingLocal = currentChats[strCaseId] || [];
+        const mergedMap = new Map();
+        existingLocal.forEach(m => {
+          const key = m.id || `${m.sender_id}_${m.message}_${m.timestamp || ''}`;
+          mergedMap.set(key, m);
+        });
+        cloudMessages.forEach(m => {
+          let matchedKey = null;
+          for (const [k, v] of mergedMap.entries()) {
+            if (v.id === m.id || (v.message === m.message && v.sender_id === m.sender_id && Math.abs((v.timestamp || 0) - ((m.created_at && m.created_at.toMillis ? m.created_at.toMillis() : m.timestamp) || 0)) < 15000)) {
+              matchedKey = k;
+              break;
+            }
+          }
+          if (matchedKey) {
+            mergedMap.delete(matchedKey);
+          }
+          mergedMap.set(m.id, m);
+        });
+
+        const finalMessages = Array.from(mergedMap.values());
+        finalMessages.sort((a, b) => {
+          const tA = (a.created_at && a.created_at.toMillis) ? a.created_at.toMillis() : (a.timestamp || 0);
+          const tB = (b.created_at && b.created_at.toMillis) ? b.created_at.toMillis() : (b.timestamp || 0);
+          return tA - tB;
+        });
+
+        currentChats[strCaseId] = finalMessages;
+        if (targetCase) currentChats[String(targetCase.id)] = finalMessages;
         setLocalStore("chats", currentChats);
 
         if (typeof onUpdate === "function") {
-          onUpdate(cloudMessages);
+          onUpdate(finalMessages);
         }
       }, (err) => {
-        console.warn("⚠️ Firestore onSnapshot chat fallback to local cache:", err);
+        console.warn("Firestore onSnapshot chat fallback:", err);
       });
 
       return unsubscribe;
     } catch (e) {
-      console.warn("⚠️ Gagal inisialisasi query realtime chat:", e);
+      console.warn("Gagal inisialisasi query realtime chat:", e);
     }
   }
 
-  // 2. Fallback Storage Event Listener (Sinkronisasi antar-tab / mode offline)
+  // 2. Fallback Storage Event Listener
   const storageListener = function(e) {
     if (e.key === "malekkas_chats" || e.type === "satengka-chat-update") {
       const updatedChats = JSON.parse(localStorage.getItem("malekkas_chats") || "{}");
@@ -1146,6 +1222,88 @@ export function subscribeTherapeuticChat(caseId, onUpdate) {
     window.removeEventListener("storage", storageListener);
     window.removeEventListener("satengka-chat-update", storageListener);
   };
+}
+
+export async function getTherapeuticChats(caseId) {
+  const strCaseId = String(caseId);
+  const cases = getLocalStore("cases", DEFAULT_SEED.cases);
+  const targetCase = cases.find(c => String(c.id) === strCaseId || c.case_number === strCaseId);
+  const possibleIds = Array.from(new Set([
+    strCaseId,
+    targetCase ? String(targetCase.id) : null,
+    targetCase ? targetCase.case_number : null
+  ].filter(Boolean)));
+
+  if (isFirebaseActive && db) {
+    try {
+      const q = possibleIds.length > 1
+        ? query(collection(db, "chats"), where("case_id", "in", possibleIds.slice(0, 10)))
+        : query(collection(db, "chats"), where("case_id", "==", strCaseId));
+
+      const snap = await getDocs(q);
+      const cloudMessages = snap.docs.map(d => {
+        const data = d.data();
+        let timeFormatted = data.time_formatted;
+        if (!timeFormatted && data.created_at && data.created_at.toDate) {
+          timeFormatted = data.created_at.toDate().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+        }
+        return {
+          id: d.id,
+          ...data,
+          time_formatted: timeFormatted || new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+        };
+      });
+
+      cloudMessages.sort((a, b) => {
+        const tA = (a.created_at && a.created_at.toMillis) ? a.created_at.toMillis() : (a.timestamp || 0);
+        const tB = (b.created_at && b.created_at.toMillis) ? b.created_at.toMillis() : (b.timestamp || 0);
+        return tA - tB;
+      });
+
+      const currentChats = getLocalStore("chats", DEFAULT_SEED.chats);
+      const existingLocal = currentChats[strCaseId] || [];
+
+      // Gabungkan cloudMessages dengan existingLocal (deduplikasi berdasarkan id atau pesan+timestamp)
+      const mergedMap = new Map();
+      existingLocal.forEach(m => {
+        const key = m.id || `${m.sender_id}_${m.message}_${m.timestamp || ''}`;
+        mergedMap.set(key, m);
+      });
+      cloudMessages.forEach(m => {
+        // Jika ada pesan cloud yang sama isinya dengan pesan optimistik lokal, timpa dengan data cloud
+        let matchedKey = null;
+        for (const [k, v] of mergedMap.entries()) {
+          if (v.id === m.id || (v.message === m.message && v.sender_id === m.sender_id && Math.abs((v.timestamp || 0) - ((m.created_at && m.created_at.toMillis ? m.created_at.toMillis() : m.timestamp) || 0)) < 15000)) {
+            matchedKey = k;
+            break;
+          }
+        }
+        if (matchedKey) {
+          mergedMap.delete(matchedKey);
+        }
+        mergedMap.set(m.id, m);
+      });
+
+      const finalMessages = Array.from(mergedMap.values());
+      finalMessages.sort((a, b) => {
+        const tA = (a.created_at && a.created_at.toMillis) ? a.created_at.toMillis() : (a.timestamp || 0);
+        const tB = (b.created_at && b.created_at.toMillis) ? b.created_at.toMillis() : (b.timestamp || 0);
+        return tA - tB;
+      });
+
+      currentChats[strCaseId] = finalMessages;
+      if (targetCase) currentChats[String(targetCase.id)] = finalMessages;
+      setLocalStore("chats", currentChats);
+
+      return { success: true, data: finalMessages };
+    } catch (e) {
+      console.warn("getTherapeuticChats Firestore fetch error:", e);
+    }
+  }
+
+  const chats = getLocalStore("chats", DEFAULT_SEED.chats);
+  const list = chats[strCaseId] || (targetCase && chats[String(targetCase.id)]) || [];
+  return { success: true, data: list };
 }
 
 export async function sendRealtimeMessage(caseId, messageData) {

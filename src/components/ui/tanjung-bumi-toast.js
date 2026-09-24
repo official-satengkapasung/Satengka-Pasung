@@ -81,7 +81,10 @@ export function showToast(message, type = 'success', duration = 3500) {
   toastCard.style.backgroundSize = 'cover';
   toastCard.style.backgroundRepeat = 'no-repeat';
 
+  const toastOverlay = type === 'danger' ? 'bg-[#4a1210]/90' : (type === 'warning' ? 'bg-[#5c3e09]/90' : 'bg-[#0f3d43]/90');
+
   toastCard.innerHTML = `
+    <div class="absolute inset-0 ${toastOverlay} backdrop-blur-xs"></div>
     <div class="relative z-10 flex items-center gap-3.5">
       <div class="w-10 h-10 rounded-2xl ${theme.iconBg} border flex items-center justify-center shrink-0 shadow-sm">
         <i class="${theme.icon} text-lg"></i>
@@ -134,26 +137,24 @@ export function showBatikConfirm({
   modal.id = 'tanjungBumiConfirmModal';
   modal.className = 'fixed inset-0 z-[999999] bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 opacity-0';
 
-  const themeBorder = isDanger ? 'border-[#a82b25]' : 'border-[#d99b26]';
-  const themeHeaderBg = isDanger ? 'from-[#4a1210] to-[#7f1d1d]' : 'from-[#152b4d] to-[#0c1b33]';
+  const themeBorder = isDanger ? 'border-rose-300' : 'border-teal-300';
+  const overlayBg = isDanger ? 'bg-gradient-to-r from-[#4a1210]/95 to-[#7f1d1d]/90' : 'bg-gradient-to-r from-[#104349]/95 to-[#16565e]/90';
   const confirmBtnBg = isDanger ? 'bg-gradient-to-r from-[#991b1b] to-[#b91c1c] hover:from-[#b91c1c] hover:to-[#dc2626] border-red-400/40 text-white' : 'bg-gradient-to-r from-[#178a91] to-[#126b70] hover:from-[#1a9ca4] hover:to-[#178a91] border-teal-300/40 text-white';
 
   modal.innerHTML = `
     <div class="relative bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border-2 ${themeBorder} transform scale-95 transition-transform duration-300">
       
-      <!-- Header Bermotif Batik Gentongan Tanjung Bumi -->
-      <div class="relative bg-gradient-to-r ${themeHeaderBg} p-5 text-white overflow-hidden">
-        ${BATIK_CORNER_ORNAMENT}
+      <!-- Header berlatar background_opt.webp -->
+      <div class="relative p-5 text-white overflow-hidden" style="background-image: url('assets/background_opt.webp'); background-size: cover; background-position: center;">
+        <div class="absolute inset-0 ${overlayBg} backdrop-blur-xs"></div>
         <div class="relative z-10 flex items-center gap-3">
-          <div class="w-11 h-11 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shadow-inner text-amber-300 shrink-0">
-            <i class="${isDanger ? 'fa-solid fa-triangle-exclamation text-rose-300' : 'fa-solid fa-circle-question text-amber-300'} text-xl"></i>
+          <div class="w-11 h-11 rounded-2xl bg-white/15 border border-white/25 flex items-center justify-center shadow-inner text-amber-300 shrink-0">
+            <i class="${isDanger ? 'fa-solid fa-triangle-exclamation text-rose-200' : 'fa-solid fa-circle-question text-teal-200'} text-xl"></i>
           </div>
-          <div>
-            <span class="text-[9px] uppercase tracking-widest font-black text-amber-300/80 block">Batik Gentongan Tanjung Bumi</span>
-            <h3 class="font-black text-base sm:text-lg leading-tight text-white">${escapeHtml(title)}</h3>
+          <div class="min-w-0 flex-1">
+            <h3 class="font-black text-base sm:text-lg leading-tight text-white drop-shadow-sm">${escapeHtml(title)}</h3>
           </div>
         </div>
-        ${BATIK_BORDER_PATTERN}
       </div>
 
       <!-- Isi Pesan Dialog -->

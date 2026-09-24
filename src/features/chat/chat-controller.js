@@ -36,11 +36,12 @@ export function onChatCaseChanged() {
   if (typeof document === 'undefined') return;
   const select = document.getElementById('chatCaseSelector');
   const currentCases = window.currentCases || [];
-  const val = select ? parseInt(select.value) : null;
+  const rawVal = select ? select.value : null;
+  const val = rawVal && !isNaN(Number(rawVal)) ? Number(rawVal) : rawVal;
   selectedChatCaseId = val || (currentCases.length > 0 ? currentCases[0].id : null);
   window.selectedChatCaseId = selectedChatCaseId;
 
-  const targetCase = currentCases.find(c => c.id === selectedChatCaseId);
+  const targetCase = currentCases.find(c => String(c.id) === String(selectedChatCaseId) || c.case_number === selectedChatCaseId);
   const caseBadge = document.getElementById('chatTargetCaseNumber');
   if (caseBadge) {
     caseBadge.innerText = targetCase ? `#${targetCase.case_number}` : 'Umum / Terbuka';
@@ -132,16 +133,26 @@ export async function fetchTherapeuticChats(isManual = false) {
   }
 
   try {
-    if (window.firebaseAdapter && window.firebaseAdapter.subscribeTherapeuticChat) {
-      window.firebaseAdapter.subscribeTherapeuticChat(selectedChatCaseId, (messages) => {
-        cachedChatMessages = messages;
+    if (window.firebaseAdapter && window.firebaseAdapter.getTherapeuticChats && selectedChatCaseId) {
+      const res = await window.firebaseAdapter.getTherapeuticChats(selectedChatCaseId);
+      if (res && res.success && Array.isArray(res.data)) {
+        cachedChatMessages = res.data;
         renderTherapeuticChatMessages(cachedChatMessages);
-      });
+      }
     } else {
       const chats = JSON.parse(localStorage.getItem('malekkas_chats') || '{}');
       cachedChatMessages = chats[String(selectedChatCaseId)] || [];
       renderTherapeuticChatMessages(cachedChatMessages);
     }
+
+    if (window.firebaseAdapter && window.firebaseAdapter.subscribeTherapeuticChat && selectedChatCaseId) {
+      if (chatUnsubscribe) chatUnsubscribe();
+      chatUnsubscribe = window.firebaseAdapter.subscribeTherapeuticChat(selectedChatCaseId, (messages) => {
+        cachedChatMessages = messages;
+        renderTherapeuticChatMessages(cachedChatMessages);
+      });
+    }
+
     if (isManual && window.showToast) {
       window.showToast('Pesan obrolan berhasil disinkronkan.');
     }
@@ -242,41 +253,47 @@ export async function handleSendTherapeuticChat(e) {
   const senderName = cleanRole(currentUser ? currentUser.name : 'Pengguna Faskes');
   const senderRole = currentUser ? currentUser.role : 'NAKES';
 
+  // Optimistic Message Object
+  const optimisticId = 'msg_' + Date.now();
+  const timeFormatted = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const newMsg = {
+    id: optimisticId,
+    case_id: String(caseId),
+    sender_id: senderId,
+    sender_name: senderName,
+    sender_role: senderRole,
+    message: text,
+    time_formatted: timeFormatted,
+    timestamp: Date.now(),
+    is_therapeutic_template: (text.includes('Hallo') || text.includes('Assalamu') || text.includes('Rembuk') || text.includes('Kiai') || text.includes('restu') || text.includes('keluarga')) ? 1 : 0
+  };
+
+  // 1. Optimistic Render ke Layar Seketika
+  cachedChatMessages.push(newMsg);
+  renderTherapeuticChatMessages(cachedChatMessages);
+  if (input) input.value = '';
+  
+  const area = document.getElementById('therapeuticChatMessagesArea');
+  if (area) {
+    setTimeout(() => { area.scrollTop = area.scrollHeight; }, 10);
+  }
+
   try {
     if (window.firebaseAdapter && window.firebaseAdapter.sendRealtimeMessage) {
-      await window.firebaseAdapter.sendRealtimeMessage(caseId, {
-        case_id: caseId,
-        sender_id: senderId,
-        sender_name: senderName,
-        sender_role: senderRole,
-        message: text,
-        is_therapeutic_template: (text.includes('Hallo') || text.includes('Assalamu') || text.includes('Rembuk') || text.includes('Kiai') || text.includes('restu') || text.includes('keluarga')) ? 1 : 0
-      });
+      await window.firebaseAdapter.sendRealtimeMessage(caseId, newMsg);
     } else {
       const chats = JSON.parse(localStorage.getItem('malekkas_chats') || '{}');
       const cKey = String(caseId);
       if (!chats[cKey]) chats[cKey] = [];
-      chats[cKey].push({
-        id: 'msg_' + Date.now(),
-        case_id: caseId,
-        sender_id: senderId,
-        sender_name: senderName,
-        sender_role: senderRole,
-        message: text,
-        time_formatted: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-      });
+      chats[cKey].push(newMsg);
       localStorage.setItem('malekkas_chats', JSON.stringify(chats));
-    }
-
-    if (input) input.value = '';
-    fetchTherapeuticChats(false);
-    const area = document.getElementById('therapeuticChatMessagesArea');
-    if (area) {
-      setTimeout(() => { area.scrollTop = area.scrollHeight; }, 50);
     }
   } catch (err) {
     console.error("Gagal kirim pesan:", err);
-    alert("Gagal mengirim pesan chat: " + (err.message || "Kesalahan jaringan"));
+    // Tampilkan notifikasi jika benar-benar gagal
+    if (window.showToast) {
+      window.showToast("Gagal menyinkronkan pesan ke cloud: " + (err.message || "Koneksi offline"), "error");
+    }
   } finally {
     if (btn) btn.disabled = false;
     if (input) input.focus();
