@@ -3,8 +3,13 @@
  * Memastikan firebase-config.js siap digunakan sebelum deploy Netlify selesai.
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const configPath = path.join(__dirname, '..', 'firebase-config.js');
 const examplePath = path.join(__dirname, '..', 'firebase-config.example.js');
@@ -41,10 +46,10 @@ export const APP_MODE = 'FIREBASE';
 }
 
 // Verifikasi sintaks adapter
-console.log('[NETLIFY BUILD] \u2705 Menjalankan verifikasi sintaks adapter...');
+console.log('[NETLIFY BUILD] ✅ Menjalankan verifikasi sintaks adapter...');
 try {
-  require('child_process').execSync('node --check js/firebase-adapter.js', { stdio: 'inherit' });
-  console.log('[NETLIFY BUILD] \u2705 Sintaks adapter valid.');
+  execSync('node --check js/firebase-adapter.js', { stdio: 'inherit' });
+  console.log('[NETLIFY BUILD] ✅ Sintaks adapter valid.');
 } catch (err) {
   console.error('[NETLIFY BUILD] \u274c Gagal memvalidasi sintaks adapter:', err.message);
   process.exit(1);
