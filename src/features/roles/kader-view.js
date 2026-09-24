@@ -1,5 +1,5 @@
 /**
- * SATENGKA PASUNG EWS — Kader View Controller (Bhupa' Bhabu') (ES6 Module)
+ * SATENGKA PASUNG EWS — Kader View Controller (Bhuppa' Babhu') (ES6 Module)
  * Mengelola rendering kartu laporan masyarakat, form deteksi dini, kompresi foto, GPS, dan status laporan kader.
  */
 
@@ -193,7 +193,7 @@ export function renderKaderStatusList(reports, totalCount = null) {
   const statusSteps = {
     'NEW': { label: 'Diterima Puskesmas, Sedang Divalidasi Nakes', color: 'amber', step: 1 },
     'VALIDATED': { label: 'Laporan Valid, Koordinasi Mitra Dimulai', color: 'blue', step: 2 },
-    'SIAGA': { label: 'Siaga EWS Aktif, Tim Menghubungi Tokoh', color: 'red', step: 3 },
+    'SIAGA': { label: 'Siaga Satengka Pasung Aktif, Tim Menghubungi Tokoh', color: 'red', step: 3 },
     'COORDINATION': { label: 'Rembuk & Koordinasi Tokoh Masyarakat', color: 'amber', step: 3 },
     'READY_FOR_EVACUATION': { label: 'Semua Pilar Siap, Menuju Lokasi Pasien', color: 'emerald', step: 4 },
     'EVACUATION': { label: 'Proses Evakuasi Medis Sedang Berlangsung', color: 'blue', step: 4 },
@@ -332,7 +332,11 @@ export async function submitMobileKaderReport() {
   }
 
   if (!name) {
-    alert('Mohon isi nama pasien.');
+    if (window.showToast) {
+      window.showToast('Mohon lengkapi nama warga/pasien yang dilaporkan.', 'warning');
+    } else {
+      alert('Mohon isi nama pasien.');
+    }
     return;
   }
 
@@ -366,7 +370,9 @@ export async function submitMobileKaderReport() {
           window.dispatchWaToNakes('Laporan Kasus Baru dari Kader Jiwa', `No. Laporan: *${res.data.report_number}*\nPelapor: ${reporterName}\nPasien: *${name}*\nWilayah: ${vName}\nAlamat: ${address || '-'}\nJenis Kasus: *${type}*\nKoordinat GPS: ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
         }
 
-        alert(`✓ Laporan berhasil dikirim ke Puskesmas!\nNomor Laporan: ${res.data.report_number}\nData langsung tercatat di Sistem & Notifikasi diteruskan ke WhatsApp Nakes.`);
+        if (window.showToast) {
+          window.showToast(`Laporan berhasil dikirim ke Puskesmas! Nomor: ${res.data.report_number}. Data langsung tercatat & diteruskan ke Nakes.`, 'success', 5000);
+        }
         document.getElementById('kaderFormName').value = '';
         if (addressEl) addressEl.value = '';
         const otherTextInput = document.getElementById('kaderFormTypeOtherText');
@@ -392,7 +398,9 @@ export async function submitMobileKaderReport() {
     }
   } catch (err) {
     console.warn('Submit kader report fallback:', err);
-    alert('Laporan berhasil disimpan.');
+    if (window.showToast) {
+      window.showToast('Laporan berhasil disimpan di sistem faskes.', 'success', 4000);
+    }
     if (window.fetchReports) await window.fetchReports();
     if (window.fetchCases) await window.fetchCases();
     renderKaderRecentReports(window.currentReports || []);

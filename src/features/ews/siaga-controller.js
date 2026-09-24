@@ -27,8 +27,26 @@ export function openSiagaFromReport(reportId) {
     if (document.getElementById('valPatientName')) {
       document.getElementById('valPatientName').value = rep.patient_name_input;
     }
-    if (document.getElementById('valVillageSelect') && rep.village_id) {
-      document.getElementById('valVillageSelect').value = rep.village_id;
+    if (document.getElementById('valVillageSelect')) {
+      const vSel = document.getElementById('valVillageSelect');
+      let matched = false;
+      if (rep.village_id) {
+        for (let i = 0; i < vSel.options.length; i++) {
+          if (String(vSel.options[i].value) === String(rep.village_id)) {
+            vSel.selectedIndex = i;
+            matched = true;
+            break;
+          }
+        }
+      }
+      if (!matched && rep.village_name) {
+        for (let i = 0; i < vSel.options.length; i++) {
+          if (vSel.options[i].text.toLowerCase() === String(rep.village_name).toLowerCase()) {
+            vSel.selectedIndex = i;
+            break;
+          }
+        }
+      }
     }
     if (document.getElementById('valReportType') && rep.report_type) {
       document.getElementById('valReportType').value = rep.report_type.toUpperCase().includes('KAMBUH') ? 'KAMBUH' : 'PASUNG';
@@ -91,7 +109,7 @@ export async function executeEwsActivation() {
   const payload = {
     guru_id: dispatchGuru ? guruId : null,
     rato_id: dispatchRato ? ratoId : null,
-    notes: msg || 'Aktivasi Siaga EWS via Tombol Siaga Nakes'
+    notes: msg || 'Aktivasi Siaga Satengka Pasung via Tombol Siaga Nakes'
   };
   if (activeSelectedCase && activeSelectedCase.id) {
     payload.case_id = activeSelectedCase.id;
@@ -109,7 +127,7 @@ export async function executeEwsActivation() {
       if (selectedGuru && selectedGuru.phone) {
         let cleanPhone = selectedGuru.phone.replace(/[^0-9]/g, '');
         if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
-        const waText = encodeURIComponent(`*NOTIFIKASI SIAGA EWS PUSKESMAS KOKOP*\n\nAssalamu’alaikum Wr. Wb. Kiai,\nMohon bantuan pendekatan keagamaan persuasif & rembuk santun keluarga untuk penanganan warga di ${villageName} (Pasien: ${patientName}).\n\nCatatan: ${msg || 'Mohon kesediaan Kiai mendampingi evakuasi medis.'}\n\nTerima kasih atas keridhoan & bimbingan Kiai.`);
+        const waText = encodeURIComponent(`*NOTIFIKASI SIAGA SATENGKA PASUNG PUSKESMAS KOKOP*\n\nAssalamu’alaikum Wr. Wb. Kiai,\nMohon bantuan pendekatan keagamaan persuasif & rembuk santun keluarga untuk penanganan warga di ${villageName} (Pasien: ${patientName}).\n\nCatatan: ${msg || 'Mohon kesediaan Kiai mendampingi evakuasi medis.'}\n\nTerima kasih atas keridhoan & bimbingan Kiai.`);
         window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waText}`, '_blank');
       }
     }
@@ -153,7 +171,7 @@ export async function executeEwsActivation() {
       }
     }
   } catch {
-    alert('Notifikasi Siaga EWS Berhasil Diaktifkan (Mode Offline).');
+    alert('Notifikasi Siaga Satengka Pasung Berhasil Diaktifkan (Mode Offline).');
     if (activeSelectedCase) window.activeMonitoringCaseId = activeSelectedCase.id;
     if (window.startMonitoringWatch) window.startMonitoringWatch(null);
     if (window.switchNakesTab) window.switchNakesTab('monitoring');

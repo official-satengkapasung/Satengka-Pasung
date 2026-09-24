@@ -26,12 +26,12 @@ export function assessEwsRisk(indicators = {}) {
 
   let priority = PRIORITY_EWS.NORMAL;
   let alertLevel = 'Waspada Rutin';
-  let recommendation = 'Kunjungan berkala oleh Kader Bhupa\' Bhabu\' dan kontrol obat Puskesmas.';
+  let recommendation = 'Kunjungan berkala oleh Kader Bhuppa\' Babhu\' dan kontrol obat Puskesmas.';
 
   if (score >= 60) {
     priority = PRIORITY_EWS.EMERGENCY;
     alertLevel = 'Kritis / Gawat Darurat (Red Alert)';
-    recommendation = 'Aktivasi segera Siaga EWS: Pendampingan penuh Nakes, Linmas Rato/Kades, dan pendekatan persuasif Kiai.';
+    recommendation = 'Aktivasi segera Siaga Satengka Pasung: Pendampingan penuh Nakes, Linmas Rato/Kades, dan pendekatan persuasif Kiai.';
   } else if (score >= 30) {
     priority = PRIORITY_EWS.HIGH;
     alertLevel = 'Prioritas Tinggi (Yellow Alert)';
@@ -61,7 +61,7 @@ export function assessEwsRisk(indicators = {}) {
 export function buildGhuruAlertMessage({ patientName, villageName, customNote }) {
   const note = customNote || 'Mohon kesediaan Kiai mendampingi evakuasi medis.';
   return (
-    `*NOTIFIKASI SIAGA EWS PUSKESMAS KOKOP*\n\n` +
+    `*NOTIFIKASI SIAGA SATENGKA PASUNG PUSKESMAS KOKOP*\n\n` +
     `Assalamu’alaikum Wr. Wb. Kiai,\n` +
     `Mohon bantuan pendekatan keagamaan persuasif & rembuk santun keluarga untuk penanganan warga di Desa ${villageName || 'Kokop'} (Pasien: ${patientName || 'Warga'}).\n\n` +
     `Catatan: ${note}\n\n` +

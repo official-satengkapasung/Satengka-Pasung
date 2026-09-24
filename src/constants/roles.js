@@ -14,9 +14,9 @@ export const ROLES = {
 export const ROLE_LABELS = {
   NAKES: 'Nakes (Petugas Faskes)',
   ADMIN: 'Administrator Sistem',
-  KADER: "Bhupa' Bhabu' (Kader Jiwa)",
+  KADER: "Bhuppa' Babhu' (Kader Jiwa)",
   GURU: 'Ghuru (Tokoh Agama / Kiai)',
-  RATO: "Rato' (Kepala Desa / Linmas)"
+  RATO: "Rato (Kepala Desa / Linmas)"
 };
 
 export const STATUS_EWS = {

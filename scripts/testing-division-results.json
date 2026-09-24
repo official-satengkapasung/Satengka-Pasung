@@ -1,0 +1,250 @@
+{
+  "timestamp": "2026-09-24T01:38:44.366Z",
+  "summary": {
+    "total": 34,
+    "pass": 27,
+    "fail": 1,
+    "warn": 3,
+    "info": 3
+  },
+  "results": [
+    {
+      "id": "2.1-NAKES",
+      "name": "Login NAKES",
+      "status": "PASS",
+      "detail": "Redirected to http://localhost:3000/index.html, dashboard content: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.1-KADER",
+      "name": "Login KADER",
+      "status": "PASS",
+      "detail": "Redirected to http://localhost:3000/index.html, dashboard content: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.1-GHURU",
+      "name": "Login GHURU",
+      "status": "PASS",
+      "detail": "Redirected to http://localhost:3000/index.html, dashboard content: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.1-RATO",
+      "name": "Login RATO",
+      "status": "PASS",
+      "detail": "Redirected to http://localhost:3000/index.html, dashboard content: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.2",
+      "name": "Logout Flow",
+      "status": "WARN",
+      "detail": "After logout at: http://localhost:3000/index.html",
+      "severity": "moderate"
+    },
+    {
+      "id": "2.3-sec",
+      "name": "Register Security (No NAKES)",
+      "status": "PASS",
+      "detail": "NAKES role correctly removed",
+      "severity": "info"
+    },
+    {
+      "id": "2.3-roles",
+      "name": "Register Roles (3 Pilar)",
+      "status": "PASS",
+      "detail": "KADER:1 GURU:1 RATO:1",
+      "severity": "info"
+    },
+    {
+      "id": "2.3-regFullName",
+      "name": "Register: Nama Lengkap",
+      "status": "PASS",
+      "detail": "#regFullName found: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.3-regPhone",
+      "name": "Register: Nomor WhatsApp",
+      "status": "PASS",
+      "detail": "#regPhone found: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.3-regPassword",
+      "name": "Register: Kata Sandi",
+      "status": "PASS",
+      "detail": "#regPassword found: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.3-regConfirmPassword",
+      "name": "Register: Ulangi Sandi",
+      "status": "PASS",
+      "detail": "#regConfirmPassword found: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.3-regVillage",
+      "name": "Register: Wilayah Desa",
+      "status": "PASS",
+      "detail": "#regVillage found: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.4-form",
+      "name": "Kader Report Form",
+      "status": "PASS",
+      "detail": "#kaderPwaForm found",
+      "severity": "info"
+    },
+    {
+      "id": "2.4-fields",
+      "name": "Kader Form Fields",
+      "status": "PASS",
+      "detail": "Name:1 Village:1 Submit:1",
+      "severity": "info"
+    },
+    {
+      "id": "2.5-map",
+      "name": "Nakes Leaflet Map",
+      "status": "PASS",
+      "detail": "#nakesLeafletMap: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.5-globals",
+      "name": "Global JS Functions",
+      "status": "PASS",
+      "detail": "openChat:true logout:true renderRole:true",
+      "severity": "info"
+    },
+    {
+      "id": "2.5-section",
+      "name": "Nakes Section Visible",
+      "status": "PASS",
+      "detail": "Nakes-specific elements: 33",
+      "severity": "info"
+    },
+    {
+      "id": "2.6",
+      "name": "User Management",
+      "status": "FAIL",
+      "detail": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, [role=\"tab\"]').nth(118)\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" onclick=\"handleLogout()\" class=\"w-full py-2.5 rounded-xl border border-red-200 hover:bg-red-50 text-red-600 font-bold text-xs transition flex items-center justify-center space-x-1.5\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    48 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "severity": "serious"
+    },
+    {
+      "id": "2.7-fn",
+      "name": "Chat Function Exists",
+      "status": "PASS",
+      "detail": "window.openTherapeuticChatModal: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.7-open",
+      "name": "Chat Modal Opens",
+      "status": "WARN",
+      "detail": "Modal visible after call: false",
+      "severity": "moderate"
+    },
+    {
+      "id": "2.9",
+      "name": "Mobile Bottom Nav",
+      "status": "PASS",
+      "detail": "nav[class*=\"fixed\"]: 1 element(s)",
+      "severity": "info"
+    },
+    {
+      "id": "2.9-overflow",
+      "name": "Mobile Horizontal Overflow",
+      "status": "PASS",
+      "detail": "Horizontal overflow: false",
+      "severity": "info"
+    },
+    {
+      "id": "2.10-manifest",
+      "name": "PWA Manifest",
+      "status": "PASS",
+      "detail": "<link rel=\"manifest\"> found: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.10-sw",
+      "name": "Service Worker API",
+      "status": "PASS",
+      "detail": "ServiceWorker API: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.10-theme",
+      "name": "PWA Theme Color",
+      "status": "PASS",
+      "detail": "<meta name=\"theme-color\"> found: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.10-viewport",
+      "name": "Viewport Meta",
+      "status": "PASS",
+      "detail": "<meta name=\"viewport\"> found: true",
+      "severity": "info"
+    },
+    {
+      "id": "3.2-labels",
+      "name": "Form Labels/ARIA",
+      "status": "WARN",
+      "detail": "3 inputs lack proper labels: [{\"id\":\"loginUsername\",\"type\":\"text\",\"placeholder\":\"Contoh: 081234567890\"},{\"id\":\"loginPassword\",\"type\":\"password\",\"placeholder\":\"Masukkan kata sandi Anda\"},{\"id\":\"forgotIdentifier\",\"type\":\"text\",\"placeholder\":\"Contoh: 081234567890\"}]",
+      "severity": "moderate"
+    },
+    {
+      "id": "3.3-contrast",
+      "name": "Button Contrast Check",
+      "status": "INFO",
+      "detail": "Login button styles: [{\"element\":\"#btnLoginSubmit\",\"color\":\"rgb(255, 255, 255)\",\"bg\":\"rgba(0, 0, 0, 0)\"}]",
+      "severity": "info"
+    },
+    {
+      "id": "3.4-headings",
+      "name": "Heading Hierarchy",
+      "status": "PASS",
+      "detail": "H1 count: 1, All headings: [{\"tag\":\"H1\",\"text\":\"SATENGKA PASUNG\"},{\"tag\":\"H3\",\"text\":\"Lupa Kata Sandi\"},{\"tag\":\"H4\",\"text\":\"Atur Ulang Sandi via Petugas\"}]",
+      "severity": "info"
+    },
+    {
+      "id": "3.5-focus",
+      "name": "Focus Indicators",
+      "status": "INFO",
+      "detail": "Focus style on button: {\"outline\":\"rgb(16, 16, 16) auto 1px\",\"boxShadow\":\"rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(20, 88, 97, 0.25) 0px 10px 15px -3px, rgba(20, 88, 97, 0.25) 0px 4px 6px -4px\"}",
+      "severity": "info"
+    },
+    {
+      "id": "3.7-zoom",
+      "name": "Zoom 200% Overflow",
+      "status": "PASS",
+      "detail": "Horizontal overflow at simulated 200% zoom: false",
+      "severity": "info"
+    },
+    {
+      "id": "5.5",
+      "name": "Login Page Load Time",
+      "status": "PASS",
+      "detail": "558ms (target < 2000ms)",
+      "severity": "info"
+    },
+    {
+      "id": "5.6",
+      "name": "Dashboard Load Time",
+      "status": "PASS",
+      "detail": "DOM: 576ms, Load: 576ms, Response: 49ms",
+      "severity": "info"
+    },
+    {
+      "id": "5.4",
+      "name": "Bundle Size Analysis",
+      "status": "INFO",
+      "detail": "Top resources: [{\"name\":\"logo_opt.png\",\"size\":617250,\"type\":\"img\"},{\"name\":\"firebase-adapter.js\",\"size\":296157,\"type\":\"script\"},{\"name\":\"mock-engine.js\",\"size\":225184,\"type\":\"script\"},{\"name\":\"client\",\"size\":138003,\"type\":\"script\"},{\"name\":\"brand_text_official.png\",\"size\":131740,\"type\":\"img\"},{\"name\":\"login.html?html-proxy&index=1.js\",\"size\":43411,\"type\":\"script\"},{\"name\":\"background_opt.webp\",\"size\":33132,\"type\":\"css\"},{\"name\":\"ews-service.js\",\"size\":26322,\"type\":\"script\"},{\"name\":\"formatters.js\",\"size\":21190,\"type\":\"script\"},{\"name\":\"all.min.css\",\"size\":19052,\"type\":\"link\"}]\nTotal JS: 597.9kB, Total CSS: 18.6kB",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "timestamp": "2026-09-24T01:28:59.229Z",
+  "summary": {
+    "total": 17,
+    "pass": 3,
+    "fail": 14,
+    "warn": 0
+  },
+  "results": [
+    {
+      "id": "2.1-NAKES",
+      "name": "Login NAKES",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "critical"
+    },
+    {
+      "id": "2.1-KADER",
+      "name": "Login KADER",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "critical"
+    },
+    {
+      "id": "2.1-GHURU",
+      "name": "Login GHURU",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "critical"
+    },
+    {
+      "id": "2.1-RATO",
+      "name": "Login RATO",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "critical"
+    },
+    {
+      "id": "2.2",
+      "name": "Logout Flow",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "serious"
+    },
+    {
+      "id": "2.3-sec",
+      "name": "Register Security",
+      "status": "PASS",
+      "detail": "NAKES role correctly removed from public registration",
+      "severity": "info"
+    },
+    {
+      "id": "2.3-roles",
+      "name": "Register Roles",
+      "status": "FAIL",
+      "detail": "KADER:1 GHURU:0 RATO:1",
+      "severity": "info"
+    },
+    {
+      "id": "2.3-registerName",
+      "name": "Register field: registerName",
+      "status": "FAIL",
+      "detail": "Field not found",
+      "severity": "serious"
+    },
+    {
+      "id": "2.3-registerPhone",
+      "name": "Register field: registerPhone",
+      "status": "FAIL",
+      "detail": "Field not found",
+      "severity": "serious"
+    },
+    {
+      "id": "2.3-registerPassword",
+      "name": "Register field: registerPassword",
+      "status": "FAIL",
+      "detail": "Field not found",
+      "severity": "serious"
+    },
+    {
+      "id": "2.4",
+      "name": "Kader Report",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "serious"
+    },
+    {
+      "id": "2.5",
+      "name": "Nakes Dashboard",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "serious"
+    },
+    {
+      "id": "2.6",
+      "name": "User Management",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "serious"
+    },
+    {
+      "id": "2.7",
+      "name": "Chat Modal",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "serious"
+    },
+    {
+      "id": "2.9",
+      "name": "Mobile Nav",
+      "status": "FAIL",
+      "detail": "Phone input not found",
+      "severity": "moderate"
+    },
+    {
+      "id": "2.10-manifest",
+      "name": "PWA Manifest",
+      "status": "PASS",
+      "detail": "<link rel=\"manifest\"> found: true",
+      "severity": "info"
+    },
+    {
+      "id": "2.10-sw",
+      "name": "Service Worker API",
+      "status": "PASS",
+      "detail": "ServiceWorker API available: true",
+      "severity": "info"
+    }
+  ]
+}

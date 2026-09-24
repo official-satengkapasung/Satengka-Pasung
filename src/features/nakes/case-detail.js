@@ -88,19 +88,65 @@ export async function savePatientForm(event) {
 }
 
 export async function deletePatientAction(caseId, patientName) {
-  if (!confirm(`Yakin ingin menghapus data pasien "${patientName}"? Seluruh jadwal kontrol dan rekaman kasus terkait pasien ini akan dihapus dari sistem.`)) return;
+  const proceedDelete = async () => {
+    try {
+      const adapter = window.firebaseAdapter || window.satengkaEngine || window.malekkasEngine;
+      if (adapter && typeof adapter.deletePatient === 'function') {
+        const res = await adapter.deletePatient(caseId);
+        if (res && res.success === false) {
+          throw new Error(res.message || 'Gagal menghapus data pasien');
+        }
+      } else {
+        throw new Error('Adapter penyimpanan data tidak tersedia.');
+      }
 
-  try {
-    if (window.firebaseAdapter && window.firebaseAdapter.deletePatient) {
-      await window.firebaseAdapter.deletePatient(caseId);
+      // Hapus instan dari memory state agar UI langsung ter-update seketika tanpa noda
+      if (window.currentCases) {
+        window.currentCases = window.currentCases.filter(c => String(c.id) !== String(caseId));
+      }
+
+      // Sinkronkan cache lokal secara langsung
+      try {
+        const storedCases = JSON.parse(localStorage.getItem('malekkas_cases') || '[]').filter(c => String(c.id) !== String(caseId));
+        localStorage.setItem('malekkas_cases', JSON.stringify(storedCases));
+        localStorage.setItem('satengka_cases', JSON.stringify(storedCases));
+      } catch (e) {}
+
+      // Tampilkan notifikasi Batik Gentongan Tanjung Bumi (Madura)
+      if (window.showToast) {
+        window.showToast(`Data pasien ${patientName} dan akun otentikasi terkait berhasil dihapus dari sistem.`, 'danger', 4000);
+      }
+
+      // Re-render seluruh tabel dan ringkasan metrik
+      if (window.fetchCases) await window.fetchCases();
+      if (window.renderPatientsTable) window.renderPatientsTable();
+      if (window.renderAllCasesTable) window.renderAllCasesTable();
+      if (window.renderNakesDashboardCases) window.renderNakesDashboardCases(window.currentCases || []);
+      if (window.updateNakesCounters) window.updateNakesCounters(window.currentCases || []);
+    } catch (err) {
+      console.warn('Delete patient error:', err);
+      if (window.showToast) {
+        window.showToast('Gagal menghapus pasien: ' + err.message, 'warning');
+      } else {
+        alert('Gagal menghapus pasien: ' + err.message);
+      }
     }
-    if (window.showToast) window.showToast(`Data pasien ${patientName} berhasil dihapus.`);
-    if (window.fetchCases) await window.fetchCases();
-    if (window.renderPatientsTable) window.renderPatientsTable();
-    if (window.renderAllCasesTable) window.renderAllCasesTable();
-  } catch (err) {
-    console.warn('Delete patient error:', err);
-    alert('Gagal menghapus pasien: ' + err.message);
+  };
+
+  // Gunakan dialog konfirmasi bertema ornamen Batik Tanjung Bumi
+  if (typeof window.showBatikConfirm === 'function') {
+    window.showBatikConfirm({
+      title: 'Hapus Data Pasien & Akun Otentikasi',
+      message: `Yakin ingin menghapus data pasien <strong>"${patientName}"</strong>?<br><br><span class="text-xs text-rose-700 bg-rose-50 p-2 rounded-xl block border border-rose-200"><strong>Pemberitahuan Sistem:</strong> Seluruh jadwal kontrol obat, rekaman kasus, dan data otentikasi login terkait pasien ini akan ikut terhapus secara permanen.</span>`,
+      confirmText: 'Hapus Pasien & Akun',
+      cancelText: 'Batalkan',
+      isDanger: true,
+      onConfirm: proceedDelete
+    });
+  } else {
+    if (confirm(`Yakin ingin menghapus data pasien "${patientName}"? Seluruh data kasus dan otentikasi terkait akan dihapus.`)) {
+      await proceedDelete();
+    }
   }
 }
 
@@ -347,7 +393,7 @@ export function selectCaseDetail(caseId) {
       bannerIconEl.className = 'w-7 h-7 rounded-lg bg-amber-600 text-white font-bold flex items-center justify-center text-xs shrink-0';
       bannerIconEl.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i>';
       bannerTitleEl.className = 'font-bold text-amber-800 text-sm';
-      bannerTitleEl.innerText = 'Status Siaga Koordinasi EWS';
+      bannerTitleEl.innerText = 'Status Siaga Koordinasi Satengka';
       bannerSubtitleEl.className = 'text-[11px] text-amber-700/80';
       bannerSubtitleEl.innerText = (guruP && guruP.response === 'NEED_TIME') ? 'Kiai sedang menghubungi keluarga pasien' : 'Menunggu respon lengkap mitra lintas sektor';
     } else {
@@ -364,7 +410,7 @@ export function selectCaseDetail(caseId) {
   if (btnMainAction) {
     if (isActivated) {
       btnMainAction.className = 'w-1/2 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-lg flex items-center justify-center';
-      btnMainAction.innerHTML = '<i class="fa-solid fa-truck-medical mr-1.5"></i> <span>Buka Monitoring EWS</span>';
+      btnMainAction.innerHTML = '<i class="fa-solid fa-truck-medical mr-1.5"></i> <span>Buka Monitoring Satengka</span>';
       btnMainAction.onclick = () => {
         window.activeMonitoringCaseId = activeSelectedCase.id;
         if (window.updateMonitoringStepper) window.updateMonitoringStepper(activeSelectedCase);

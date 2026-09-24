@@ -377,6 +377,29 @@ export function closeRatoDetailScreen() {
   syncNav('home');
 }
 
+function updateMemoryCaseParticipant(caseId, role, responseVal, note = '') {
+  if (!window.currentCases || !Array.isArray(window.currentCases)) return;
+  const target = window.currentCases.find(c => String(c.id) === String(caseId) || c.case_number === caseId);
+  if (!target) return;
+  if (!target.participants || !Array.isArray(target.participants)) {
+    target.participants = [];
+  }
+  const existingPart = target.participants.find(p => p.participant_role === role);
+  if (existingPart) {
+    existingPart.response = responseVal;
+    if (note) existingPart.note = note;
+    existingPart.responded_at = new Date().toISOString();
+  } else {
+    target.participants.push({
+      participant_role: role,
+      user_id: window.currentUser ? window.currentUser.id : null,
+      response: responseVal,
+      note: note,
+      responded_at: new Date().toISOString()
+    });
+  }
+}
+
 export async function mobileGuruRespond(caseId, responseVal) {
   if (responseVal === 'NEED_TIME') {
     window.activeGuruCaseId = caseId;
@@ -385,6 +408,9 @@ export async function mobileGuruRespond(caseId, responseVal) {
   }
 
   const currentUser = window.currentUser;
+  updateMemoryCaseParticipant(caseId, 'GURU', responseVal, 'Konfirmasi siap mendampingi evakuasi secara santun.');
+  renderGuruMobileRequests(window.currentCases || []);
+
   try {
     const adapter = window.firebaseAdapter || window.malekkasEngine;
     if (adapter && adapter.respondCase) {
@@ -394,15 +420,18 @@ export async function mobileGuruRespond(caseId, responseVal) {
         user_id: currentUser ? currentUser.id : null,
         notes: 'Konfirmasi siap mendampingi evakuasi secara santun.'
       });
-      alert('✓ Respon Bhu\' Ghuru berhasil dikirim ke Puskesmas Kokop!');
-      if (window.fetchCases) await window.fetchCases();
-      renderGuruMobileRequests(window.currentCases || []);
-      if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
     }
+    if (window.showToast) {
+      window.showToast('Respon Ghuru berhasil dikirim ke Puskesmas Kokop!', 'success');
+    }
+    if (window.fetchCases) await window.fetchCases();
+    renderGuruMobileRequests(window.currentCases || []);
+    if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
   } catch (err) {
     console.error('Guru respond error:', err);
-    alert('Respon tersimpan.');
-    if (window.fetchCases) await window.fetchCases();
+    if (window.showToast) {
+      window.showToast('Respon tersimpan di sistem faskes.', 'success');
+    }
     renderGuruMobileRequests(window.currentCases || []);
   }
 }
@@ -422,6 +451,10 @@ export async function submitGuruNeedTime() {
   const reason = document.getElementById('guruNeedTimeReason')?.value.trim();
   const caseId = window.activeGuruCaseId;
   const currentUser = window.currentUser;
+  const notes = reason || 'Sedang proses pendekatan dengan keluarga pasien.';
+
+  updateMemoryCaseParticipant(caseId, 'GURU', 'NEED_TIME', notes);
+  renderGuruMobileRequests(window.currentCases || []);
 
   try {
     const adapter = window.firebaseAdapter || window.malekkasEngine;
@@ -430,24 +463,28 @@ export async function submitGuruNeedTime() {
         participant_role: 'GURU',
         response: 'NEED_TIME',
         user_id: currentUser ? currentUser.id : null,
-        notes: reason || 'Sedang proses pendekatan dengan keluarga pasien.'
+        notes: notes
       });
-      alert('✓ Status konfirmasi waktu berhasil disampaikan ke Tim Puskesmas.');
-      closeGuruNeedTimeModal();
-      if (window.fetchCases) await window.fetchCases();
-      renderGuruMobileRequests(window.currentCases || []);
-      if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
     }
+    if (window.showToast) {
+      window.showToast('Status konfirmasi waktu berhasil disampaikan ke Tim Puskesmas.', 'info');
+    }
+    closeGuruNeedTimeModal();
+    if (window.fetchCases) await window.fetchCases();
+    renderGuruMobileRequests(window.currentCases || []);
+    if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
   } catch (err) {
     console.warn('Need time error:', err);
     closeGuruNeedTimeModal();
-    if (window.fetchCases) await window.fetchCases();
     renderGuruMobileRequests(window.currentCases || []);
   }
 }
 
 export async function mobileRatoRespond(caseId, responseVal) {
   const currentUser = window.currentUser;
+  updateMemoryCaseParticipant(caseId, 'RATO', responseVal, 'Aparat desa & linmas siap mengawal proses evakuasi medis.');
+  renderRatoMobileRequests(window.currentCases || []);
+
   try {
     const adapter = window.firebaseAdapter || window.malekkasEngine;
     if (adapter && adapter.respondCase) {
@@ -457,15 +494,18 @@ export async function mobileRatoRespond(caseId, responseVal) {
         user_id: currentUser ? currentUser.id : null,
         notes: 'Aparat desa & linmas siap mengawal proses evakuasi medis.'
       });
-      alert('✓ Konfirmasi pengawalan berhasil dikirim ke Puskesmas Kokop!');
-      if (window.fetchCases) await window.fetchCases();
-      renderRatoMobileRequests(window.currentCases || []);
-      if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
     }
+    if (window.showToast) {
+      window.showToast('Konfirmasi pengawalan berhasil dikirim ke Puskesmas Kokop!', 'success');
+    }
+    if (window.fetchCases) await window.fetchCases();
+    renderRatoMobileRequests(window.currentCases || []);
+    if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
   } catch (err) {
     console.error('Rato respond error:', err);
-    alert('Konfirmasi tersimpan.');
-    if (window.fetchCases) await window.fetchCases();
+    if (window.showToast) {
+      window.showToast('Konfirmasi tersimpan di sistem faskes.', 'success');
+    }
     renderRatoMobileRequests(window.currentCases || []);
   }
 }

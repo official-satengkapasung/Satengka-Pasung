@@ -80,9 +80,9 @@
     const map = {
       'NAKES': { title: 'Nakes', badge: 'Nakes', icon: './assets/icons/role_nakes.png' },
       'ADMIN': { title: 'Admin', badge: 'Admin', icon: './assets/icons/role_nakes.png' },
-      'KADER': { title: "Bhupa' Bhabu'", badge: "Bhupa' Bhabu'", icon: './assets/icons/role_bhupa.png' },
+      'KADER': { title: "Bhuppa' Babhu'", badge: "Bhuppa' Babhu'", icon: './assets/icons/role_bhupa.png' },
       'GURU': { title: "Ghuru", badge: "Ghuru", icon: './assets/icons/role_bhu-ghuru.png' },
-      'RATO': { title: "Rato'", badge: "Rato'", icon: './assets/icons/role_rato.png' }
+      'RATO': { title: "Rato", badge: "Rato", icon: './assets/icons/role_rato.png' }
     };
     return map[role] || { title: role, badge: role, icon: './assets/icons/role_nakes.png' };
   }

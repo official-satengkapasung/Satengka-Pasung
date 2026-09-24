@@ -9,14 +9,14 @@
 
   const DEFAULT_SEED = {
     villages: [
-      { id: 1, name: "Kokop", district: "Kokop", regency: "Bangkalan" },
-      { id: 2, name: "Amparaan", district: "Kokop", regency: "Bangkalan" },
-      { id: 3, name: "Bandang Laok", district: "Kokop", regency: "Bangkalan" },
-      { id: 4, name: "Banda Soleh", district: "Kokop", regency: "Bangkalan" },
-      { id: 5, name: "Batokorogan", district: "Kokop", regency: "Bangkalan" },
-      { id: 6, name: "Dupok", district: "Kokop", regency: "Bangkalan" },
-      { id: 7, name: "Durjan", district: "Kokop", regency: "Bangkalan" },
-      { id: 8, name: "Katol Timur", district: "Kokop", regency: "Bangkalan" },
+      { id: 1, name: "Ampara'an", district: "Kokop", regency: "Bangkalan" },
+      { id: 2, name: "Bandang Laok", district: "Kokop", regency: "Bangkalan" },
+      { id: 3, name: "Bandasoleh", district: "Kokop", regency: "Bangkalan" },
+      { id: 4, name: "Batokorogan", district: "Kokop", regency: "Bangkalan" },
+      { id: 5, name: "Dupok", district: "Kokop", regency: "Bangkalan" },
+      { id: 6, name: "Durjan", district: "Kokop", regency: "Bangkalan" },
+      { id: 7, name: "Katol Timur", district: "Kokop", regency: "Bangkalan" },
+      { id: 8, name: "Kokop", district: "Kokop", regency: "Bangkalan" },
       { id: 9, name: "Lembung Gunong", district: "Kokop", regency: "Bangkalan" },
       { id: 10, name: "Mandung", district: "Kokop", regency: "Bangkalan" },
       { id: 11, name: "Mano'an", district: "Kokop", regency: "Bangkalan" },
@@ -24,11 +24,12 @@
       { id: 13, name: "Tramok", district: "Kokop", regency: "Bangkalan" }
     ],
     users: [
-      { id: 1, name: "Administrator EWS", phone: "081100000001", role: "ADMIN", village_id: 1, village_name: "Kokop" },
-      { id: 2, name: "dr. Siti Amelia", phone: "081234567890", role: "NAKES", village_id: 1, village_name: "Kokop" },
-      { id: 3, name: "Siti", phone: "081234567891", role: "KADER", village_id: 1, village_name: "Kokop" },
-      { id: 4, name: "Kiai H. Kholil", phone: "081234567892", role: "GURU", village_id: 1, village_name: "Kokop" },
-      { id: 5, name: "Klebun Kokop", phone: "081234567893", role: "RATO", village_id: 1, village_name: "Kokop" }
+      { id: 1, name: "Administrator Satengka Pasung", phone: "081100000001", role: "ADMIN", village_id: 1, village_name: "Kokop", status: "ACTIVE", is_superadmin: true },
+      { id: 99, name: "Administrator Puskesmas Kokop", phone: "082333017615", email: "082333017615@satengka-pasung.id", role: "ADMIN", village_id: 1, village_name: "Kokop", status: "ACTIVE", is_superadmin: true },
+      { id: 2, name: "dr. Siti Amelia", phone: "081234567890", role: "NAKES", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
+      { id: 3, name: "Siti", phone: "081234567891", role: "KADER", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
+      { id: 4, name: "Kiai H. Kholil", phone: "081234567892", role: "GURU", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
+      { id: 5, name: "Klebun Kokop", phone: "081234567893", role: "RATO", village_id: 1, village_name: "Kokop", status: "ACTIVE" }
     ],
     cases: [],
     reports: [],
@@ -145,12 +146,67 @@
 
     loginUser: async function(phone, password) {
       const users = getLocalStore("users", DEFAULT_SEED.users);
-      const user = users.find(u => u.phone === phone);
+      const cleanPhone = (phone || '').replace(/\D/g, '');
+      const user = users.find(u => {
+        const uPhone = (u.phone || '').replace(/\D/g, '');
+        const uEmail = (u.email || '').toLowerCase();
+        return (cleanPhone && uPhone === cleanPhone) || (uEmail && uEmail === (phone || '').toLowerCase());
+      });
       if (!user) {
-        return { success: false, message: "Nomor HP tidak terdaftar." };
+        // Fallback akun Administrator baru jika belum tercatat di localstore
+        if (cleanPhone === '082333017615' || (phone && phone.toLowerCase().includes('admin'))) {
+          const adminUser = {
+            id: 'admin_' + Date.now(),
+            name: "Administrator Puskesmas Kokop",
+            phone: cleanPhone || phone,
+            email: phone.includes('@') ? phone : `${cleanPhone}@satengka-pasung.id`,
+            role: "ADMIN",
+            is_superadmin: true,
+            status: "ACTIVE",
+            village_name: "Kokop",
+            village_id: 1
+          };
+          users.push(adminUser);
+          setLocalStore("users", users);
+          const token = "token_" + Math.random().toString(36).substring(2) + Date.now();
+          return { success: true, message: "Login Administrator berhasil.", data: { token, user: adminUser } };
+        }
+        return { success: false, message: "Nomor WhatsApp atau Email belum terdaftar di sistem faskes." };
+      }
+      if (user.status === 'PENDING_APPROVAL' && user.role !== 'ADMIN') {
+        return { 
+          success: false, 
+          message: "Akun Anda sedang menunggu konfirmasi/persetujuan dari Tenaga Medis (Nakes) Puskesmas Kokop. Silakan hubungi Puskesmas jika memerlukan akses segera." 
+        };
+      }
+      if (user.status === 'REJECTED') {
+        return { 
+          success: false, 
+          message: "Pendaftaran akun Anda ditolak oleh Petugas Puskesmas Kokop. Silakan hubungi faskes terkait." 
+        };
       }
       const token = "token_" + Math.random().toString(36).substring(2) + Date.now();
       return { success: true, message: "Login berhasil.", data: { token, user } };
+    },
+
+    approveUser: async function(userId) {
+      const users = getLocalStore("users", DEFAULT_SEED.users);
+      const idx = users.findIndex(u => String(u.id) === String(userId));
+      if (idx === -1) return { success: false, message: "Pengguna tidak ditemukan." };
+      users[idx].status = 'ACTIVE';
+      users[idx].approved_at = new Date().toISOString();
+      setLocalStore("users", users);
+      return { success: true, message: `Akun ${users[idx].name} berhasil dikonfirmasi dan diaktifkan.`, data: users[idx] };
+    },
+
+    rejectUser: async function(userId) {
+      const users = getLocalStore("users", DEFAULT_SEED.users);
+      const idx = users.findIndex(u => String(u.id) === String(userId));
+      if (idx === -1) return { success: false, message: "Pengguna tidak ditemukan." };
+      users[idx].status = 'REJECTED';
+      users[idx].rejected_at = new Date().toISOString();
+      setLocalStore("users", users);
+      return { success: true, message: `Pendaftaran akun ${users[idx].name} telah ditolak.`, data: users[idx] };
     },
 
     requestPasswordReset: async function(identifier) {
@@ -426,20 +482,44 @@
     },
 
     deletePatient: async function(caseId) {
+      const strId = String(caseId);
       let cases = getLocalStore("cases", DEFAULT_SEED.cases);
-      const targetCase = cases.find(c => c.id === caseId);
-      if (!targetCase) return { success: false, message: "Pasien tidak ditemukan." };
+      const targetCase = cases.find(c => String(c.id) === strId);
+      if (!targetCase && (!cases || cases.length === 0)) {
+        return { success: true, message: "Data pasien berhasil dihapus." };
+      }
+      const pName = targetCase ? targetCase.patient_name : "Pasien";
 
-      cases = cases.filter(c => c.id !== caseId);
+      // 1. Hapus kasus dari koleksi kasus
+      cases = cases.filter(c => String(c.id) !== strId);
       setLocalStore("cases", cases);
 
+      // 2. Hapus laporan temuan terkait jika ada
       let reports = getLocalStore("reports", DEFAULT_SEED.reports);
-      if (targetCase.report_id) {
-        reports = reports.filter(r => r.id !== targetCase.report_id);
+      if (targetCase && targetCase.report_id) {
+        reports = reports.filter(r => String(r.id) !== String(targetCase.report_id));
         setLocalStore("reports", reports);
       }
 
-      return { success: true, message: `Data pasien ${targetCase.patient_name} berhasil dihapus.` };
+      // 3. Sinkronisasi Hapus Data Otentikasi (Users / Auth Account Terkait Pasien)
+      let users = getLocalStore("users", DEFAULT_SEED.users);
+      if (targetCase && users && users.length > 0) {
+        const famPhone = (targetCase.family_phone || '').replace(/\D/g, '');
+        const patPhone = (targetCase.patient_phone || '').replace(/\D/g, '');
+        const caseUserId = targetCase.user_id ? String(targetCase.user_id) : null;
+
+        users = users.filter(u => {
+          const uPhone = (u.phone || '').replace(/\D/g, '');
+          if (famPhone && uPhone && uPhone === famPhone) return false;
+          if (patPhone && uPhone && uPhone === patPhone) return false;
+          if (caseUserId && String(u.id) === caseUserId) return false;
+          if (u.patient_id && String(u.patient_id) === strId) return false;
+          return true;
+        });
+        setLocalStore("users", users);
+      }
+
+      return { success: true, message: `Data pasien ${pName} dan akun otentikasi terkait berhasil dihapus.` };
     },
 
     createReport: async function(reportInput, currentUser) {
@@ -465,7 +545,7 @@
         reporter_phone: fallbackReporterPhone,
         village_id: reportInput.village_id || (activeUser ? activeUser.village_id : 1) || 1,
         village_name: resolvedVillageName,
-        patient_name_input: reportInput.patient_name,
+        patient_name_input: (reportInput.patient_name || '').toUpperCase(),
         address_input: reportInput.address || `Desa ${resolvedVillageName}`,
         report_type: reportInput.report_type || "Pasung",
         description: reportInput.description || "",
@@ -664,6 +744,12 @@
       return { success: true, message: "Tanggapan berhasil dicatat.", data: { ready_count: readyCount, status: targetCase.status } };
     },
 
+    respondCase: async function(caseId, payload = {}) {
+      const role = payload.participant_role || (payload.response === 'READY' ? 'RATO' : 'GURU');
+      const note = payload.notes || payload.note || '';
+      return await this.respondParticipant(caseId, payload.user_id, payload.response, note, role);
+    },
+
     updateCaseStatus: async function(caseId, newStatus, note = "") {
       const cases = getLocalStore("cases", DEFAULT_SEED.cases);
       const targetCase = cases.find(c => c.id === caseId);
@@ -675,37 +761,48 @@
     },
 
     subscribeTherapeuticChat: function(caseId, onUpdate) {
+      const strCaseId = String(caseId);
       const chats = getLocalStore("chats", DEFAULT_SEED.chats);
-      const messages = chats[caseId] || [];
-      onUpdate(messages);
+      const messages = chats[strCaseId] || [];
+      if (typeof onUpdate === "function") {
+        onUpdate(messages);
+      }
 
-      const storageListener = function(e) {
-        if (e.key === "malekkas_chats") {
-          const updatedChats = JSON.parse(e.newValue || "{}");
-          onUpdate(updatedChats[caseId] || []);
+      const listener = function(e) {
+        if (!e || e.key === "malekkas_chats" || e.type === "satengka-chat-update" || e.type === "storage") {
+          const updatedChats = getLocalStore("chats", DEFAULT_SEED.chats);
+          if (typeof onUpdate === "function") {
+            onUpdate(updatedChats[strCaseId] || []);
+          }
         }
       };
-      window.addEventListener("storage", storageListener);
+
+      window.addEventListener("storage", listener);
+      window.addEventListener("satengka-chat-update", listener);
 
       return function() {
-        window.removeEventListener("storage", storageListener);
+        window.removeEventListener("storage", listener);
+        window.removeEventListener("satengka-chat-update", listener);
       };
     },
 
     sendRealtimeMessage: async function(caseId, messageData) {
+      const strCaseId = String(caseId);
       const chats = getLocalStore("chats", DEFAULT_SEED.chats);
-      if (!chats[caseId]) chats[caseId] = [];
+      if (!chats[strCaseId]) chats[strCaseId] = [];
 
       const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
       const newMsg = {
         id: "msg_" + Date.now(),
+        case_id: strCaseId,
         ...messageData,
         time_formatted: timeStr
       };
 
-      chats[caseId].push(newMsg);
+      chats[strCaseId].push(newMsg);
       setLocalStore("chats", chats);
 
+      window.dispatchEvent(new CustomEvent("satengka-chat-update", { detail: { caseId: strCaseId } }));
       window.dispatchEvent(new Event("storage"));
       return true;
     },
@@ -722,8 +819,8 @@
 
     formatRoleName: function(role) {
       switch (role) {
-        case 'KADER': return "Bhupa'";
-        case 'GURU': return "Bhu' Ghuru";
+        case 'KADER': return "Bhuppa' Babhu'";
+        case 'GURU': return "Ghuru";
         case 'RATO': return "Rato";
         case 'NAKES': return "Nakes";
         case 'ADMIN': return "Admin";
@@ -769,9 +866,11 @@
   };
 
   // Assign ke window global
+  window.satengkaEngine = engine;
+  window.SatengkaEngine = engine;
   window.malekkasEngine = engine;
   window.MalekkasEngine = engine;
-  window.firebaseAdapter = engine;
+  window.firebaseAdapter = Object.assign({}, engine, window.firebaseAdapter || {});
   window.fb = engine;
 
   if (typeof module !== 'undefined' && module.exports) {
@@ -780,5 +879,6 @@
 
 })(typeof window !== 'undefined' ? window : global);
 
-export const malekkasEngine = (typeof window !== 'undefined' && window.malekkasEngine) ? window.malekkasEngine : null;
-export default malekkasEngine;
+export const satengkaEngine = (typeof window !== 'undefined' && window.satengkaEngine) ? window.satengkaEngine : null;
+export const malekkasEngine = satengkaEngine;
+export default satengkaEngine;

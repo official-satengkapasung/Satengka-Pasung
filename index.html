@@ -230,9 +230,12 @@
           </a>
           <a href="#" onclick="switchNakesTab('mitra'); toggleNakesMobileSidebar(false); return false;"
             id="nakesNavMitra"
-            class="group flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-white/90 hover:text-white hover:bg-white/10 transition">
-            <i class="fa-solid fa-users w-5 text-center text-teal-200 group-hover:scale-110 transition-transform drop-shadow"></i>
-            <span class="tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">Kader & Tokoh</span>
+            class="group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-white/90 hover:text-white hover:bg-white/10 transition">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-users w-5 text-center text-teal-200 group-hover:scale-110 transition-transform drop-shadow"></i>
+              <span class="tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">Kader & Tokoh</span>
+            </div>
+            <span id="pendingUsersBadge" class="hidden px-2 py-0.5 text-[10px] font-black bg-amber-400 text-amber-950 rounded-full animate-pulse shadow-sm">0</span>
           </a>
           <a href="#" onclick="switchNakesTab('evakuasi'); toggleNakesMobileSidebar(false); return false;"
             id="nakesNavEvakuasi"
@@ -315,6 +318,21 @@
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+          <!-- WIDGET ROLE SWITCHER (KHUSUS SUPERADMIN / ADMINISTRATOR) -->
+          <div id="superadminNakesRoleSwitcher" class="hidden items-center space-x-1.5 sm:space-x-2 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 text-white px-2.5 py-1 sm:py-1.5 rounded-xl shadow-md border border-indigo-400/30">
+            <span class="flex items-center space-x-1 text-amber-300 font-bold text-xs shrink-0">
+              <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
+              <span class="hidden md:inline">Mode Akses:</span>
+            </span>
+            <select id="superadminRoleSelectNakes" onchange="switchSuperadminViewRole(this.value)"
+              class="bg-indigo-950/90 text-white font-bold text-xs rounded-lg px-2 py-1 border border-indigo-400/40 outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer">
+              <option value="NAKES">🩺 Nakes (Puskesmas)</option>
+              <option value="KADER">🤝 Bhuppa' Babhu' (Kader)</option>
+              <option value="GURU">🕌 Ghuru (Kiai/Ustadz)</option>
+              <option value="RATO">🛡️ Rato (Kades/Linmas)</option>
+            </select>
+          </div>
+
           <!-- Lencana Peran Faskes Terverifikasi -->
           <div
             class="hidden sm:flex items-center space-x-2 bg-slate-100 px-2.5 py-1 md:px-3 md:py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700">
@@ -391,6 +409,9 @@
               </span>
             </div>
           </div>
+
+          <!-- BANNER PERINGATAN PENDAFTAR AKUN BARU MENUNGGU PERSETUJUAN NAKES -->
+          <div id="nakesPendingApprovalAlert" class="hidden"></div>
 
           <!-- 4 Kartu Metrik Indikator (Full Width Lega & Rapi) -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -645,14 +666,14 @@
                     class="p-2.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between shadow-2xs">
                     <div class="truncate mr-1">
                       <span class="text-[9px] font-bold uppercase text-emerald-700 flex items-center gap-1 tracking-wider">
-                        <img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Bhupa' Bhabu'"> Bhupa' Bhabu'
+                        <img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Bhuppa' Babhu'"> Bhuppa' Babhu'
                       </span>
                       <p id="detailReporterName" class="font-bold text-slate-900 text-xs truncate">Kader Pelapor</p>
                       <p id="detailReporterPhone" class="text-[10px] text-slate-500 font-mono">-</p>
                     </div>
                     <a id="detailReporterWaBtn" href="#" target="_blank"
                       class="w-8 h-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-sm shrink-0 transition shadow-xs"
-                      title="Hubungi Bhupa' Bhabu' via WhatsApp">
+                      title="Hubungi Bhuppa' Babhu' via WhatsApp">
                       <i class="fa-brands fa-whatsapp"></i>
                     </a>
                   </div>
@@ -674,19 +695,19 @@
                     </a>
                   </div>
 
-                  <!-- 3. Rato' -->
+                  <!-- 3. Rato -->
                   <div
                     class="p-2.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between shadow-2xs">
                     <div class="truncate mr-1">
                       <span class="text-[9px] font-bold uppercase text-indigo-700 flex items-center gap-1 tracking-wider">
-                        <img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Rato'"> Rato'
+                        <img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Rato"> Rato
                       </span>
                       <p id="detailRatoName" class="font-bold text-slate-900 text-xs truncate">Klebun Kokop</p>
                       <p id="detailRatoPhone" class="text-[10px] text-slate-500 font-mono">081234567893</p>
                     </div>
                     <a id="detailRatoWaBtn" href="#" target="_blank"
                       class="w-8 h-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-sm shrink-0 transition shadow-xs"
-                      title="Hubungi Rato' via WhatsApp">
+                      title="Hubungi Rato via WhatsApp">
                       <i class="fa-brands fa-whatsapp"></i>
                     </a>
                   </div>
@@ -794,10 +815,19 @@
             <div>
               <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Desa</label>
               <select id="valVillageSelect" class="w-full border rounded-xl p-3 text-sm bg-white font-medium">
-                <option value="1">Kokop</option>
-                <option value="2">Bandasobah</option>
-                <option value="3">Batu Bintang</option>
-                <option value="4">Lembung Gunong</option>
+                <option value="1">Ampara'an</option>
+                <option value="2">Bandang Laok</option>
+                <option value="3">Bandasoleh</option>
+                <option value="4">Batokorogan</option>
+                <option value="5">Dupok</option>
+                <option value="6">Durjan</option>
+                <option value="7">Katol Timur</option>
+                <option value="8">Kokop</option>
+                <option value="9">Lembung Gunong</option>
+                <option value="10">Mandung</option>
+                <option value="11">Mano'an</option>
+                <option value="12">Tlokoh</option>
+                <option value="13">Tramok</option>
               </select>
             </div>
 
@@ -1041,6 +1071,9 @@
               <i class="fa-solid fa-user-plus mr-1.5"></i> Tambah Kontak
             </button>
           </div>
+
+          <!-- WADAH PERMINTAAN REGISTRASI AKUN BARU (MENUNGGU KONFIRMASI NAKES) -->
+          <div id="pendingUsersSection" class="hidden"></div>
 
           <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="overflow-x-auto">
@@ -1402,15 +1435,30 @@
               <div
                 class="inline-flex items-center space-x-1.5 bg-[#2ca3ab]/10 text-[#17656e] border border-[#2ca3ab]/30 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#2ca3ab] animate-pulse"></span>
-                <span id="mobileRoleBadgeTitle">Bhupa' Bhabu'</span>
+                <span id="mobileRoleBadgeTitle">Bhuppa' Babhu'</span>
               </div>
             </div>
-            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden xs:block">Puskesmas Kokop • Bhupa' Bhabhu' Ghuru Rato</p>
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden xs:block">Puskesmas Kokop • Bhuppa' Babhu' Ghuru Rato</p>
           </div>
         </div>
 
         <!-- Aksi Kanan & Navigasi Cepat Desktop/Tablet -->
         <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
+          <!-- WIDGET ROLE SWITCHER (SUPERADMIN DI VIEW PWA) -->
+          <div id="superadminPwaRoleSwitcher" class="hidden items-center space-x-1.5 bg-gradient-to-r from-indigo-900 to-purple-900 text-white px-2.5 py-1 rounded-xl shadow-xs border border-indigo-400/40">
+            <span class="flex items-center space-x-1 text-amber-300 font-bold text-xs shrink-0">
+              <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
+              <span class="hidden xs:inline">Mode:</span>
+            </span>
+            <select id="superadminRoleSelectPwa" onchange="switchSuperadminViewRole(this.value)"
+              class="bg-indigo-950 text-white font-bold text-xs rounded-lg px-2 py-1 border border-indigo-400/40 outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer">
+              <option value="NAKES">🩺 Nakes</option>
+              <option value="KADER">🤝 Bhuppa' Babhu'</option>
+              <option value="GURU">🕌 Ghuru</option>
+              <option value="RATO">🛡️ Rato</option>
+            </select>
+          </div>
+
           <!-- Navigasi Desktop / Tablet Pills (Hadir di Layar sm & md ke atas) -->
           <nav
             class="desktop-nav-pills hidden sm:flex items-center bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80 font-bold text-xs text-slate-600 space-x-1">
@@ -1484,7 +1532,7 @@
                 </div>
                 <div>
                   <span
-                    class="inline-block text-[11px] uppercase tracking-wider font-bold bg-white/20 text-emerald-100 px-2.5 py-0.5 rounded-full mb-1">Bhupa' Bhabu'</span>
+                    class="inline-block text-[11px] uppercase tracking-wider font-bold bg-white/20 text-emerald-100 px-2.5 py-0.5 rounded-full mb-1">Bhuppa' Babhu'</span>
                   <h3 id="kaderGreetingName"
                     class="font-black text-lg sm:text-2xl text-white tracking-tight leading-tight">Budi Santoso</h3>
                   <p class="text-xs text-emerald-100/90 font-medium">Kecamatan Kokop • Wilayah Siaga Terintegrasi</p>
@@ -1633,9 +1681,19 @@
                         class="text-red-500">*</span></label>
                     <select id="kaderFormVillage"
                       class="w-full border border-slate-200 rounded-2xl p-3.5 bg-white font-medium outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-sm transition">
-                      <option value="1">Kokop</option>
-                      <option value="2">Bandasobah</option>
-                      <option value="3">Batu Bintang</option>
+                      <option value="1">Ampara'an</option>
+                      <option value="2">Bandang Laok</option>
+                      <option value="3">Bandasoleh</option>
+                      <option value="4">Batokorogan</option>
+                      <option value="5">Dupok</option>
+                      <option value="6">Durjan</option>
+                      <option value="7">Katol Timur</option>
+                      <option value="8" selected>Kokop</option>
+                      <option value="9">Lembung Gunong</option>
+                      <option value="10">Mandung</option>
+                      <option value="11">Mano'an</option>
+                      <option value="12">Tlokoh</option>
+                      <option value="13">Tramok</option>
                     </select>
                   </div>
 
@@ -1932,7 +1990,7 @@
             <div class="flex items-center space-x-4 cursor-pointer hover:opacity-95 transition" onclick="openUserProfileModal()" title="Klik untuk ubah profil">
               <div
                 class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center p-2 sm:p-2.5 shrink-0 shadow-inner">
-                <img src="./assets/icons/role_rato_white.png" alt="Rato'" class="w-full h-full object-contain">
+                <img src="./assets/icons/role_rato_white.png" alt="Rato" class="w-full h-full object-contain">
               </div>
               <div>
                 <span
@@ -2284,7 +2342,7 @@
 
         <!-- Universal Footer Khusus Tampilan Scroll Konten (Mobile & Tablet) -->
         <div class="pt-4 pb-2 border-t border-slate-200/80 text-center space-y-1 block sm:hidden">
-          <p class="text-[11px] font-bold text-slate-700">SATENGKA PASUNG • BHUPA' BHABHU' GHURU RATO</p>
+          <p class="text-[11px] font-bold text-slate-700">SATENGKA PASUNG • BHUPPA' BABHU' GHURU RATO</p>
           <p class="text-[10px] text-slate-500 font-medium">Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung</p>
           <p class="text-[9px] text-slate-400">Tim Penelitian Skema Terapan 2026 • Universitas Trunodjoyo Madura - Puskesmas Kokop</p>
         </div>
@@ -2395,7 +2453,7 @@
           <div class="flex items-center space-x-1.5">
             <span id="userProfileRoleBadge"
               class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 uppercase tracking-wide">
-              Bhupa'
+              Bhuppa' Babhu'
             </span>
             <span class="text-[10px] text-slate-400 font-medium hidden xs:inline">• Maks. 10MB</span>
           </div>
@@ -2487,10 +2545,11 @@
           <label class="block text-slate-600 mb-1 font-semibold">Peran (Role)</label>
           <select id="addUserRole" required
             class="w-full border rounded-xl p-2.5 bg-white outline-none focus:border-emerald-600">
-            <option value="KADER">Bhupa' Bhabu' (Orang Tua / Kader Jiwa)</option>
+            <option value="KADER">Bhuppa' Babhu' (Orang Tua / Kader Jiwa)</option>
             <option value="GURU">Ghuru (Kiai / Ustadz)</option>
-            <option value="RATO">Rato' (Lintas Sektor / Pemangku Kepentingan)</option>
+            <option value="RATO">Rato (Lintas Sektor / Pemangku Kepentingan)</option>
             <option value="NAKES">Nakes (Tenaga Kesehatan)</option>
+            <option value="ADMIN">Administrator (Superadmin Faskes)</option>
           </select>
         </div>
 
@@ -2544,10 +2603,11 @@
           <label class="block text-slate-600 mb-1 font-semibold">Peran</label>
           <select id="editUserRole" required
             class="w-full border rounded-xl p-2.5 bg-white outline-none focus:border-emerald-600">
-            <option value="KADER">Bhupa' Bhabu' (Orang Tua / Kader Jiwa)</option>
+            <option value="KADER">Bhuppa' Babhu' (Orang Tua / Kader Jiwa)</option>
             <option value="GURU">Ghuru (Kiai / Ustadz)</option>
-            <option value="RATO">Rato' (Lintas Sektor / Pemangku Kepentingan)</option>
+            <option value="RATO">Rato (Lintas Sektor / Pemangku Kepentingan)</option>
             <option value="NAKES">Nakes (Tenaga Kesehatan)</option>
+            <option value="ADMIN">Administrator (Superadmin Faskes)</option>
           </select>
         </div>
 
@@ -2643,7 +2703,7 @@
               <h3 class="font-black text-sm sm:text-base tracking-tight">Live Chat Terapeutik</h3>
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-400/25 text-emerald-100 border border-emerald-300/30">Konsultasi & Evakuasi</span>
             </div>
-            <p class="text-[11px] text-emerald-100/80 font-medium">Bhupa' Bhabu' • Ghuru • Rato • Nakes</p>
+            <p class="text-[11px] text-emerald-100/80 font-medium">Bhuppa' Babhu' • Ghuru • Rato • Nakes</p>
           </div>
         </div>
         <div class="flex items-center space-x-2">
@@ -3153,9 +3213,9 @@
       <!-- Grid Data Pelapor & Pasien -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
         <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
-          <span class="text-[10px] uppercase font-bold text-emerald-800 block tracking-wider">Bhupa' Bhabu'</span>
+          <span class="text-[10px] uppercase font-bold text-emerald-800 block tracking-wider">Bhuppa' Babhu'</span>
           <p class="font-black text-slate-900 text-sm" id="repDetailReporterName">-</p>
-          <p class="text-slate-500 font-medium" id="repDetailReporterRole">Kader Jiwa (Bhupa' Bhabu')</p>
+          <p class="text-slate-500 font-medium" id="repDetailReporterRole">Kader Jiwa (Bhuppa' Babhu')</p>
           <div class="pt-1.5 flex items-center gap-2">
             <a id="repDetailReporterWaBtn" href="#" target="_blank" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center gap-1 shadow-xs transition">
               <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp

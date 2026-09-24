@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Panel EWS — SATENGKA PASUNG</title>
+  <title>Test Panel — SATENGKA PASUNG</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>body{font-family:sans-serif}.check-done{text-decoration:line-through;opacity:.5}</style>
@@ -13,7 +13,7 @@
 
   <div class="bg-slate-900 text-white rounded-3xl p-5 flex justify-between items-center">
     <div>
-      <h1 class="text-lg font-black">🧪 Test Panel EWS — BHUPPA' BHU' GHURU RATO'</h1>
+      <h1 class="text-lg font-black">🧪 Test Panel — SATENGKA PASUNG</h1>
       <p class="text-slate-400 text-xs">Arsitektur 100% Free-Tier (Client Engine & Firebase Realtime)</p>
     </div>
     <div class="flex items-center space-x-2">
@@ -115,9 +115,9 @@
         </div>
 
         <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1.5">
-          <p class="font-black text-emerald-800 text-[10px] uppercase">TAHAP 2: NAKES VALIDASI & AKTIVASI EWS</p>
+          <p class="font-black text-emerald-800 text-[10px] uppercase">TAHAP 2: NAKES VALIDASI & AKTIVASI SATENGKA PASUNG</p>
           <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="chk" data-k="n1" onchange="mc(this)"><span>Login Nakes &rarr; Tab "Laporan" berisi 1 laporan baru</span></label>
-          <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="chk" data-k="n2" onchange="mc(this)"><span>Klik "Validasi EWS" &rarr; "Validasi & Aktifkan"</span></label>
+          <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="chk" data-k="n2" onchange="mc(this)"><span>Klik "Validasi Satengka Pasung" &rarr; "Validasi & Aktifkan"</span></label>
           <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="chk" data-k="n3" onchange="mc(this)"><span>Pilih Bhu' Ghuru & Rato &rarr; Kirim Notifikasi Siaga</span></label>
           <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="chk" data-k="n4" onchange="mc(this)"><span>Layar Monitoring: stopwatch aktif, stepper kuning</span></label>
         </div>
@@ -149,8 +149,9 @@
 </div>
 
 <script src="./js/malekkas-engine.js"></script>
+<script src="./js/satengka-engine.js"></script>
 <script>
-  const fb = window.malekkasEngine;
+  const fb = window.satengkaEngine || window.malekkasEngine;
 
   window.doResetTotal = function() {
     if (confirm("Yakin ingin mengosongkan semua data kasus, laporan, dan riwayat chat menjadi 0?")) {

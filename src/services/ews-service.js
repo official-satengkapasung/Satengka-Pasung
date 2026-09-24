@@ -158,4 +158,5 @@ if (typeof window !== 'undefined') {
     respondParticipant,
     updateCaseStatus
   };
+  window.SatengkaService = window.EwsService;
 }

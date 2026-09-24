@@ -118,7 +118,7 @@ import {
                 </button>
                 ${r.latitude ? `<a href="https://maps.google.com/?q=${r.latitude},${r.longitude}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white font-bold text-xs transition flex items-center"><i class="fa-solid fa-map-location-dot mr-1"></i> GPS</a>` : ''}
                 <button onclick="openSiagaFromReport('${r.id}')" class="px-3.5 py-1.5 rounded-lg bg-white text-red-700 hover:bg-red-50 font-black text-xs shadow-md transition flex items-center">
-                  <i class="fa-solid fa-clipboard-check mr-1.5"></i> Validasi EWS & Pemetaan
+                  <i class="fa-solid fa-clipboard-check mr-1.5"></i> Validasi Satengka & Pemetaan
                 </button>
               </div>
             </div>
@@ -155,7 +155,7 @@ import {
                 <i class="fa-solid fa-eye mr-1 text-slate-400"></i> Detail
               </button>
               <button onclick="event.stopPropagation(); openSiagaFromReport('${r.id}');" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow">
-                Validasi EWS
+                Validasi Satengka
               </button>
             </div>
           </div>
@@ -185,7 +185,7 @@ import {
           }
 
           if (ratoP && (ratoP.response === 'READY' || ratoP.response === 'SIAP' || ratoP.response === 'AGREE')) {
-            partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain inline-block"> Rato': Siap</span>`;
+            partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain inline-block"> Rato: Siap</span>`;
           }
 
           // Info Narahubung Pelapor & Tokoh Kemitraan
@@ -252,18 +252,18 @@ import {
                 </div>
               </div>
 
-              <!-- Baris Narahubung Lengkap (Bhupa' Bhabu', Ghuru, Rato') -->
+              <!-- Baris Narahubung Lengkap (Bhuppa' Babhu', Ghuru, Rato) -->
               <div class="bg-slate-50/80 rounded-xl p-2.5 border border-slate-200/60 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]" onclick="event.stopPropagation()">
-                <!-- Bhupa' Bhabu' -->
+                <!-- Bhuppa' Babhu' -->
                 <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-100 shadow-2xs">
                   <div class="truncate mr-1">
                     <span class="text-[9px] font-bold uppercase text-emerald-700 flex items-center gap-1 tracking-wider">
-                      <img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Bhupa' Bhabu'"> Bhupa' Bhabu'
+                      <img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Bhuppa' Babhu'"> Bhuppa' Babhu'
                     </span>
                     <span class="font-bold text-slate-800 truncate block">${reporterName}</span>
                     <span class="text-[10px] text-slate-400 font-mono">${reporterPhone}</span>
                   </div>
-                  <a href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + reporterName + ', koordinasi faskes Puskesmas Kokop terkait laporan pasien ' + c.patient_name)}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Bhupa' Bhabu'">
+                  <a href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + reporterName + ', koordinasi faskes Puskesmas Kokop terkait laporan pasien ' + c.patient_name)}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Bhuppa' Babhu'">
                     <i class="fa-brands fa-whatsapp"></i>
                   </a>
                 </div>
@@ -282,16 +282,16 @@ import {
                   </a>
                 </div>
 
-                <!-- Rato' -->
+                <!-- Rato -->
                 <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-100 shadow-2xs">
                   <div class="truncate mr-1">
                     <span class="text-[9px] font-bold uppercase text-indigo-700 flex items-center gap-1 tracking-wider">
-                      <img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Rato'"> Rato'
+                      <img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Rato"> Rato
                     </span>
                     <span class="font-bold text-slate-800 truncate block">${ratoName}</span>
                     <span class="text-[10px] ${ratoResponseClass} block">${ratoResponseText}</span>
                   </div>
-                  <a href="https://wa.me/${cleanRatoPhone}?text=${encodeURIComponent('Halo ' + ratoName + ', koordinasi pengamanan evakuasi pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" target="_blank" class="w-7 h-7 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Rato'">
+                  <a href="https://wa.me/${cleanRatoPhone}?text=${encodeURIComponent('Halo ' + ratoName + ', koordinasi pengamanan evakuasi pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" target="_blank" class="w-7 h-7 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Rato">
                     <i class="fa-brands fa-whatsapp"></i>
                   </a>
                 </div>
@@ -516,7 +516,7 @@ import {
                 <button type="button" onclick="sendDirectWaReminder('kader', '${c.id}')"
                   class="w-full px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition shadow-xs">
                   <i class="fa-brands fa-whatsapp text-sm"></i>
-                  <span>WA Kader (${cleanRoleAccountName(kader ? kader.name : 'Bhupa\'')})</span>
+                  <span>WA Kader (${cleanRoleAccountName(kader ? kader.name : 'Bhuppa\' Babhu\'')})</span>
                 </button>
               </div>
             </div>

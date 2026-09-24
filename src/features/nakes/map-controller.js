@@ -120,9 +120,9 @@ export function initOrUpdateLeafletMap() {
           <div class="space-y-1.5 p-0.5">
             <strong>Puskesmas Kokop</strong><br>
             <span class="text-slate-500 text-[10px]">Jl. Raya Kokop, Desa Dupok</span><br>
-            <span class="text-emerald-700 font-bold text-[10px]">Posko Induk Siaga EWS</span>
+            <span class="text-emerald-700 font-bold text-[10px]">Posko Induk Satengka Pasung</span>
             <div class="pt-1">
-              <button type="button" onclick="openExternalMapsModal(${kokopCenter[0]}, ${kokopCenter[1]}, 'Puskesmas Kokop Bangkalan', 'Posko Induk Siaga EWS')" class="w-full px-2 py-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded text-[10px] flex items-center justify-center space-x-1 shadow-sm">
+              <button type="button" onclick="openExternalMapsModal(${kokopCenter[0]}, ${kokopCenter[1]}, 'Puskesmas Kokop Bangkalan', 'Posko Induk Satengka Pasung')" class="w-full px-2 py-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded text-[10px] flex items-center justify-center space-x-1 shadow-sm">
                 <i class="fa-solid fa-diamond-turn-right text-[9px]"></i>
                 <span>Buka di Aplikasi Maps</span>
               </button>

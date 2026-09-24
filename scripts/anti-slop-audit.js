@@ -39,7 +39,9 @@ const coreFiles = [
   'login.html',
   'register.html',
   'sw.js',
-  'js/malekkas-engine.js'
+  'js/malekkas-engine.js',
+  'js/satengka-engine.js',
+  'src/services/satengka-service.js'
 ];
 
 const slopPatterns = [

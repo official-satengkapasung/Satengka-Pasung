@@ -162,55 +162,89 @@
         </div>
       </div>
 
-      <!-- 2. PILIHAN PERAN 4-PILAR BGR -->
+      <!-- 2. PILIHAN PERAN 4-PILAR BGR & NAKES (2 ATAS & 2 BAWAH DENGAN DESKRIPSI JELAS) -->
       <div>
-        <label class="block font-semibold text-slate-700 mb-1.5">Pilih Peran Pilar Komunitas Anda</label>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-left">
+        <label class="block font-semibold text-slate-700 mb-1.5">Pilih Peran Komunitas / Faskes Anda</label>
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-3 text-left">
 
-          <!-- 1. BHUPA' BHABU' -->
-          <label class="cursor-pointer group">
-            <input type="radio" name="regRole" value="KADER" checked class="hidden role-card-radio">
-            <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
-              <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
-                <img src="./assets/icons/role_bhupa.png" alt="Bhupa' Bhabu'" class="role-icon-img w-full h-full object-contain transition-all duration-200">
+          <!-- 1. BHUPPA' BABHU' -->
+          <label class="cursor-pointer group relative"
+            onmouseenter="previewRoleDescription('KADER')"
+            onmouseleave="restoreSelectedRoleDescription()"
+            title="Bhuppa' Babhu': Orang tua atau kader kesehatan jiwa desa untuk deteksi dini dan pelaporan kasus pasung.">
+            <input type="radio" name="regRole" value="KADER" checked class="hidden role-card-radio" onchange="updateSelectedRoleDescription('KADER')">
+            <div class="p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
+              <div class="role-icon-box w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
+                <img src="./assets/icons/role_bhupa.png" alt="Bhuppa' Babhu'" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
-              <div class="min-w-0">
-                <p class="font-bold text-slate-800 text-xs sm:text-sm truncate">Bhupa' Bhabu'</p>
-                <p class="text-[9px] text-slate-400 font-medium truncate">Orang tua / Kader jiwa</p>
+              <div class="min-w-0 flex-1">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm leading-snug">Bhuppa' Babhu'</p>
+                <p class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Orang tua / Kader</p>
               </div>
             </div>
           </label>
 
           <!-- 2. GHURU -->
-          <label class="cursor-pointer group">
-            <input type="radio" name="regRole" value="GURU" class="hidden role-card-radio">
-            <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
-              <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
+          <label class="cursor-pointer group relative"
+            onmouseenter="previewRoleDescription('GURU')"
+            onmouseleave="restoreSelectedRoleDescription()"
+            title="Ghuru: Tokoh agama, Kiai, atau Ustadz untuk edukasi religi dan dukungan psiko-spiritual keluarga.">
+            <input type="radio" name="regRole" value="GURU" class="hidden role-card-radio" onchange="updateSelectedRoleDescription('GURU')">
+            <div class="p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
+              <div class="role-icon-box w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
                 <img src="./assets/icons/role_bhu-ghuru.png" alt="Ghuru" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
-              <div class="min-w-0">
-                <p class="font-bold text-slate-800 text-xs sm:text-sm truncate">Ghuru</p>
-                <p class="text-[9px] text-slate-400 font-medium truncate">Kiai / Ustadz</p>
+              <div class="min-w-0 flex-1">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm leading-snug">Ghuru</p>
+                <p class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Kiai / Ustadz</p>
               </div>
             </div>
           </label>
 
-          <!-- 3. RATO' -->
-          <label class="cursor-pointer group">
-            <input type="radio" name="regRole" value="RATO" class="hidden role-card-radio">
-            <div class="p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
-              <div class="role-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
-                <img src="./assets/icons/role_rato.png" alt="Rato'" class="role-icon-img w-full h-full object-contain transition-all duration-200">
+          <!-- 3. RATO -->
+          <label class="cursor-pointer group relative"
+            onmouseenter="previewRoleDescription('RATO')"
+            onmouseleave="restoreSelectedRoleDescription()"
+            title="Rato: Kepala Desa, Tokoh Masyarakat, atau Linmas untuk pengamanan wilayah dan pendampingan evakuasi.">
+            <input type="radio" name="regRole" value="RATO" class="hidden role-card-radio" onchange="updateSelectedRoleDescription('RATO')">
+            <div class="p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
+              <div class="role-icon-box w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
+                <img src="./assets/icons/role_rato.png" alt="Rato" class="role-icon-img w-full h-full object-contain transition-all duration-200">
               </div>
-              <div class="min-w-0">
-                <p class="font-bold text-slate-800 text-xs sm:text-sm truncate">Rato'</p>
-                <p class="text-[9px] text-slate-400 font-medium leading-tight">Kepala Desa / Linmas</p>
+              <div class="min-w-0 flex-1">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm leading-snug">Rato</p>
+                <p class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Kades / Linmas</p>
+              </div>
+            </div>
+          </label>
+
+          <!-- 4. NAKES -->
+          <label class="cursor-pointer group relative"
+            onmouseenter="previewRoleDescription('NAKES')"
+            onmouseleave="restoreSelectedRoleDescription()"
+            title="Nakes: Tenaga medis dan petugas kesehatan Puskesmas Kokop untuk validasi klinis dan manajemen medis.">
+            <input type="radio" name="regRole" value="NAKES" class="hidden role-card-radio" onchange="updateSelectedRoleDescription('NAKES')">
+            <div class="p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
+              <div class="role-icon-box w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
+                <img src="./assets/icons/role_nakes.png" alt="Nakes" class="role-icon-img w-full h-full object-contain transition-all duration-200">
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm leading-snug">Nakes</p>
+                <p class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Tenaga Medis Faskes</p>
               </div>
             </div>
           </label>
 
         </div>
-        <p class="text-[10px] text-slate-400 mt-1 italic"><i class="fa-solid fa-circle-info mr-1 text-teal-600"></i>Akun Tenaga Medis (Nakes) didaftarkan langsung oleh Administrator Puskesmas.</p>
+
+        <!-- KOTAK DESKRIPSI DINAMIS TERBACA JELAS SAAT HOVER MAUPUN KLIK -->
+        <div id="roleDescriptionHint"
+          class="mt-2.5 p-2.5 sm:p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-xs text-teal-950 flex items-start space-x-2.5 transition-all duration-200 shadow-2xs">
+          <i class="fa-solid fa-circle-info text-[#178A91] mt-0.5 shrink-0 text-sm"></i>
+          <p id="roleDescriptionText" class="font-medium leading-relaxed">
+            <strong class="font-bold text-slate-900">Bhuppa' Babhu':</strong> Orang tua / Kader kesehatan jiwa masyarakat untuk deteksi dini dan pelaporan kasus pasung di desa.
+          </p>
+        </div>
       </div>
 
       <!-- 3. NOMOR WHATSAPP -->
@@ -279,7 +313,7 @@
       <button type="submit" id="btnRegisterSubmit"
         class="w-full btn-satengka text-white font-bold py-3.5 rounded-xl shadow-lg shadow-[#2ca3ab]/25 transition flex items-center justify-center text-sm mt-2">
         <i class="fa-solid fa-user-plus mr-2"></i>
-        <span>Daftar Sekarang & Masuk</span>
+        <span>Daftar Sekarang</span>
       </button>
 
       <!-- LINK KEMBALI KE LOGIN -->
@@ -346,6 +380,43 @@
       }
     });
 
+    // PANDUAN DESKRIPSI PERAN DINAMIS (TERBACA JELAS SAAT HOVER MAUPUN KLIK)
+    const ROLE_DESCRIPTIONS = {
+      'KADER': {
+        title: "Bhuppa' Babhu'",
+        desc: "Orang tua atau kader kesehatan jiwa masyarakat untuk deteksi dini dan pelaporan kasus pasung di desa."
+      },
+      'GURU': {
+        title: "Ghuru",
+        desc: "Tokoh agama, Kiai, atau Ustadz untuk edukasi keagamaan dan pendampingan psiko-spiritual keluarga pasien."
+      },
+      'RATO': {
+        title: "Rato",
+        desc: "Kepala Desa, Tokoh Masyarakat, atau Linmas untuk pengamanan wilayah dan koordinasi evakuasi pasung."
+      },
+      'NAKES': {
+        title: "Nakes",
+        desc: "Tenaga medis dan petugas faskes Puskesmas Kokop untuk validasi klinis, aktivasi EWS, dan manajemen medis."
+      }
+    };
+
+    function previewRoleDescription(roleKey) {
+      const hintText = document.getElementById('roleDescriptionText');
+      const data = ROLE_DESCRIPTIONS[roleKey];
+      if (hintText && data) {
+        hintText.innerHTML = `<strong class="font-bold text-slate-900">${data.title}:</strong> ${data.desc}`;
+      }
+    }
+
+    function restoreSelectedRoleDescription() {
+      const checkedRole = document.querySelector('input[name="regRole"]:checked')?.value || 'KADER';
+      previewRoleDescription(checkedRole);
+    }
+
+    function updateSelectedRoleDescription(roleKey) {
+      previewRoleDescription(roleKey);
+    }
+
     function togglePasswordVisibility(inputId, iconId) {
       const input = document.getElementById(inputId);
       const icon = document.getElementById(iconId);
@@ -372,6 +443,17 @@
       if (window.firebaseReadyPromise) {
         await window.firebaseReadyPromise;
       }
+      if (!window.firebaseAdapter || !window.firebaseAdapter.createUser) {
+        try {
+          const fbModule = await import('./js/firebase-adapter.js');
+          if (fbModule) {
+            window.firebaseAdapter = Object.assign(window.firebaseAdapter || {}, fbModule);
+          }
+        } catch (e) {
+          console.warn('Direct load firebase-adapter fallback:', e);
+        }
+      }
+
       const name = document.getElementById('regFullName').value.trim();
       const role = document.querySelector('input[name="regRole"]:checked')?.value || 'KADER';
       const phone = document.getElementById('regPhone').value.trim();
@@ -382,13 +464,18 @@
       const confirmPass = document.getElementById('regConfirmPassword').value;
       const btn = document.getElementById('btnRegisterSubmit');
 
+      if (!pass || pass.length < 6) {
+        showAlert('Kata sandi minimal 6 karakter sesuai standar keamanan akun faskes.');
+        return;
+      }
+
       if (pass !== confirmPass) {
         showAlert('Konfirmasi kata sandi tidak cocok!');
         return;
       }
 
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mendaftarkan Akun...';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mendaftarkan Akun ke Sistem...';
       document.getElementById('alertBox').classList.add('hidden');
 
       try {
@@ -396,14 +483,14 @@
         const existingUsers = JSON.parse(localStorage.getItem('malekkas_users') || '[]');
         const duplicate = existingUsers.find(u => u.phone === phone);
         if (duplicate) {
-          const roleDisplay = duplicate.role === 'KADER' ? "Bhupa' Bhabu'" : (duplicate.role === 'GURU' ? "Ghuru" : (duplicate.role === 'RATO' ? "Rato'" : 'Nakes'));
+          const roleDisplay = duplicate.role === 'KADER' ? "Bhuppa' Babhu'" : (duplicate.role === 'GURU' ? "Ghuru" : (duplicate.role === 'RATO' ? "Rato" : 'Nakes'));
           showAlert(`Nomor ${phone} sudah terdaftar sebagai ${roleDisplay} (${duplicate.name}). Silakan masuk langsung.`);
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-user-plus mr-2"></i><span>Daftar Sekarang & Masuk</span>';
           return;
         }
 
-        // Format User Baru
+        // Format User Baru dengan Status PENDING_APPROVAL (Menunggu Persetujuan Nakes)
         const newUserId = existingUsers.length > 0 ? Math.max(...existingUsers.map(u => u.id || 0)) + 1 : 10;
         const newUser = {
           id: newUserId,
@@ -413,6 +500,7 @@
           village_id: villageId,
           village_name: villageName,
           password: pass,
+          status: 'PENDING_APPROVAL',
           created_at: new Date().toISOString()
         };
 
@@ -424,20 +512,21 @@
           localStorage.setItem('malekkas_users', JSON.stringify(existingUsers));
         }
 
-        showAlert('Pendaftaran akun mandiri berhasil! Sedang masuk...', false);
+        // Tampilkan pesan sukses pendaftaran & menunggu konfirmasi Nakes
+        const roleLabel = role === 'NAKES' ? 'Tenaga Medis (Nakes)' : (role === 'KADER' ? "Bhuppa' Babhu'" : (role === 'GURU' ? 'Ghuru' : "Rato"));
+        showAlert(`Pendaftaran akun ${roleLabel} berhasil! Akun Anda sedang menunggu konfirmasi/persetujuan dari Tenaga Medis (Nakes) Puskesmas Kokop sebelum dapat digunakan. Mengalihkan ke halaman masuk...`, false);
 
-        // Auto-login sesi user baru
-        localStorage.setItem('malekkas_token', 'token_' + Date.now());
-        localStorage.setItem('malekkas_user', JSON.stringify(newUser));
+        btn.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i><span>Menunggu Konfirmasi Nakes</span>';
 
+        // Tidak auto-login, redirect ke login.html setelah 2.5 detik
         setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1000);
+          window.location.href = 'login.html';
+        }, 2500);
 
       } catch (err) {
         showAlert('Terjadi kesalahan saat memproses pendaftaran: ' + (err.message || 'Error'));
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-user-plus mr-2"></i><span>Daftar Sekarang & Masuk</span>';
+        btn.innerHTML = '<i class="fa-solid fa-user-plus mr-2"></i><span>Daftar Sekarang</span>';
       }
     }
 

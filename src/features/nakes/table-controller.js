@@ -442,7 +442,7 @@ export function handleReportsFilterSort(resetPage = false) {
               </button>
               ${r.status === 'NEW' ? `
                 <button onclick="openSiagaFromReport('${r.id}')" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow transition">
-                  Validasi EWS
+                  Validasi Satengka
                 </button>
               ` : '<span class="text-emerald-700 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">✓ Tervalidasi</span>'}
             </div>
@@ -517,7 +517,7 @@ export function openReportDetail(reportId) {
   if (elReporterName) elReporterName.innerText = cleanRole(rep.reporter_name || 'Kader Jiwa');
 
   const elReporterRole = document.getElementById('repDetailReporterRole');
-  if (elReporterRole) elReporterRole.innerText = `Kader Jiwa (Bhupa' Bhabu') • ${rep.reporter_phone || '-'}`;
+  if (elReporterRole) elReporterRole.innerText = `Kader Jiwa (Bhuppa' Babhu') • ${rep.reporter_phone || '-'}`;
 
   const elWaBtn = document.getElementById('repDetailReporterWaBtn');
   if (elWaBtn) {
@@ -559,13 +559,22 @@ export function openReportDetail(reportId) {
   const elDesc = document.getElementById('repDetailDesc');
   if (elDesc) elDesc.innerText = rep.notes || rep.description || rep.symptoms || 'Laporan temuan kasus di lapangan oleh kader kesehatan jiwa binaan Puskesmas Kokop.';
 
-  // Tombol Validasi EWS di Footer
+  // Tombol Validasi EWS di Footer (Kewenangan Khusus Tenaga Medis Nakes Puskesmas)
+  const currentUser = window.currentUser;
+  const isSuperadmin = currentUser && (currentUser.role === 'ADMIN' || currentUser.is_superadmin);
+  const effectiveRole = (isSuperadmin && window.superadminSimulatedRole) ? window.superadminSimulatedRole : currentUser?.role;
+  const isNakesAuthority = effectiveRole === 'NAKES';
+
+  const nakesActionsContainer = document.getElementById('repDetailNakesActions');
   const btnValidate = document.getElementById('btnRepDetailValidate');
-  if (btnValidate) {
-    if (rep.status === 'NEW') {
-      btnValidate.classList.remove('hidden');
+
+  if (nakesActionsContainer) {
+    if (isNakesAuthority && rep.status === 'NEW') {
+      nakesActionsContainer.classList.remove('hidden');
+      if (btnValidate) btnValidate.classList.remove('hidden');
     } else {
-      btnValidate.classList.add('hidden');
+      nakesActionsContainer.classList.add('hidden');
+      if (btnValidate) btnValidate.classList.add('hidden');
     }
   }
 

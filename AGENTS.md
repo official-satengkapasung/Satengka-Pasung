@@ -17,6 +17,9 @@
 ## ⛔ STRICT RESTRICTIONS (ATURAN KETAT)
 4. **DILARANG PUSH OTOMATIS (NO AUTO-PUSH):**
    - Agen DILARANG MENJALANKAN `git push` tanpa izin atau instruksi eksplisit dari user.
-5. **STRICT SCOPE (HANYA UBAH YANG DISURUH):**
+5. **DILARANG MENGUBAH YANG TIDAK DIMINTA (STRICT SCOPE):**
    - Agen HANYA BOLEH mengubah kode/elemen yang secara spesifik diminta oleh user.
-   - Dilarang merapikan, memodifikasi, atau menyentuh file/fitur lain di luar instruksi.
+   - Dilarang keras merapikan, memodifikasi, mengotak-atik, atau menyentuh file/fitur lain di luar instruksi.
+6. **JANGAN TERLALU GENERATIF (ANTI-GENERATIF / NO ASSUMPTIONS):**
+   - Agen DILARANG TERLALU GENERATIF jika tidak diminta.
+   - Dilarang berinisiatif menambah/mengubah data, asumsi, atau logika sendiri tanpa instruksi eksplisit dari user.

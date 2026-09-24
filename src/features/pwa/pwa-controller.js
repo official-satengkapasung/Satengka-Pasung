@@ -87,16 +87,19 @@ export function handleMobileNavAction(type) {
   const currentUser = window.currentUser;
   if (!currentUser) return;
 
+  const isSuperadmin = currentUser.role === 'ADMIN' || currentUser.is_superadmin;
+  const currentRole = (isSuperadmin && window.superadminSimulatedRole) ? window.superadminSimulatedRole : currentUser.role;
+
   if (type === 'home') {
-    if (currentUser.role === 'KADER') {
+    if (currentRole === 'KADER') {
       if (window.switchKaderPwaSub) window.switchKaderPwaSub('dashboard');
-    } else if (currentUser.role === 'GURU') {
+    } else if (currentRole === 'GURU') {
       if (window.closeGuruDetailScreen) window.closeGuruDetailScreen();
       if (window.closeGuruRiwayatScreen) window.closeGuruRiwayatScreen();
       const frame = document.getElementById('mobileDeviceFrame');
       if (frame) frame.scrollTo({ top: 0, behavior: 'smooth' });
       else window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (currentUser.role === 'RATO') {
+    } else if (currentRole === 'RATO') {
       if (window.closeRatoDetailScreen) window.closeRatoDetailScreen();
       if (window.closeRatoRiwayatScreen) window.closeRatoRiwayatScreen();
       const frame = document.getElementById('mobileDeviceFrame');
@@ -104,9 +107,9 @@ export function handleMobileNavAction(type) {
       else window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   } else if (type === 'action') {
-    if (currentUser.role === 'KADER') {
+    if (currentRole === 'KADER') {
       if (window.switchKaderPwaSub) window.switchKaderPwaSub('form');
-    } else if (currentUser.role === 'GURU') {
+    } else if (currentRole === 'GURU') {
       if (window.closeGuruDetailScreen) window.closeGuruDetailScreen();
       if (window.closeGuruRiwayatScreen) window.closeGuruRiwayatScreen();
       const el = document.getElementById('guruRequestsContainer');
@@ -115,7 +118,7 @@ export function handleMobileNavAction(type) {
         el.classList.add('ring-2', 'ring-emerald-500', 'rounded-2xl', 'p-2', 'transition-all');
         setTimeout(() => el.classList.remove('ring-2', 'ring-emerald-500', 'p-2'), 1800);
       }
-    } else if (currentUser.role === 'RATO') {
+    } else if (currentRole === 'RATO') {
       if (window.closeRatoDetailScreen) window.closeRatoDetailScreen();
       if (window.closeRatoRiwayatScreen) window.closeRatoRiwayatScreen();
       const el = document.getElementById('ratoRequestsContainer');
@@ -126,11 +129,11 @@ export function handleMobileNavAction(type) {
       }
     }
   } else if (type === 'riwayat') {
-    if (currentUser.role === 'KADER') {
+    if (currentRole === 'KADER') {
       if (window.switchKaderPwaSub) window.switchKaderPwaSub('status');
-    } else if (currentUser.role === 'GURU') {
+    } else if (currentRole === 'GURU') {
       if (window.openGuruRiwayatScreen) window.openGuruRiwayatScreen();
-    } else if (currentUser.role === 'RATO') {
+    } else if (currentRole === 'RATO') {
       if (window.openRatoRiwayatScreen) window.openRatoRiwayatScreen();
     }
   }

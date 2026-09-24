@@ -24,122 +24,14 @@
       { id: 13, name: "Tramok", district: "Kokop", regency: "Bangkalan" }
     ],
     users: [
-      { id: 1, name: "Administrator EWS", phone: "081100000001", role: "ADMIN", village_id: 1, village_name: "Kokop" },
-      { id: 2, name: "dr. Siti Amelia", phone: "081234567890", role: "NAKES", village_id: 1, village_name: "Kokop" },
-      { id: 3, name: "Siti", phone: "081234567891", role: "KADER", village_id: 1, village_name: "Kokop" },
-      { id: 4, name: "Kiai H. Kholil", phone: "081234567892", role: "GURU", village_id: 1, village_name: "Kokop" },
-      { id: 5, name: "Klebun Kokop", phone: "081234567893", role: "RATO", village_id: 1, village_name: "Kokop" }
+      { id: 1, name: "Administrator Satengka", phone: "081100000001", role: "ADMIN", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
+      { id: 2, name: "dr. Siti Amelia", phone: "081234567890", role: "NAKES", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
+      { id: 3, name: "Siti", phone: "081234567891", role: "KADER", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
+      { id: 4, name: "Kiai H. Kholil", phone: "081234567892", role: "GURU", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
+      { id: 5, name: "Klebun Kokop", phone: "081234567893", role: "RATO", village_id: 1, village_name: "Kokop", status: "ACTIVE" }
     ],
-    cases: [
-      {
-        id: 1,
-        case_number: "CAS-20260911-001",
-        report_id: 101,
-        patient_id: 1,
-        patient_name: "Ahmad",
-        gender: "L",
-        patient_address: "Dusun Morleke, Desa Kokop",
-        village_name: "Kokop",
-        priority: "HIGH",
-        status: "SIAGA",
-        report_type: "Pasung",
-        latitude: -7.014523,
-        longitude: 113.023412,
-        notes: "Pasien dipasung di bilik belakang rumah, keluarga kewalahan menghadapi kekambuhan. Membutuhkan rembuk santun Kiai dan Nakes.",
-        reporter_name: "Siti",
-        reporter_phone: "081234567891",
-        activated_at: "2026-09-11T09:15:00.000Z",
-        participants: [
-          { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "NEED_TIME", response_note: "Sedang sowan dan tabayyun ke pihak keluarga pasien agar ikhlas melepaskan pasung." },
-          { participant_role: "RATO", name: "Klebun Kokop", phone: "081234567893", user_id: 5, response: "READY", response_note: "Aparat Linmas dan Babinsa desa siap mengawal pengamanan rute evakuasi." }
-        ]
-      },
-      {
-        id: 2,
-        case_number: "CAS-20260911-002",
-        report_id: 102,
-        patient_id: 2,
-        patient_name: "Mat Hasan",
-        gender: "L",
-        patient_address: "Dusun Mandeman, Desa Durjan",
-        village_name: "Durjan",
-        priority: "EMERGENCY",
-        status: "READY_FOR_EVACUATION",
-        report_type: "Pasung",
-        latitude: -7.028911,
-        longitude: 113.041220,
-        notes: "Rantai pasung besi diikat pada balok kayu. Kiai dan Kades telah bermusyawarah dan keluarga menyetujui rujukan ke RS Jiwa Menur.",
-        reporter_name: "Kader Rudi",
-        reporter_phone: "081234567894",
-        activated_at: "2026-09-11T08:30:00.000Z",
-        participants: [
-          { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "AGREE", response_note: "Keluarga telah diberi pencerahan agama bahwa ODGJ berhak diobati secara medis." },
-          { participant_role: "RATO", name: "Klebun Durjan", phone: "081234567893", user_id: 5, response: "READY", response_note: "Kendaraan operasional desa dan linmas siap mengawal mobil ambulans Puskesmas." }
-        ]
-      },
-      {
-        id: 3,
-        case_number: "CAS-20260910-003",
-        report_id: 103,
-        patient_id: 3,
-        patient_name: "Bu Siti",
-        gender: "P",
-        patient_address: "Dusun Barat Sawah, Desa Dupok",
-        village_name: "Dupok",
-        priority: "NORMAL",
-        status: "MONITORING",
-        report_type: "Pasung",
-        latitude: -7.009854,
-        longitude: 113.018742,
-        notes: "Pasien bebas pasung sejak 1 bulan lalu. Rutin minum obat antipsikotik dari Puskesmas Kokop, saat ini dalam pendampingan kader dan pemulihan sosial.",
-        reporter_name: "Siti",
-        reporter_phone: "081234567891",
-        activated_at: "2026-09-12T08:30:00.000Z",
-        participants: [
-          { participant_role: "GURU", name: "Kiai H. Kholil", phone: "081234567892", user_id: 4, response: "AGREE", response_note: "Keluarga telah ikhlas dan menyetujui pendekatan medis terpadu." },
-          { participant_role: "RATO", name: "Klebun Dupok", phone: "081234567893", user_id: 5, response: "READY", response_note: "Linmas Desa Durjan siap mengamankan lokasi evakuasi." }
-        ],
-        family_phone: "081987654321",
-        drug_compliance: "RUTIN",
-        drug_notes: "Kunjungan ke-2: Pasien tenang, mampu berinteraksi, obat diminum teratur didampingi suami.",
-        control_history: [
-          {
-            visit_number: 1,
-            date: "2026-09-02",
-            compliance: "RUTIN",
-            notes: "Kontrol pasca rawat RSJ/Puskesmas. Pasien menerima obat oral antipsikotik, keluarga komitmen mengawasi.",
-            recorded_by: "Ns. Farhan (Puskesmas Kokop)"
-          },
-          {
-            visit_number: 2,
-            date: "2026-09-12",
-            compliance: "RUTIN",
-            notes: "Kunjungan rumah bersama Kader Siti. Pasien tidur cukup, tidak ada agitasi, kepatuhan minum obat 100%.",
-            recorded_by: "Siti"
-          }
-        ]
-      }
-    ],
-    reports: [
-      {
-        id: 104,
-        report_number: "LAP-20260911-004",
-        reporter_id: 3,
-        reporter_name: "Kader Rudi",
-        reporter_phone: "081234567894",
-        village_id: 4,
-        village_name: "Banda Soleh",
-        patient_name_input: "Bahrul Ulum",
-        address_input: "Dusun Krajan RT 02 / RW 01, Desa Banda Soleh",
-        report_type: "Pasung",
-        description: "Warga melaporkan pemuda usia 28 tahun kembali dipasung balok kayu oleh keluarga setelah mengamuk dan membanting perabot rumah. Butuh intervensi segera.",
-        latitude: -7.034120,
-        longitude: 113.036780,
-        photo_path: null,
-        status: "NEW",
-        reported_at: "2026-09-11T10:10:00.000Z"
-      }
-    ],
+    cases: [],
+    reports: [],
     chats: {}
   };
 
@@ -249,8 +141,40 @@
       if (!user) {
         return { success: false, message: "Nomor HP tidak terdaftar." };
       }
+      if (user.status === 'PENDING_APPROVAL') {
+        return { 
+          success: false, 
+          message: "Akun Anda sedang menunggu konfirmasi/persetujuan dari Tenaga Medis (Nakes) Puskesmas Kokop. Silakan hubungi Puskesmas jika memerlukan akses segera." 
+        };
+      }
+      if (user.status === 'REJECTED') {
+        return { 
+          success: false, 
+          message: "Pendaftaran akun Anda ditolak oleh Petugas Puskesmas Kokop. Silakan hubungi faskes terkait." 
+        };
+      }
       const token = "token_" + Math.random().toString(36).substring(2) + Date.now();
       return { success: true, message: "Login berhasil.", data: { token, user } };
+    },
+
+    approveUser: async function(userId) {
+      const users = getLocalStore("users", DEFAULT_SEED.users);
+      const idx = users.findIndex(u => String(u.id) === String(userId));
+      if (idx === -1) return { success: false, message: "Pengguna tidak ditemukan." };
+      users[idx].status = 'ACTIVE';
+      users[idx].approved_at = new Date().toISOString();
+      setLocalStore("users", users);
+      return { success: true, message: `Akun ${users[idx].name} berhasil dikonfirmasi dan diaktifkan.`, data: users[idx] };
+    },
+
+    rejectUser: async function(userId) {
+      const users = getLocalStore("users", DEFAULT_SEED.users);
+      const idx = users.findIndex(u => String(u.id) === String(userId));
+      if (idx === -1) return { success: false, message: "Pengguna tidak ditemukan." };
+      users[idx].status = 'REJECTED';
+      users[idx].rejected_at = new Date().toISOString();
+      setLocalStore("users", users);
+      return { success: true, message: `Pendaftaran akun ${users[idx].name} telah ditolak.`, data: users[idx] };
     },
 
     requestPasswordReset: async function(identifier) {
@@ -526,20 +450,44 @@
     },
 
     deletePatient: async function(caseId) {
+      const strId = String(caseId);
       let cases = getLocalStore("cases", DEFAULT_SEED.cases);
-      const targetCase = cases.find(c => c.id === caseId);
-      if (!targetCase) return { success: false, message: "Pasien tidak ditemukan." };
+      const targetCase = cases.find(c => String(c.id) === strId);
+      if (!targetCase && (!cases || cases.length === 0)) {
+        return { success: true, message: "Data pasien berhasil dihapus." };
+      }
+      const pName = targetCase ? targetCase.patient_name : "Pasien";
 
-      cases = cases.filter(c => c.id !== caseId);
+      // 1. Hapus kasus dari koleksi kasus
+      cases = cases.filter(c => String(c.id) !== strId);
       setLocalStore("cases", cases);
 
+      // 2. Hapus laporan temuan terkait jika ada
       let reports = getLocalStore("reports", DEFAULT_SEED.reports);
-      if (targetCase.report_id) {
-        reports = reports.filter(r => r.id !== targetCase.report_id);
+      if (targetCase && targetCase.report_id) {
+        reports = reports.filter(r => String(r.id) !== String(targetCase.report_id));
         setLocalStore("reports", reports);
       }
 
-      return { success: true, message: `Data pasien ${targetCase.patient_name} berhasil dihapus.` };
+      // 3. Sinkronisasi Hapus Data Otentikasi (Users / Auth Account Terkait Pasien)
+      let users = getLocalStore("users", DEFAULT_SEED.users);
+      if (targetCase && users && users.length > 0) {
+        const famPhone = (targetCase.family_phone || '').replace(/\D/g, '');
+        const patPhone = (targetCase.patient_phone || '').replace(/\D/g, '');
+        const caseUserId = targetCase.user_id ? String(targetCase.user_id) : null;
+
+        users = users.filter(u => {
+          const uPhone = (u.phone || '').replace(/\D/g, '');
+          if (famPhone && uPhone && uPhone === famPhone) return false;
+          if (patPhone && uPhone && uPhone === patPhone) return false;
+          if (caseUserId && String(u.id) === caseUserId) return false;
+          if (u.patient_id && String(u.patient_id) === strId) return false;
+          return true;
+        });
+        setLocalStore("users", users);
+      }
+
+      return { success: true, message: `Data pasien ${pName} dan akun otentikasi terkait berhasil dihapus.` };
     },
 
     createReport: async function(reportInput, currentUser) {
@@ -822,8 +770,8 @@
 
     formatRoleName: function(role) {
       switch (role) {
-        case 'KADER': return "Bhupa'";
-        case 'GURU': return "Bhu' Ghuru";
+        case 'KADER': return "Bhuppa' Babhu'";
+        case 'GURU': return "Ghuru";
         case 'RATO': return "Rato";
         case 'NAKES': return "Nakes";
         case 'ADMIN': return "Admin";
@@ -869,6 +817,8 @@
   };
 
   // Assign ke window global
+  window.satengkaEngine = engine;
+  window.SatengkaEngine = engine;
   window.malekkasEngine = engine;
   window.MalekkasEngine = engine;
   window.firebaseAdapter = engine;

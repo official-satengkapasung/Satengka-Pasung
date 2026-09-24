@@ -1,6 +1,6 @@
 /**
  * SATENGKA PASUNG EWS — Realtime Therapeutic Chat Module (ES6 Module)
- * Mengelola ruang obrolan musyawarah terapeutik lintas 4-Pilar (Nakes, Ghuru, Rato, Bhupa' Bhabu').
+ * Mengelola ruang obrolan musyawarah terapeutik lintas 4-Pilar (Nakes, Ghuru, Rato, Bhuppa' Babhu').
  */
 
 let chatPollInterval = null;
@@ -80,7 +80,7 @@ export async function openTherapeuticChatModal(targetCaseId = null) {
       'NAKES': 'Nakes',
       'GURU': "Ghuru",
       'RATO': "Rato",
-      'KADER': "Bhupa' Bhabu'",
+      'KADER': "Bhuppa' Babhu'",
       'ADMIN': 'Admin'
     };
     const cleanRole = window.cleanRoleAccountName || (n => n);
@@ -137,6 +137,10 @@ export async function fetchTherapeuticChats(isManual = false) {
         cachedChatMessages = messages;
         renderTherapeuticChatMessages(cachedChatMessages);
       });
+    } else {
+      const chats = JSON.parse(localStorage.getItem('malekkas_chats') || '{}');
+      cachedChatMessages = chats[String(selectedChatCaseId)] || [];
+      renderTherapeuticChatMessages(cachedChatMessages);
     }
     if (isManual && window.showToast) {
       window.showToast('Pesan obrolan berhasil disinkronkan.');
@@ -183,7 +187,7 @@ export function renderTherapeuticChatMessages(messages) {
     } else if (msg.sender_role === 'RATO') {
       roleBadge = '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-800 inline-flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain"> RATO</span>';
     } else {
-      roleBadge = '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1"><img src="./assets/icons/role_bhupa.png" class="w-3 h-3 object-contain"> BHUPA\' BHABU\'</span>';
+      roleBadge = '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1"><img src="./assets/icons/role_bhupa.png" class="w-3 h-3 object-contain"> BHUPPA\' BABHU\'</span>';
     }
 
     const safeName = escape(cleanRole(msg.sender_name));

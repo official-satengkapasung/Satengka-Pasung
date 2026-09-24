@@ -97,9 +97,9 @@ export function getRoleVisualMeta(role) {
   const map = {
     [ROLES.NAKES]: { title: 'Nakes', badge: 'Nakes', icon: './assets/icons/role_nakes.png' },
     [ROLES.ADMIN]: { title: 'Admin', badge: 'Admin', icon: './assets/icons/role_nakes.png' },
-    [ROLES.KADER]: { title: "Bhupa' Bhabu'", badge: "Bhupa' Bhabu'", icon: './assets/icons/role_bhupa.png' },
+    [ROLES.KADER]: { title: "Bhuppa' Babhu'", badge: "Bhuppa' Babhu'", icon: './assets/icons/role_bhupa.png' },
     [ROLES.GURU]: { title: "Ghuru", badge: "Ghuru", icon: './assets/icons/role_bhu-ghuru.png' },
-    [ROLES.RATO]: { title: "Rato'", badge: "Rato'", icon: './assets/icons/role_rato.png' }
+    [ROLES.RATO]: { title: "Rato", badge: "Rato", icon: './assets/icons/role_rato.png' }
   };
   return map[role] || { title: role, badge: role, icon: './assets/icons/role_nakes.png' };
 }

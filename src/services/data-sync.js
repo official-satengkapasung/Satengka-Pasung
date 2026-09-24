@@ -25,21 +25,21 @@ export async function loadVillages() {
     console.warn('Gagal memuat desa dari server/adapter:', e);
   }
 
-  // Fallback lokal resmi Kecamatan Kokop (13 Desa)
+  // Fallback lokal resmi (13 Desa Terkunci)
   window.villagesData = [
-    { id: '1', name: 'Kokop', lat: -6.9538, lng: 113.0841 },
-    { id: '2', name: 'Bandasobah', lat: -6.9612, lng: 113.0925 },
-    { id: '3', name: 'Lembung Gunong', lat: -6.9421, lng: 113.0762 },
-    { id: '4', name: 'Tramok', lat: -6.9385, lng: 113.1021 },
-    { id: '5', name: 'Mano\'an', lat: -6.9712, lng: 113.0645 },
-    { id: '6', name: 'Batu Korokan', lat: -6.9245, lng: 113.0911 },
-    { id: '7', name: 'Amparaan', lat: -6.9634, lng: 113.1154 },
-    { id: '8', name: 'Katol Barat', lat: -6.9821, lng: 113.0812 },
-    { id: '9', name: 'Durjan', lat: -6.9478, lng: 113.1234 },
-    { id: '10', name: 'Bandang Laok', lat: -6.9312, lng: 113.0543 },
-    { id: '11', name: 'Dupok', lat: -6.9754, lng: 113.1345 },
-    { id: '12', name: 'Tlokoh', lat: -6.9891, lng: 113.0987 },
-    { id: '13', name: 'Villages Kokop', lat: -6.9500, lng: 113.0800 }
+    { id: '1', name: "Ampara'an", lat: -6.9634, lng: 113.1154 },
+    { id: '2', name: "Bandang Laok", lat: -6.9312, lng: 113.0543 },
+    { id: '3', name: "Bandasoleh", lat: -6.9612, lng: 113.0925 },
+    { id: '4', name: "Batokorogan", lat: -6.9245, lng: 113.0911 },
+    { id: '5', name: "Dupok", lat: -6.9754, lng: 113.1345 },
+    { id: '6', name: "Durjan", lat: -6.9478, lng: 113.1234 },
+    { id: '7', name: "Katol Timur", lat: -6.9821, lng: 113.0812 },
+    { id: '8', name: "Kokop", lat: -6.9538, lng: 113.0841 },
+    { id: '9', name: "Lembung Gunong", lat: -6.9421, lng: 113.0762 },
+    { id: '10', name: "Mandung", lat: -6.9500, lng: 113.0700 },
+    { id: '11', name: "Mano'an", lat: -6.9712, lng: 113.0645 },
+    { id: '12', name: "Tlokoh", lat: -6.9891, lng: 113.0987 },
+    { id: '13', name: "Tramok", lat: -6.9385, lng: 113.1021 }
   ];
 }
 
