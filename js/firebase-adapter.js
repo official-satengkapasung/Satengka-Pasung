@@ -20,7 +20,8 @@ import {
   orderBy, 
   limit, 
   where, 
-  serverTimestamp 
+  serverTimestamp,
+  deleteField
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import {
   getAuth,
@@ -183,37 +184,11 @@ export async function loginUser(identifier, password) {
                 message: "Pendaftaran akun Anda ditolak oleh Petugas Puskesmas Kokop."
               };
             }
-
-            // Jika akun adalah admin faskes khusus atau nomor admin utama
-            if (cleanId === '082333017615' || cleanId === '081100000001' || (fbUser.email && fbUser.email.toLowerCase().includes('admin'))) {
-              userRole = "ADMIN";
-              if (d.role !== "ADMIN") {
-                await updateDoc(doc(db, "users", fbUser.uid), { role: "ADMIN", is_superadmin: true });
-              }
-            }
           } else {
-            // Jika akun dibuat langsung via Firebase Auth Console (belum ada dokumen profil di Firestore)
-            const isConsoleAdmin = (cleanId === '082333017615') || 
-                                   (cleanId === '081100000001') || 
-                                   (identifier.toLowerCase().includes("admin")) || 
-                                   (fbUser.email && fbUser.email.toLowerCase().includes("admin")) ||
-                                   (!matchedLocal);
-            if (isConsoleAdmin) {
-              userRole = "ADMIN";
-              userName = fbUser.displayName || "Administrator Satengka Pasung";
-            }
-            await setDoc(doc(db, "users", fbUser.uid), {
-              id: fbUser.uid,
-              name: userName,
-              role: userRole,
-              phone: matchedLocal ? matchedLocal.phone : (cleanId || identifier),
-              email: fbUser.email,
-              village_name: userVillage,
-              village_id: userVillageId,
-              status: "ACTIVE",
-              is_superadmin: userRole === "ADMIN",
-              created_at: new Date().toISOString()
-            }, { merge: true });
+            return {
+              success: false,
+              message: "Akun Firebase ini belum punya profil petugas. Minta Nakes Puskesmas Kokop mendaftarkan Anda."
+            };
           }
         }
       } catch (err) {
@@ -283,8 +258,8 @@ export async function loginUser(identifier, password) {
           };
         }
 
-        const expectedPass = candidateUser.password || "satengka123";
-        if (password === expectedPass) {
+        const expectedPass = candidateUser.password;
+        if (expectedPass && password === expectedPass) {
           const token = "token_" + Math.random().toString(36).substring(2) + Date.now();
           // Update / sinkronkan ke local users
           const userIdx = users.findIndex(u => String(u.id) === String(candidateUser.id) || u.phone === candidateUser.phone);
@@ -344,8 +319,8 @@ export async function loginUser(identifier, password) {
     return { success: false, message: "Nomor WhatsApp atau Email belum terdaftar di sistem faskes." };
   }
 
-  const expectedPass = matchedLocal.password || "satengka123";
-  if (password !== expectedPass) {
+  const expectedPass = matchedLocal.password;
+  if (!expectedPass || password !== expectedPass) {
     return { success: false, message: "Kata sandi salah. Silakan periksa kembali." };
   }
 
@@ -388,7 +363,7 @@ export async function requestPasswordReset(identifier) {
       ? "Tautan reset kata sandi resmi telah dikirim ke email Anda via Firebase Auth." 
       : "Verifikasi identitas berhasil.",
     data: {
-      user: user || { name: identifier, role: "NAKES", phone: identifier },
+      user: user || { name: identifier, role: "KADER", phone: identifier },
       ticketId,
       firebaseEmailSent,
       adminPhone: "081100000001",
@@ -411,7 +386,12 @@ export async function createUser(userData) {
   const emailToAuth = (userData.email && userData.email.includes('@')) 
     ? userData.email 
     : `${cleanPhone || 'user_' + Date.now()}@satengka-pasung.id`;
-  const password = userData.password || 'satengka123';
+  if (!userData.password || String(userData.password).length < 6) {
+    throw new Error("Kata sandi wajib diisi, minimal 6 karakter.");
+  }
+  const publicRoles = ["KADER", "GURU", "RATO"];
+  const role = publicRoles.includes(userData.role) ? userData.role : "KADER";
+  const password = userData.password;
 
   let firebaseUid = null;
 
@@ -451,11 +431,10 @@ export async function createUser(userData) {
     name: userData.name,
     phone: userData.phone,
     email: emailToAuth,
-    role: userData.role || "KADER",
+    role: role,
     village_id: userData.village_id || 1,
     village_name: userData.village_name || "Kokop",
-    status: userData.status || "ACTIVE",
-    password: password,
+    status: "PENDING_APPROVAL",
     created_at: new Date().toISOString()
   };
 
@@ -594,7 +573,7 @@ export async function deleteUser(userId) {
         ? targetUser.email 
         : `${cleanPhone || 'user'}@satengka-pasung.id`;
       
-      const passwordsToTry = [targetUser.password, 'satengka123'].filter(Boolean);
+      const passwordsToTry = [targetUser.password].filter(Boolean);
       for (const pass of passwordsToTry) {
         try {
           const authRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseConfig.apiKey}`, {
@@ -639,76 +618,44 @@ export async function deleteUser(userId) {
   return { success: true, message: `Akun mitra ${targetUser.name} berhasil dihapus dari sistem dan Firebase Auth.` };
 }
 
-export async function resetUserPasswordByAdmin(userId, newPassword = "satengka123") {
+export async function resetUserPasswordByAdmin(userId, newPassword) {
+  if (!newPassword || String(newPassword).length < 6) {
+    return { success: false, message: "Kata sandi baru minimal 6 karakter." };
+  }
   const users = getLocalStore("users", DEFAULT_SEED.users);
   const user = users.find(u => String(u.id) === String(userId) || (u.uid && String(u.uid) === String(userId)));
   if (!user) {
     return { success: false, message: "Data pengguna tidak ditemukan." };
   }
 
-  user.password = newPassword;
   user.password_reset_at = new Date().toISOString();
+  delete user.password;
 
-  // Simpan catatan audit reset ke Firestore jika aktif
   if (isFirebaseActive && db) {
     try {
       const docId = user.uid || String(user.id);
       await updateDoc(doc(db, "users", docId), {
-        password: newPassword,
+        password: deleteField(),
         password_reset_at: serverTimestamp()
       });
     } catch (e) {
-      console.warn("Gagal update password reset di Firestore:", e);
+      console.warn("Gagal menghapus field password di Firestore:", e);
     }
   }
 
   setLocalStore("users", users);
   window.dispatchEvent(new Event("storage"));
   return {
-    success: true,
-    message: `Kata sandi untuk ${user.name} berhasil diatur ulang menjadi "${newPassword}". Tokoh/Kader dapat langsung login dengan kata sandi tersebut.`,
-    data: { user, newPassword }
+    success: false,
+    message: "Sandi tidak lagi disimpan di basis data. Atur ulang lewat Firebase Authentication Console untuk akun " + user.name + ".",
+    data: { user }
   };
 }
 
-export async function selfResetPassword(identifier, newPassword) {
-  if (!newPassword || newPassword.length < 6) {
-    return { success: false, message: "Kata sandi baru minimal 6 karakter." };
-  }
-
-  const users = getLocalStore("users", DEFAULT_SEED.users);
-  const cleanId = (identifier || '').replace(/\D/g, '');
-  const user = users.find(u => {
-    const uPhone = (u.phone || '').replace(/\D/g, '');
-    const uEmail = (u.email || '').toLowerCase();
-    return (cleanId && uPhone === cleanId) || (uEmail && uEmail === (identifier || '').toLowerCase());
-  });
-
-  if (!user) {
-    return { success: false, message: "Pengguna dengan kontak tersebut tidak ditemukan." };
-  }
-
-  user.password = newPassword;
-  user.password_reset_at = new Date().toISOString();
-
-  if (isFirebaseActive && db) {
-    try {
-      const docId = user.uid || String(user.id);
-      await updateDoc(doc(db, "users", docId), {
-        password: newPassword,
-        password_reset_at: serverTimestamp()
-      });
-    } catch (e) {
-      console.warn("Gagal update password reset mandiri di Firestore:", e);
-    }
-  }
-
-  setLocalStore("users", users);
-  window.dispatchEvent(new Event("storage"));
+export async function selfResetPassword() {
   return {
-    success: true,
-    message: `Kata sandi untuk akun ${user.name} berhasil diperbarui. Silakan login dengan kata sandi baru Anda.`,
-    data: { user }
+    success: false,
+    message: "Ganti sandi mandiri lewat basis data dimatikan. Gunakan tautan reset email, atau minta Nakes."
   };
 }
 

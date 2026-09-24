@@ -27,7 +27,7 @@ export const firebaseConfig = {
   apiKey: "${process.env.FIREBASE_API_KEY}",
   authDomain: "${process.env.FIREBASE_AUTH_DOMAIN || 'satengkapasung.firebaseapp.com'}",
   projectId: "${process.env.FIREBASE_PROJECT_ID || 'satengkapasung'}",
-  storageBucket: "${process.env.FIREBASE_STORAGE_BUCKET || ''}",
+  storageBucket: "${process.env.FIREBASE_STORAGE_BUCKET || 'satengkapasung.appspot.com'}",
   messagingSenderId: "${process.env.FIREBASE_MESSAGING_SENDER_ID || '701459980489'}",
   appId: "${process.env.FIREBASE_APP_ID || '1:701459980489:web:c8921023f3b39ca5e12d18'}"
 };

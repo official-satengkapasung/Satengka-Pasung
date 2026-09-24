@@ -153,24 +153,6 @@
         return (cleanPhone && uPhone === cleanPhone) || (uEmail && uEmail === (phone || '').toLowerCase());
       });
       if (!user) {
-        // Fallback akun Administrator baru jika belum tercatat di localstore
-        if (cleanPhone === '082333017615' || (phone && phone.toLowerCase().includes('admin'))) {
-          const adminUser = {
-            id: 'admin_' + Date.now(),
-            name: "Administrator Puskesmas Kokop",
-            phone: cleanPhone || phone,
-            email: phone.includes('@') ? phone : `${cleanPhone}@satengka-pasung.id`,
-            role: "ADMIN",
-            is_superadmin: true,
-            status: "ACTIVE",
-            village_name: "Kokop",
-            village_id: 1
-          };
-          users.push(adminUser);
-          setLocalStore("users", users);
-          const token = "token_" + Math.random().toString(36).substring(2) + Date.now();
-          return { success: true, message: "Login Administrator berhasil.", data: { token, user: adminUser } };
-        }
         return { success: false, message: "Nomor WhatsApp atau Email belum terdaftar di sistem faskes." };
       }
       if (user.status === 'PENDING_APPROVAL' && user.role !== 'ADMIN') {
@@ -272,30 +254,12 @@
       return { success: true, message: `Akun mitra ${user.name} berhasil dihapus.` };
     },
 
-    resetUserPasswordByAdmin: async function(userId, newPassword = "satengka123") {
-      const users = getLocalStore("users", DEFAULT_SEED.users);
-      const user = users.find(u => String(u.id) === String(userId));
-      if (!user) return { success: false, message: "Pengguna tidak ditemukan." };
-      user.password = newPassword;
-      setLocalStore("users", users);
-      return { success: true, message: `Kata sandi ${user.name} direset ke "${newPassword}".` };
+    resetUserPasswordByAdmin: async function() {
+      return { success: false, message: "Reset sandi lewat penyimpanan lokal dimatikan. Gunakan Firebase Authentication." };
     },
 
-    selfResetPassword: async function(identifier, newPassword) {
-      if (!newPassword || newPassword.length < 6) {
-        return { success: false, message: "Kata sandi baru minimal 6 karakter." };
-      }
-      const users = getLocalStore("users", DEFAULT_SEED.users);
-      const cleanId = (identifier || '').replace(/\D/g, '');
-      const user = users.find(u => {
-        const uPhone = (u.phone || '').replace(/\D/g, '');
-        const uEmail = (u.email || '').toLowerCase();
-        return (cleanId && uPhone === cleanId) || (uEmail && uEmail === (identifier || '').toLowerCase());
-      });
-      if (!user) return { success: false, message: "Pengguna dengan kontak tersebut tidak ditemukan." };
-      user.password = newPassword;
-      setLocalStore("users", users);
-      return { success: true, message: `Kata sandi untuk akun ${user.name} berhasil diperbarui.` };
+    selfResetPassword: async function() {
+      return { success: false, message: "Ganti sandi mandiri lewat penyimpanan lokal dimatikan." };
     },
 
     getCases: async function(userId = null, role = null, villageId = null, villageName = null) {

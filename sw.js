@@ -1,8 +1,7 @@
 // Service Worker for SATENGKA PASUNG PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v21';
+const CACHE_NAME = 'satengka-pasung-pwa-v22';
 const ASSETS_TO_CACHE = [
   './',
-  './index.html',
   './login.html',
   './register.html',
   './manifest.json',
@@ -86,7 +85,7 @@ self.addEventListener('fetch', (event) => {
             return cachedResponse;
           }
           if (event.request.mode === 'navigate') {
-            return caches.match('./index.html');
+            return caches.match('./login.html');
           }
         });
       })

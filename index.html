@@ -271,20 +271,8 @@
         </nav>
       </div>
 
-      <!-- Footer Sidebar: Reset & Logout -->
+      <!-- Footer Sidebar: Logout -->
       <div class="p-4 border-t border-white/10 space-y-1">
-        <button
-          onclick="if(confirm('Muat data simulasi operasional produksi Puskesmas Kokop?')){window.firebaseAdapter.loadProductionDemoData();location.reload();}"
-          class="w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 font-medium text-xs transition">
-          <i class="fa-solid fa-cloud-arrow-down w-5 text-center text-teal-200"></i>
-          <span class="drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">Muat Data Demo Produksi</span>
-        </button>
-        <button
-          onclick="if(confirm('Kosongkan semua data kasus, laporan, dan riwayat chat menjadi 0?')){window.firebaseAdapter.resetDatabase();location.reload();}"
-          class="w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 font-medium text-xs transition">
-          <i class="fa-solid fa-rotate-left w-5 text-center text-teal-200"></i>
-          <span class="drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">Reset ke 0 Data</span>
-        </button>
         <button onclick="handleLogout()"
           class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-rose-300 hover:text-white hover:bg-rose-900/30 font-semibold text-sm transition">
           <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i>

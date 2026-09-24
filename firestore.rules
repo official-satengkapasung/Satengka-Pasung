@@ -1,27 +1,81 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAuthenticated() {
+    function signedIn() {
       return request.auth != null;
     }
-    function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
+    function userRole() {
+      return userDoc().role;
+    }
+    function isActive() {
+      return signedIn() && userDoc().status == 'ACTIVE';
+    }
+    function isStaff() {
+      return isActive() && userRole() in ['NAKES', 'ADMIN'];
+    }
+    function isAdmin() {
+      return isActive() && userRole() == 'ADMIN';
+    }
+    function publicRoles() {
+      return ['KADER', 'GURU', 'RATO'];
+    }
+    function noSecretFields() {
+      return !request.resource.data.keys().hasAny(['password', 'password_reset_at']);
+    }
+
     match /users/{userId} {
-      allow read, write: if true;
+      allow read: if isStaff() || (signedIn() && request.auth.uid == userId);
+
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && noSecretFields()
+        && request.resource.data.role in publicRoles()
+        && request.resource.data.status == 'PENDING_APPROVAL';
+
+      allow update: if noSecretFields() && (
+        (signedIn() && request.auth.uid == userId
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.status == resource.data.status)
+        || (isStaff()
+          && request.resource.data.role in publicRoles().concat(['NAKES', 'ADMIN']))
+      );
+
+      allow delete: if isAdmin();
     }
+
     match /villages/{villageId} {
-      allow read: if true;
-      allow write: if isAuthenticated() && getUserRole() in ['NAKES', 'ADMIN'];
+      allow read: if signedIn();
+      allow write: if isStaff();
     }
+
     match /reports/{reportId} {
-      allow read, write: if true;
+      allow read: if isActive();
+      allow create: if isActive() && noSecretFields()
+        && request.resource.data.reporter_id == request.auth.uid;
+      allow update, delete: if isStaff();
     }
+
     match /cases/{caseId} {
-      allow read, write: if true;
+      allow read: if isActive();
+      allow create, update: if isStaff() && noSecretFields();
+      allow delete: if isAdmin();
+
       match /messages/{messageId} {
-        allow read, write: if true;
+        allow read: if isActive();
+        allow create: if isActive() && noSecretFields();
+        allow update, delete: if isStaff();
       }
+    }
+
+    match /chats/{chatId} {
+      allow read: if isActive();
+      allow create: if isActive()
+        && noSecretFields()
+        && request.resource.data.sender_id == request.auth.uid;
+      allow update, delete: if isStaff();
     }
   }
 }
