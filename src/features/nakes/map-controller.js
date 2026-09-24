@@ -41,11 +41,11 @@ export function updateMapFilterCounters() {
 
   const currentCases = (typeof window !== 'undefined' && window.currentCases) || [];
 
-  const cAll = document.getElementById('mapCountAll');
-  const cEvac = document.getElementById('mapCountEvac');
-  const cCoord = document.getElementById('mapCountCoord');
-  const cReady = document.getElementById('mapCountReady');
-  const cMon = document.getElementById('mapCountMon');
+  const cAll = document.getElementById('mapCount_ALL');
+  const cEvac = document.getElementById('mapCount_EVAC_NEEDED');
+  const cCoord = document.getElementById('mapCount_COORDINATION');
+  const cReady = document.getElementById('mapCount_READY_EVAC');
+  const cMon = document.getElementById('mapCount_MONITORING');
 
   const evacCount = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED').length;
   const coordCount = currentCases.filter(c => c.status === 'COORDINATION').length;

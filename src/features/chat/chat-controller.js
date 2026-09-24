@@ -79,7 +79,7 @@ export async function openTherapeuticChatModal(targetCaseId = null) {
     const roleLabels = {
       'NAKES': 'Nakes',
       'GURU': "Ghuru",
-      'RATO': "Rato'",
+      'RATO': "Rato",
       'KADER': "Bhupa' Bhabu'",
       'ADMIN': 'Admin'
     };
@@ -181,7 +181,7 @@ export function renderTherapeuticChatMessages(messages) {
     } else if (msg.sender_role === 'GURU') {
       roleBadge = '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-teal-100 text-[#145861] inline-flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain"> GHURU</span>';
     } else if (msg.sender_role === 'RATO') {
-      roleBadge = '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-800 inline-flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain"> RATO\'</span>';
+      roleBadge = '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-800 inline-flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain"> RATO</span>';
     } else {
       roleBadge = '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1"><img src="./assets/icons/role_bhupa.png" class="w-3 h-3 object-contain"> BHUPA\' BHABU\'</span>';
     }

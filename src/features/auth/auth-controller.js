@@ -44,11 +44,19 @@ export async function checkSession() {
 
 export function handleLogout() {
   if (typeof window === 'undefined') return;
-  if (confirm('Keluar dari aplikasi SATENGKA PASUNG?')) {
+
+  try {
     localStorage.removeItem('malekkas_user');
     localStorage.removeItem('malekkas_token');
-    window.location.href = 'login.html';
+    localStorage.removeItem('malekkas_role');
+    sessionStorage.clear();
+    window.currentUser = null;
+  } catch (err) {
+    console.warn('[Auth] Gagal membersihkan local storage:', err);
   }
+
+  // Gunakan replace agar riwayat navigasi bersih dan tidak terjebak cache back-forward
+  window.location.replace('login.html');
 }
 
 export function toggleNakesMobileSidebar(show) {

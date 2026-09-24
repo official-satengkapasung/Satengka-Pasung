@@ -466,6 +466,126 @@ export function renderAllReportsTable() {
   handleReportsFilterSort(false);
 }
 
+/**
+ * Membuka Modal Detail Laporan Masuk Kader
+ * @param {string|number} reportId
+ */
+export function openReportDetail(reportId) {
+  if (typeof document === 'undefined') return;
+  const reports = window.currentReports || [];
+  const rep = reports.find(r => String(r.id) === String(reportId)) ||
+              (window.firebaseAdapter?.getAllReports?.() || []).find(r => String(r.id) === String(reportId));
+
+  if (!rep) {
+    console.warn('[ReportDetail] Laporan tidak ditemukan:', reportId);
+    return;
+  }
+
+  window.activeDetailReportId = rep.id;
+  const cleanRole = window.cleanRoleAccountName || (n => n);
+
+  // Set Nama Pasien & Status
+  const elPatient = document.getElementById('repDetailPatientName');
+  if (elPatient) elPatient.innerText = rep.patient_name_input || rep.patient_name || 'Pasien Anonim';
+
+  const elBadge = document.getElementById('repDetailBadgeStatus');
+  if (elBadge) {
+    const isNew = rep.status === 'NEW';
+    elBadge.innerText = isNew ? 'Laporan Baru' : 'Tervalidasi';
+    elBadge.className = isNew
+      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200'
+      : 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+  }
+
+  const elRepNo = document.getElementById('repDetailReportNumber');
+  if (elRepNo) elRepNo.innerText = rep.report_number || `LAP-${rep.id}`;
+
+  // Foto Bukti
+  const photoContainer = document.getElementById('repDetailPhotoContainer');
+  const photoImg = document.getElementById('repDetailPhotoImg');
+  if (photoContainer && photoImg) {
+    if (rep.photo_path || rep.photo_url) {
+      photoImg.src = rep.photo_path || rep.photo_url;
+      photoContainer.classList.remove('hidden');
+    } else {
+      photoContainer.classList.add('hidden');
+    }
+  }
+
+  // Info Pelapor (Kader)
+  const elReporterName = document.getElementById('repDetailReporterName');
+  if (elReporterName) elReporterName.innerText = cleanRole(rep.reporter_name || 'Kader Jiwa');
+
+  const elReporterRole = document.getElementById('repDetailReporterRole');
+  if (elReporterRole) elReporterRole.innerText = `Kader Jiwa (Bhupa' Bhabu') • ${rep.reporter_phone || '-'}`;
+
+  const elWaBtn = document.getElementById('repDetailReporterWaBtn');
+  if (elWaBtn) {
+    if (rep.reporter_phone) {
+      const cleanPhone = String(rep.reporter_phone).replace(/\D/g, '').replace(/^0/, '62');
+      elWaBtn.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Halo ${cleanRole(rep.reporter_name || 'Kader')}, terkait laporan ${rep.report_number || ''} untuk warga ${rep.patient_name_input || ''}...`)}`;
+      elWaBtn.classList.remove('hidden');
+    } else {
+      elWaBtn.classList.add('hidden');
+    }
+  }
+
+  // Wilayah & Alamat
+  const elVillage = document.getElementById('repDetailVillageName');
+  if (elVillage) elVillage.innerText = rep.village_name || rep.village || 'Wilayah Kerja Kokop';
+
+  const elAddress = document.getElementById('repDetailAddress');
+  if (elAddress) elAddress.innerText = rep.address_input || rep.address || 'Kecamatan Kokop';
+
+  const elGpsBtn = document.getElementById('repDetailGpsBtn');
+  if (elGpsBtn) {
+    if (rep.latitude && rep.longitude) {
+      elGpsBtn.href = `https://maps.google.com/?q=${rep.latitude},${rep.longitude}`;
+      elGpsBtn.classList.remove('hidden');
+    } else {
+      elGpsBtn.classList.add('hidden');
+    }
+  }
+
+  // Jenis & Tanggal & Keterangan
+  const elType = document.getElementById('repDetailType');
+  if (elType) elType.innerText = rep.report_type || 'Kasus Pasung';
+
+  const elDate = document.getElementById('repDetailDate');
+  if (elDate) {
+    elDate.innerText = rep.reported_at || rep.created_at || 'Hari ini';
+  }
+
+  const elDesc = document.getElementById('repDetailDesc');
+  if (elDesc) elDesc.innerText = rep.notes || rep.description || rep.symptoms || 'Laporan temuan kasus di lapangan oleh kader kesehatan jiwa binaan Puskesmas Kokop.';
+
+  // Tombol Validasi EWS di Footer
+  const btnValidate = document.getElementById('btnRepDetailValidate');
+  if (btnValidate) {
+    if (rep.status === 'NEW') {
+      btnValidate.classList.remove('hidden');
+    } else {
+      btnValidate.classList.add('hidden');
+    }
+  }
+
+  // Tampilkan Modal
+  const modal = document.getElementById('modalReportDetail');
+  if (modal) modal.classList.remove('hidden');
+}
+
+/**
+ * Menutup Modal Detail Laporan Masuk
+ */
+export function closeReportDetail() {
+  if (typeof document === 'undefined') return;
+  const modal = document.getElementById('modalReportDetail');
+  if (modal) modal.classList.add('hidden');
+  if (typeof window !== 'undefined') {
+    window.activeDetailReportId = null;
+  }
+}
+
 // 🛡️ Global Scope Preservation (Window Bridge)
 if (typeof window !== 'undefined') {
   window.paginationState = paginationState;
@@ -482,4 +602,6 @@ if (typeof window !== 'undefined') {
   window.changeReportsPerPage = changeReportsPerPage;
   window.handleReportsFilterSort = handleReportsFilterSort;
   window.renderAllReportsTable = renderAllReportsTable;
+  window.openReportDetail = openReportDetail;
+  window.closeReportDetail = closeReportDetail;
 }
