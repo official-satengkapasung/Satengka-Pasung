@@ -79,9 +79,9 @@ try {
       window.firebaseDb = db;
       window.firebaseStorage = storage;
     }
-    console.log("🔥 [SATENGKA PASUNG] Terhubung ke Cloud Firestore & Firebase Auth (100% Free Tier Spark Plan)!");
+    console.log("🔥 [SATENGKA PASUNG] Terhubung ke Cloud Firestore & Firebase Auth (Production Mode)!");
   } else {
-    console.log("⚡ [SATENGKA PASUNG] Menggunakan Local Client Storage Engine (Tanpa PHP/MySQL!).");
+    console.log("⚡ [SATENGKA PASUNG] Menggunakan Client Storage Engine.");
   }
 } catch (e) {
   console.warn("⚠️ Firebase fallback ke Local Storage Engine:", e);
@@ -1592,26 +1592,10 @@ export async function uploadUserProfilePhoto(userId, fileOrBlob) {
 
   const localDataUrl = await fileToDataUrl(fileOrBlob);
 
-  if (isFirebaseActive && storage) {
-    try {
-      const storageRef = ref(storage, `profile_photos/${userId}/avatar_${Date.now()}.webp`);
-      const snapshot = await uploadBytes(storageRef, fileOrBlob, {
-        contentType: fileOrBlob.type || "image/webp"
-      });
-      const downloadURL = await getDownloadURL(snapshot.ref);
-
-      await updateUserProfile(userId, { photoURL: downloadURL });
-      return { success: true, photoURL: downloadURL, storage: "firebase" };
-    } catch (error) {
-      console.warn("⚠️ Firebase Storage CORS/Network issue. Menggunakan Cloud Firestore & Local Sync fallback:", error);
-      // Fallback: simpan foto ke dokumen user di Firestore dan Local Storage
-      await updateUserProfile(userId, { photoURL: localDataUrl });
-      return { success: true, photoURL: localDataUrl, storage: "local" };
-    }
-  }
-
+  // Simpan foto profil beresolusi WebP terkompresi langsung ke Cloud Firestore & Local Store (Bebas CORS & 100% Zero-Cost)
   await updateUserProfile(userId, { photoURL: localDataUrl });
-  return { success: true, photoURL: localDataUrl, storage: "local" };
+  console.log("📷 [PROFIL] Foto profil berhasil disinkronkan ke Cloud Firestore:", userId);
+  return { success: true, photoURL: localDataUrl, storage: "firestore" };
 }
 
 export async function updateUserProfile(userId, updateData) {

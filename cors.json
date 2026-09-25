@@ -6,7 +6,10 @@
       "http://localhost:3000",
       "http://localhost:5000",
       "https://satengkapasung.firebaseapp.com",
-      "https://satengkapasung.web.app"
+      "https://satengkapasung.web.app",
+      "https://satengka-pasung.pages.dev",
+      "https://*.pages.dev",
+      "https://satengkapasung.my.id"
     ],
     "method": ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"],
     "maxAgeSeconds": 3600,
