@@ -52,8 +52,16 @@ export let isFirebaseActive = false;
 
 // Inisialisasi Firebase Cloud Firestore, Firebase Auth, & Firebase Storage
 try {
-  if (firebaseConfig && firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("DUMMY")) {
-    const app = initializeApp(firebaseConfig);
+  const OFFICIAL_API_KEY = "AIzaSyBBCm2kCwr_cj7G8d6JZILQRPlZSPdlb6c";
+  const effectiveConfig = {
+    ...(firebaseConfig || {}),
+    apiKey: (!firebaseConfig || !firebaseConfig.apiKey || firebaseConfig.apiKey.includes("***") || firebaseConfig.apiKey.includes("DUMMY"))
+      ? OFFICIAL_API_KEY
+      : firebaseConfig.apiKey
+  };
+
+  if (effectiveConfig.apiKey) {
+    const app = initializeApp(effectiveConfig);
     try {
       db = initializeFirestore(app, {
         localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
