@@ -111,18 +111,22 @@ export function initOrUpdateLeafletMap() {
     if (activeMapCategoryFilter === 'ALL' || activeMapCategoryFilter === 'FASKES') {
       const puskesmasIcon = L.divIcon({
         className: 'custom-pin-pusk',
-        html: `<div class="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-sm shadow-lg border-2 border-white font-bold"><i class="fa-solid fa-hospital"></i></div>`,
+        html: `<div role="img" aria-label="Posko Induk Puskesmas Kokop" class="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-sm shadow-lg border-2 border-white font-bold"><i class="fa-solid fa-hospital"></i></div>`,
         iconSize: [32, 32],
         iconAnchor: [16, 16]
       });
-      L.marker(kokopCenter, { icon: puskesmasIcon })
+      L.marker(kokopCenter, { 
+        icon: puskesmasIcon, 
+        title: 'Posko Induk Puskesmas Kokop',
+        alt: 'Marker Posko Induk Puskesmas Kokop'
+      })
         .bindPopup(`
           <div class="space-y-1.5 p-0.5">
             <strong>Puskesmas Kokop</strong><br>
             <span class="text-slate-500 text-[10px]">Jl. Raya Kokop, Desa Dupok</span><br>
             <span class="text-emerald-700 font-bold text-[10px]">Posko Induk Satengka Pasung</span>
             <div class="pt-1">
-              <button type="button" onclick="openExternalMapsModal(${kokopCenter[0]}, ${kokopCenter[1]}, 'Puskesmas Kokop Bangkalan', 'Posko Induk Satengka Pasung')" class="w-full px-2 py-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded text-[10px] flex items-center justify-center space-x-1 shadow-sm">
+              <button type="button" aria-label="Buka navigasi Google Maps Puskesmas Kokop" onclick="openExternalMapsModal(${kokopCenter[0]}, ${kokopCenter[1]}, 'Puskesmas Kokop Bangkalan', 'Posko Induk Satengka Pasung')" class="w-full px-2 py-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded text-[10px] flex items-center justify-center space-x-1 shadow-sm">
                 <i class="fa-solid fa-diamond-turn-right text-[9px]"></i>
                 <span>Buka di Aplikasi Maps</span>
               </button>
@@ -165,7 +169,7 @@ export function initOrUpdateLeafletMap() {
 
         const caseIcon = L.divIcon({
           className: 'custom-pin-case',
-          html: `<div class="w-6 h-6 rounded-full ${pinColor} text-white flex items-center justify-center text-xs shadow-md border border-white font-bold"><i class="fa-solid fa-location-dot"></i></div>`,
+          html: `<div role="img" aria-label="Lokasi ${c.patient_name || 'Kasus'} - ${statusLabel}" class="w-6 h-6 rounded-full ${pinColor} text-white flex items-center justify-center text-xs shadow-md border border-white font-bold"><i class="fa-solid fa-location-dot"></i></div>`,
           iconSize: [24, 24],
           iconAnchor: [12, 24]
         });
@@ -173,7 +177,11 @@ export function initOrUpdateLeafletMap() {
         const safeName = (c.patient_name || '').replace(/'/g, "\\'");
         const safeVillage = (c.village_name || 'Desa Kokop').replace(/'/g, "\\'");
 
-        L.marker([lat, lng], { icon: caseIcon })
+        L.marker([lat, lng], { 
+          icon: caseIcon, 
+          title: `Lokasi Kasus: ${c.patient_name || 'Warga'} (${statusLabel})`,
+          alt: `Pin Kasus ${c.patient_name || 'Warga'}`
+        })
           .bindPopup(`
             <div class="space-y-1.5 p-0.5">
               <p class="font-bold text-slate-800 text-xs">${c.patient_name} (${c.village_name || 'Desa Kokop'})</p>

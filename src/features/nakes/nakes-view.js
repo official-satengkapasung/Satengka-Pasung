@@ -261,9 +261,9 @@ import {
                       <img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Bhuppa' Babhu'"> Bhuppa' Babhu'
                     </span>
                     <span class="font-bold text-slate-800 truncate block">${reporterName}</span>
-                    <span class="text-[10px] text-slate-400 font-mono">${reporterPhone}</span>
+                    <span class="text-[10px] text-slate-600 font-mono font-semibold">${reporterPhone}</span>
                   </div>
-                  <a href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + reporterName + ', koordinasi faskes Puskesmas Kokop terkait laporan pasien ' + c.patient_name)}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Bhuppa' Babhu'">
+                  <a aria-label="Hubungi WhatsApp Bhuppa Babhu" href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + reporterName + ', koordinasi faskes Puskesmas Kokop terkait laporan pasien ' + c.patient_name)}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Bhuppa' Babhu'">
                     <i class="fa-brands fa-whatsapp"></i>
                   </a>
                 </div>

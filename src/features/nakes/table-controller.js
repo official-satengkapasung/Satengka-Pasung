@@ -288,12 +288,12 @@ export function handlePatientsFilterSort(resetPage = false) {
         <tr class="hover:bg-slate-50 transition">
           <td class="p-3.5 font-bold text-slate-900">
             ${c.patient_name}
-            <span class="block text-[10px] text-slate-400 font-mono">${c.case_number || ''}</span>
+            <span class="block text-[10px] text-slate-600 font-mono font-semibold">${c.case_number || ''}</span>
           </td>
           <td class="p-3.5">${c.gender === 'P' ? 'Perempuan' : 'Laki-laki'}</td>
           <td class="p-3.5 text-slate-600">
             <span class="font-medium">${c.village_name || 'Desa Kokop'}</span>
-            <span class="block text-[10px] text-slate-400 truncate max-w-[180px]">${c.patient_address || '-'}</span>
+            <span class="block text-[10px] text-slate-500 truncate max-w-[180px]">${c.patient_address || '-'}</span>
           </td>
           <td class="p-3.5 font-semibold text-slate-700">
             <div>${c.family_name || "Keluarga Bhuppa' Bhu'"}</div>

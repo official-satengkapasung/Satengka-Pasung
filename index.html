@@ -484,12 +484,12 @@
             <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-5 shadow-sm space-y-4">
               <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 class="font-bold text-slate-900 text-sm md:text-base">Kasus Membutuhkan Aksi</h3>
-                <a href="#" onclick="switchNakesTab('kasus'); return false;"
+                <a href="#" aria-label="Lihat seluruh daftar kasus" onclick="switchNakesTab('kasus'); return false;"
                   class="text-xs text-emerald-700 font-bold hover:underline">Lihat Semua</a>
               </div>
 
               <!-- List Kasus Aksi Cepat -->
-              <div id="nakesAksiList" class="space-y-3">
+              <div id="nakesAksiList" class="space-y-3 min-h-[300px]">
                 <!-- Diisi otomatis oleh JS -->
               </div>
             </div>
@@ -498,7 +498,7 @@
             <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm space-y-4 flex flex-col">
               <div class="flex items-center justify-between">
                 <h3 class="font-bold text-slate-900 text-sm md:text-base">Peta Sebaran Kasus</h3>
-                <button type="button"
+                <button type="button" aria-label="Buka lokasi Posko Siaga di Aplikasi Maps"
                   onclick="openExternalMapsModal(-7.014523, 113.023412, 'Puskesmas Kokop Bangkalan', 'Posko Induk Siaga EWS')"
                   class="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 hover:border-emerald-300 rounded-lg text-xs font-semibold transition shadow-sm">
                   <i class="fa-solid fa-map-location-dot text-emerald-600"></i>
@@ -546,7 +546,7 @@
 
               <!-- Leaflet Interactive Map Container (Puskesmas Kokop & 13 Desa) -->
               <div id="nakesLeafletMap"
-                class="w-full rounded-2xl min-h-[250px] border border-slate-200 z-10 shadow-inner"></div>
+                class="w-full rounded-2xl h-[300px] min-h-[300px] border border-slate-200 z-10 shadow-inner"></div>
 
               <!-- Legenda Peta Dinamis -->
               <div class="pt-2 text-xs text-slate-600 space-y-1">
