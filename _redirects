@@ -1,7 +1,7 @@
 # ==============================================================================
-# SATENGKA PASUNG EWS — Cloudflare Pages Redirects & Clean URLs
+# SATENGKA PASUNG EWS — Cloudflare Pages Redirects
+# Catatan: Cloudflare Pages secara otomatis menangani /login -> login.html
+# tanpa memerlukan rewrite eksplisit agar terhindar dari ERR_TOO_MANY_REDIRECTS.
 # ==============================================================================
 
-/login       /login.html       200
-/register    /register.html    200
 /test.html   /index.html       404
