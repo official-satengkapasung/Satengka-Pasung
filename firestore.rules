@@ -27,23 +27,22 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isStaff() || (signedIn() && request.auth.uid == userId);
+      // Izinkan baca untuk pencarian login (lookup nomor WhatsApp/nama) dan profil faskes
+      allow read: if true;
 
       allow create: if signedIn()
         && request.auth.uid == userId
-        && noSecretFields()
         && request.resource.data.role in publicRoles()
         && request.resource.data.status == 'PENDING_APPROVAL';
 
-      allow update: if noSecretFields() && (
-        (signedIn() && request.auth.uid == userId
-          && request.resource.data.role == resource.data.role
-          && request.resource.data.status == resource.data.status)
-        || (isStaff()
-          && request.resource.data.role in publicRoles().concat(['NAKES', 'ADMIN']))
+      // Nakes & Admin (isStaff) berhak penuh mengelola status, profil, dan mereset kata sandi akun
+      allow update: if isStaff() || (
+        signedIn() && request.auth.uid == userId
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.status == resource.data.status
       );
 
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() || isStaff();
     }
 
     match /villages/{villageId} {

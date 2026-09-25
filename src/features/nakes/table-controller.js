@@ -416,7 +416,7 @@ export function handleReportsFilterSort(resetPage = false) {
         <tr class="hover:bg-slate-50 transition">
           <td class="p-3.5 font-mono font-bold text-slate-800">${r.report_number}</td>
           <td class="p-3.5">
-            <span class="font-bold text-slate-900">${cleanRole(r.reporter_name || 'Kader')}</span>
+            <span class="font-bold text-slate-900">${cleanRole(r.reporter_name || 'Kader Jiwa')}</span>
             <span class="block text-[11px] text-slate-400">${r.reporter_phone || ''}</span>
           </td>
           <td class="p-3.5">
@@ -523,7 +523,7 @@ export function openReportDetail(reportId) {
   if (elWaBtn) {
     if (rep.reporter_phone) {
       const cleanPhone = String(rep.reporter_phone).replace(/\D/g, '').replace(/^0/, '62');
-      elWaBtn.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Halo ${cleanRole(rep.reporter_name || 'Kader')}, terkait laporan ${rep.report_number || ''} untuk warga ${rep.patient_name_input || ''}...`)}`;
+      elWaBtn.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Halo ${cleanRole(rep.reporter_name || 'Kader Jiwa')}, terkait laporan ${rep.report_number || ''} untuk warga ${rep.patient_name_input || ''}...`)}`;
       elWaBtn.classList.remove('hidden');
     } else {
       elWaBtn.classList.add('hidden');
