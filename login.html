@@ -5,14 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="SATENGKA PASUNG — Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung Puskesmas Kokop Bangkalan">
+  
+  <!-- Preload Gambar Kritis LCP untuk Kecepatan Maksimal -->
+  <link rel="preload" as="image" href="./assets/logo_opt.webp" type="image/webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <!-- PWA Manifest & Theme -->
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/png" href="./assets/icons/icon-192x192.png">
   <link rel="apple-touch-icon" href="./assets/icons/icon-192x192.png">
-  <meta name="theme-color" content="#047857">
+  <meta name="theme-color" content="#17656e">
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Non-blocking FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <style>
@@ -84,7 +92,7 @@
     <!-- Center Identity Container dengan Fluid Proportions -->
     <div class="splash-identity-box">
       <!-- 1. Logo Resmi 3D Satengka Pasung Ultra HD Proporsional -->
-      <img src="./assets/logo_opt.png" alt="Logo Satengka Pasung" class="splash-logo-img">
+      <img src="./assets/logo_opt.webp" alt="Logo Satengka Pasung" class="splash-logo-img">
       <!-- 2. Tipografi Brand Teks Resmi Asli dari Klien -->
       <img src="./assets/brand_text_official.png" alt="SATENGKA PASUNG - Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung" class="splash-brand-text">
     </div>
@@ -105,7 +113,7 @@
         style="background: #17656e url('./assets/background_opt.webp') center center / cover no-repeat; box-shadow: 0 10px 25px -5px rgba(20, 88, 97, 0.4), 0 0 0 4px rgba(44, 163, 171, 0.15);">
         <!-- Inner Overlay Lembut agar tekstur menyatu -->
         <div class="absolute inset-0 bg-gradient-to-b from-[#145861]/40 via-transparent to-[#0e434a]/60 pointer-events-none"></div>
-        <img src="./assets/logo_opt.png" alt="Logo Resmi Satengka Pasung" 
+        <img src="./assets/logo_opt.webp" alt="Logo Resmi Satengka Pasung" 
              class="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] relative z-10">
       </div>
       <div>
