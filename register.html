@@ -218,6 +218,23 @@
             </div>
           </label>
 
+          <!-- 4. NAKES -->
+          <label class="cursor-pointer group relative"
+            onmouseenter="previewRoleDescription('NAKES')"
+            onmouseleave="restoreSelectedRoleDescription()"
+            title="Nakes: Tenaga medis dan petugas kesehatan Puskesmas Kokop untuk validasi klinis dan manajemen medis.">
+            <input type="radio" name="regRole" value="NAKES" class="hidden role-card-radio" onchange="updateSelectedRoleDescription('NAKES')">
+            <div class="p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#178A91] hover:shadow-sm transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3">
+              <div class="role-icon-box w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all p-1.5 shadow-2xs">
+                <img src="./assets/icons/role_nakes.png" alt="Nakes" class="role-icon-img w-full h-full object-contain transition-all duration-200">
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm leading-snug">Nakes</p>
+                <p class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Tenaga Medis Faskes</p>
+              </div>
+            </div>
+          </label>
+
         </div>
 
         <!-- KOTAK DESKRIPSI DINAMIS TERBACA JELAS SAAT HOVER MAUPUN KLIK -->
@@ -376,6 +393,10 @@
       'RATO': {
         title: "Rato",
         desc: "Kepala Desa, Tokoh Masyarakat, atau Linmas untuk pengamanan wilayah dan koordinasi evakuasi pasung."
+      },
+      'NAKES': {
+        title: "Nakes",
+        desc: "Tenaga medis dan petugas faskes Puskesmas Kokop untuk validasi klinis, aktivasi EWS, dan manajemen medis."
       }
     };
 
@@ -434,7 +455,7 @@
       }
 
       const name = document.getElementById('regFullName').value.trim();
-      const allowedRoles = ['KADER', 'GURU', 'RATO'];
+      const allowedRoles = ['KADER', 'GURU', 'RATO', 'NAKES'];
       const role = allowedRoles.includes(document.querySelector('input[name="regRole"]:checked')?.value)
         ? document.querySelector('input[name="regRole"]:checked').value
         : 'KADER';
@@ -481,6 +502,7 @@
           role: role,
           village_id: villageId,
           village_name: villageName,
+          password: pass,
           status: 'PENDING_APPROVAL',
           created_at: new Date().toISOString()
         };

@@ -411,15 +411,6 @@ export async function createUser(userData) {
         firebaseUid = cred.user.uid;
         await updateProfile(cred.user, { displayName: userData.name });
         console.log("Firebase Auth user registered:", cred.user.email);
-        
-        // Pendaftar mandiri berstatus PENDING_APPROVAL tidak boleh auto-login
-        if (userData.status === "PENDING_APPROVAL") {
-          try {
-            await signOut(auth);
-          } catch (signErr) {
-            console.warn("Sign out pending user error:", signErr);
-          }
-        }
       }
     } catch (authErr) {
       console.warn("Firebase createUser Auth:", authErr.code, authErr.message);
@@ -451,8 +442,19 @@ export async function createUser(userData) {
     try {
       const docId = firebaseUid || String(newId);
       await setDoc(doc(db, "users", docId), { ...newUser, updated_at: serverTimestamp() }, { merge: true });
+      console.log("🔥 [FIRESTORE] Dokumen profil pendaftar berhasil disimpan ke Cloud:", docId);
     } catch (dbErr) {
       console.warn("Gagal simpan user ke Firestore:", dbErr);
+    }
+  }
+
+  // Setelah data profil berhasil tersimpan di Firestore, sign out jika berstatus PENDING_APPROVAL
+  if (isFirebaseActive && auth && userData.status === "PENDING_APPROVAL") {
+    try {
+      await signOut(auth);
+      console.log("Firebase Auth signed out (menunggu persetujuan nakes).");
+    } catch (signErr) {
+      console.warn("Sign out pending user error:", signErr);
     }
   }
 

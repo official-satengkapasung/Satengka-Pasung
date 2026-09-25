@@ -20,7 +20,7 @@ service cloud.firestore {
       return isActive() && userRole() == 'ADMIN';
     }
     function publicRoles() {
-      return ['KADER', 'GURU', 'RATO'];
+      return ['KADER', 'GURU', 'RATO', 'NAKES'];
     }
     function noSecretFields() {
       return !request.resource.data.keys().hasAny(['password', 'password_reset_at']);
