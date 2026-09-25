@@ -286,6 +286,8 @@ export function openAddUserModal() {
     if (nameInput) nameInput.value = '';
     const phoneInput = document.getElementById('addUserPhone');
     if (phoneInput) phoneInput.value = '';
+    const passwordInput = document.getElementById('addUserPassword');
+    if (passwordInput) passwordInput.value = '';
     const roleSelect = document.getElementById('addUserRole');
     if (roleSelect) roleSelect.selectedIndex = 0;
 
@@ -309,25 +311,41 @@ export async function handleCreateUser(e) {
   const role = document.getElementById('addUserRole')?.value;
   const phone = document.getElementById('addUserPhone')?.value.trim();
   const villageId = document.getElementById('addUserVillage')?.value;
+  const password = document.getElementById('addUserPassword')?.value.trim();
+
+  if (!name || !phone) {
+    alert('Nama lengkap dan nomor WhatsApp wajib diisi.');
+    return;
+  }
+
+  if (!password || password.length < 6) {
+    alert('Kata sandi wajib diisi minimal 6 karakter.');
+    return;
+  }
 
   try {
     if (window.firebaseAdapter && window.firebaseAdapter.createUser) {
-      const res = await window.firebaseAdapter.createUser({ name, role, phone, village_id: villageId });
-      alert(res.message);
-      // Reset form fields
+      const res = await window.firebaseAdapter.createUser({ 
+        name, 
+        role, 
+        phone, 
+        village_id: villageId,
+        password: password,
+        status: 'ACTIVE' // Akun yang ditambahkan langsung oleh Nakes/Admin otomatis Aktif
+      });
+      alert(res.message || 'Mitra berhasil ditambahkan.');
       if (document.getElementById('addUserName')) document.getElementById('addUserName').value = '';
       if (document.getElementById('addUserPhone')) document.getElementById('addUserPhone').value = '';
+      if (document.getElementById('addUserPassword')) document.getElementById('addUserPassword').value = '';
       closeAddUserModal();
       if (window.fetchUsers) window.fetchUsers();
       return;
+    } else {
+      throw new Error('Adapter sistem database belum siap.');
     }
   } catch (err) {
-    console.warn('Create user error:', err);
-    alert('Mitra berhasil ditambahkan.');
-    if (document.getElementById('addUserName')) document.getElementById('addUserName').value = '';
-    if (document.getElementById('addUserPhone')) document.getElementById('addUserPhone').value = '';
-    closeAddUserModal();
-    if (window.fetchUsers) window.fetchUsers();
+    console.error('Create user error:', err);
+    alert('Gagal menambahkan mitra: ' + (err.message || 'Terjadi kesalahan sistem.'));
   }
 }
 

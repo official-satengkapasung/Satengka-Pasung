@@ -372,6 +372,7 @@ export async function createUser(userData) {
   }
 
   const newId = firebaseUid || (users.length > 0 ? Math.max(...users.map(u => Number(u.id) || 0)) + 1 : 10);
+  const userStatus = userData.status || "PENDING_APPROVAL";
   const newUser = {
     id: newId,
     uid: firebaseUid || String(newId),
@@ -381,7 +382,7 @@ export async function createUser(userData) {
     role: role,
     village_id: userData.village_id || 1,
     village_name: userData.village_name || "Kokop",
-    status: "PENDING_APPROVAL",
+    status: userStatus,
     created_at: new Date().toISOString()
   };
 
@@ -395,8 +396,8 @@ export async function createUser(userData) {
     }
   }
 
-  // Setelah data profil berhasil tersimpan di Firestore, sign out jika berstatus PENDING_APPROVAL
-  if (isFirebaseActive && auth && userData.status === "PENDING_APPROVAL") {
+  // Setelah data profil berhasil tersimpan di Firestore, sign out HANYA jika pendaftaran mandiri (PENDING_APPROVAL)
+  if (isFirebaseActive && auth && userStatus === "PENDING_APPROVAL") {
     try {
       await signOut(auth);
       console.log("Firebase Auth signed out (menunggu persetujuan nakes).");
