@@ -66,6 +66,6 @@ jobs:
             console.log('✅ PWA Manifest valid:', manifest.name);
           "
 
-      - name: Test Netlify Build Pre-Process
+      - name: Test Cloudflare Pages Build Pre-Process
         run: |
-          node scripts/build-netlify.js
+          node scripts/build-cloudflare.js

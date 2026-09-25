@@ -12,20 +12,6 @@
   <meta name="theme-color" content="#047857">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <style>
-    /* Suppress Netlify Injected Drawer HUD / Feedback Badge */
-    netlify-drawer,
-    [data-netlify-feedback],
-    #netlify-collaborative-tools,
-    .netlify-feedback-drawer,
-    div[class*="netlify-feedback"],
-    iframe[src*="netlify"] {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
   </style>
   <!-- Tailwind CSS via CDN with Official Satengka Brand Palette -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -3299,18 +3285,7 @@
 
   <!-- VITE CENTRAL APPLICATION ENTRY POINT (ES6 NATIVE MODULE) -->
   <script type="module" src="./src/main.js"></script>
-  <script>
-    // Netlify Badge / Feedback Drawer Suppressor
-    (function () {
-      function removeNetlifyBadge() {
-        const els = document.querySelectorAll('netlify-drawer, [data-netlify-feedback], #netlify-collaborative-tools, .netlify-feedback-drawer');
-        els.forEach(el => el.remove());
-      }
-      removeNetlifyBadge();
-      const obs = new MutationObserver(removeNetlifyBadge);
-      obs.observe(document.documentElement, { childList: true, subtree: true });
-    })();
-  </script>
+
 </body>
 
 </html>

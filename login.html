@@ -16,20 +16,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <style>
-    /* Suppress Netlify Injected Drawer HUD / Feedback Badge */
-    netlify-drawer,
-    [data-netlify-feedback],
-    #netlify-collaborative-tools,
-    .netlify-feedback-drawer,
-    div[class*="netlify-feedback"],
-    iframe[src*="netlify"] {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -575,17 +561,6 @@
         }
       }
       return null;
-    })();
-
-    // Netlify Badge / Feedback Drawer Suppressor
-    (function () {
-      function removeNetlifyBadge() {
-        const els = document.querySelectorAll('netlify-drawer, [data-netlify-feedback], #netlify-collaborative-tools, .netlify-feedback-drawer');
-        els.forEach(el => el.remove());
-      }
-      removeNetlifyBadge();
-      const obs = new MutationObserver(removeNetlifyBadge);
-      obs.observe(document.documentElement, { childList: true, subtree: true });
     })();
   </script>
 </body>
