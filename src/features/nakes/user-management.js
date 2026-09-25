@@ -121,7 +121,7 @@ export function renderUsersTable(users) {
               const cleanPhone = (u.phone || '').replace(/[^0-9]/g, '');
               const intlPhone = cleanPhone.startsWith('0') ? '62' + cleanPhone.substring(1) : cleanPhone;
               const waLink = `https://wa.me/${intlPhone}?text=${encodeURIComponent(`Halo ${u.name}, saya Tenaga Medis dari Puskesmas Kokop terkait pendaftaran akun Anda di aplikasi SATENGKA PASUNG.`)}`;
-              const roleDisplay = u.role === 'NAKES' ? 'Nakes (Tenaga Medis)' : (u.role === 'KADER' ? "Bhuppa' Babhu' (Kader)" : (u.role === 'GURU' ? "Ghuru (Kiai/Ustadz)" : "Rato (Kades/Linmas)"));
+              const roleDisplay = u.role === 'NAKES' ? 'Nakes (Tenaga Medis)' : (u.role === 'KADER' ? "Bhuppa' Babhu' (Kader Jiwa)" : (u.role === 'GURU' ? "Ghuru (Kiai/Ustadz)" : "Rato (Kades/Linmas)"));
               const roleIcon = u.role === 'NAKES' ? './assets/icons/role_nakes.png' : (u.role === 'KADER' ? './assets/icons/role_bhupa.png' : (u.role === 'GURU' ? './assets/icons/role_bhu-ghuru.png' : './assets/icons/role_rato.png'));
 
               return `
@@ -201,7 +201,7 @@ export function renderUsersTable(users) {
 
     const roleBadgeHtml = u.role === 'ADMIN'
       ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold bg-indigo-50 text-indigo-800 border border-indigo-200"><i class="fa-solid fa-crown text-indigo-600 text-xs"></i> Administrator</span>`
-      : `<span class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-700">${u.role === 'KADER' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain"> Bhuppa' Babhu'</span>` : (u.role === 'GURU' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3.5 h-3.5 object-contain"> Ghuru</span>` : (u.role === 'RATO' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain"> Rato</span>` : (u.role === 'NAKES' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_nakes.png" class="w-3.5 h-3.5 object-contain"> Nakes</span>` : u.role)))}</span>`;
+      : `<span class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-700">${u.role === 'KADER' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain"> Bhuppa' Babhu' (Kader Jiwa)</span>` : (u.role === 'GURU' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3.5 h-3.5 object-contain"> Ghuru</span>` : (u.role === 'RATO' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain"> Rato</span>` : (u.role === 'NAKES' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_nakes.png" class="w-3.5 h-3.5 object-contain"> Nakes</span>` : u.role)))}</span>`;
 
     return `
     <tr class="hover:bg-slate-50 transition border-b border-slate-100 ${isPending ? 'bg-amber-50/30' : ''}">

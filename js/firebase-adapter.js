@@ -386,7 +386,39 @@ export async function getVillages() {
 }
 
 export async function getUsers() {
-  return { success: true, data: getLocalStore("users", DEFAULT_SEED.users) };
+  const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+  if (isFirebaseActive && db) {
+    try {
+      const snap = await getDocs(query(collection(db, "users"), limit(100)));
+      if (!snap.empty) {
+        const cloudUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        // Deduplikasi akun berdasarkan phone atau id unik
+        const userMap = new Map();
+        // Masukkan seed / local dulu
+        localUsers.forEach(u => {
+          const key = (u.phone || '').trim() || String(u.id);
+          userMap.set(key, u);
+        });
+        // Override dengan data cloud Firestore jika ada
+        cloudUsers.forEach(u => {
+          const key = (u.phone || '').trim() || String(u.id);
+          userMap.set(key, { ...userMap.get(key), ...u });
+        });
+        const mergedUsers = Array.from(userMap.values());
+        setLocalStore("users", mergedUsers);
+        return { success: true, data: mergedUsers };
+      }
+    } catch (e) {
+      console.warn("Gagal sinkron users dari Firestore, gunakan cache lokal:", e);
+    }
+  }
+  // Deduplikasi lokal jika ada data lama yang tersimpan dobel
+  const cleanMap = new Map();
+  localUsers.forEach(u => {
+    const key = (u.phone || '').trim() || String(u.id);
+    cleanMap.set(key, u);
+  });
+  return { success: true, data: Array.from(cleanMap.values()) };
 }
 
 export async function createUser(userData) {
