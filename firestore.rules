@@ -4,11 +4,17 @@ service cloud.firestore {
     function signedIn() {
       return request.auth != null;
     }
+    function isAuthenticated() {
+      return signedIn();
+    }
     function userDoc() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
     function userRole() {
       return userDoc().role;
+    }
+    function getUserRole() {
+      return userRole();
     }
     function isActive() {
       return signedIn() && userDoc().status == 'ACTIVE';
