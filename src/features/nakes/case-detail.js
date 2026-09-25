@@ -359,18 +359,18 @@ export function selectCaseDetail(caseId) {
 
   let guruPill = '';
   if (guruP && (guruP.response === 'AGREE' || guruP.response === 'SIAP' || guruP.response === 'READY')) {
-    guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain"> Bhu' Ghuru: Siap</span>`;
+    guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain" alt="Ghuru"> Bhu' Ghuru: Siap</span>`;
   } else if (guruP && guruP.response === 'NEED_TIME') {
-    guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 animate-pulse"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain"> Bhu' Ghuru: Butuh Waktu</span>`;
+    guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 animate-pulse"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain" alt="Ghuru"> Bhu' Ghuru: Butuh Waktu</span>`;
   } else {
-    guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain opacity-60"> Bhu' Ghuru: Menunggu</span>`;
+    guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain opacity-60" alt="Ghuru"> Bhu' Ghuru: Menunggu</span>`;
   }
 
   let ratoPill = '';
   if (ratoP && (ratoP.response === 'READY' || ratoP.response === 'SIAP' || ratoP.response === 'AGREE')) {
-    ratoPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain"> Rato: Siap Kawal</span>`;
+    ratoPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain" alt="Rato"> Rato: Siap Kawal</span>`;
   } else {
-    ratoPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain opacity-60"> Rato: Menunggu</span>`;
+    ratoPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain opacity-60" alt="Rato"> Rato: Menunggu</span>`;
   }
 
   if (bannerPilarEl) {

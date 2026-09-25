@@ -179,13 +179,13 @@ import {
 
           let partnerPills = '';
           if (guruP && (guruP.response === 'AGREE' || guruP.response === 'SIAP' || guruP.response === 'READY')) {
-            partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain inline-block"> Ghuru: Siap</span>`;
+            partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain inline-block" alt="Ghuru"> Ghuru: Siap</span>`;
           } else if (guruP && guruP.response === 'NEED_TIME') {
-            partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 animate-pulse flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain inline-block"> Ghuru: Butuh Waktu</span>`;
+            partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 animate-pulse flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain inline-block" alt="Ghuru"> Ghuru: Butuh Waktu</span>`;
           }
 
           if (ratoP && (ratoP.response === 'READY' || ratoP.response === 'SIAP' || ratoP.response === 'AGREE')) {
-            partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain inline-block"> Rato: Siap</span>`;
+            partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain inline-block" alt="Rato"> Rato: Siap</span>`;
           }
 
           // Info Narahubung Pelapor & Tokoh Kemitraan

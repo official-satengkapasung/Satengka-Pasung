@@ -5,14 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SATENGKA PASUNG — Sistem EWS Terpadu Penanganan Pasung (Bhuppa' Bhu' Ghuru Rato)</title>
+  <meta name="description" content="SATENGKA PASUNG — Sistem Informasi Early Warning System (EWS) Penanganan Pasung Terpadu Bhuppa' Bhu' Ghuru Rato Puskesmas Kokop Kabupaten Bangkalan.">
+  
+  <!-- Preconnect untuk Resource Eksternal Kritis (Meningkatkan FCP & LCP) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="dns-prefetch" href="https://www.gstatic.com">
+
   <!-- PWA Manifest & Theme -->
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/png" href="./assets/icons/icon-192x192.png">
   <link rel="apple-touch-icon" href="./assets/icons/icon-192x192.png">
-  <meta name="theme-color" content="#047857">
+  <meta name="theme-color" content="#17656e">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <style>
-  </style>
+
   <!-- Tailwind CSS via CDN with Official Satengka Brand Palette -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -53,14 +61,16 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Non-blocking FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <!-- Leaflet Map CSS & JS (Interactive Kokop Map) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -164,7 +174,7 @@
   <div id="viewNakes" class="role-view hidden min-h-screen flex flex-col md:flex-row relative z-10">
 
     <!-- BACKDROP MOBILE DRAWER SIDEBAR NAKES -->
-    <div id="nakesSidebarBackdrop" onclick="toggleNakesMobileSidebar(false)"
+    <div id="nakesSidebarBackdrop" aria-label="Tutup menu sidebar" onclick="toggleNakesMobileSidebar(false)"
       class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden md:hidden transition-opacity"></div>
 
     <!-- SIDEBAR KIRI NAKES (WARNA & BACKGROUND BATIK ASLI SAMA PERSIS DENGAN SPLASH SCREEN) -->
@@ -187,7 +197,7 @@
             </div>
           </div>
           <!-- Tombol Tutup Sidebar Khusus Mobile -->
-          <button type="button" onclick="toggleNakesMobileSidebar(false)"
+          <button type="button" aria-label="Tutup menu sidebar" onclick="toggleNakesMobileSidebar(false)"
             class="md:hidden text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/10 transition"
             title="Tutup Menu">
             <i class="fa-solid fa-xmark text-lg"></i>
@@ -274,7 +284,7 @@
         class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-2.5 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3.5 flex justify-between items-center gap-1.5 sm:gap-3 sticky top-0 z-20 shadow-xs">
         <div class="flex items-center space-x-1.5 sm:space-x-2.5 text-slate-600 text-sm shrink min-w-0">
           <!-- Hamburger Button untuk Buka Menu di Layar Mobile/HP -->
-          <button type="button" onclick="toggleNakesMobileSidebar(true)"
+          <button type="button" aria-label="Buka menu navigasi sidebar" onclick="toggleNakesMobileSidebar(true)"
             class="md:hidden p-1.5 sm:p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 focus:outline-none shrink-0"
             title="Buka Menu Navigasi">
             <i class="fa-solid fa-bars text-sm sm:text-base"></i>
@@ -313,7 +323,7 @@
           </div>
 
           <!-- Live Chat Terapeutik BGR -->
-          <button onclick="openTherapeuticChatModal()"
+          <button aria-label="Buka pesan dan konsultasi" onclick="openTherapeuticChatModal()"
             class="relative text-slate-500 hover:text-emerald-700 transition p-1.5 shrink-0" title="Live Chat Terapeutik BGR">
             <i class="fa-regular fa-comments text-base sm:text-lg"></i>
             <span class="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
@@ -321,7 +331,7 @@
           </button>
 
           <!-- Lonceng Laporan Masuk -->
-          <button onclick="switchNakesTab('laporan')" class="relative text-slate-500 hover:text-slate-700 p-1.5 shrink-0"
+          <button aria-label="Notifikasi laporan masuk" onclick="switchNakesTab('laporan')" class="relative text-slate-500 hover:text-slate-700 p-1.5 shrink-0"
             title="Laporan Masuk">
             <i class="fa-regular fa-bell text-base sm:text-lg"></i>
             <span id="nakesTopbarBellDot"
@@ -396,10 +406,10 @@
               <div>
                 <span
                   class="inline-block w-6 h-6 rounded-lg bg-red-600 text-white font-black text-xs text-center leading-6 mb-1">!</span>
-                <h3 id="statButuhEvakuasi" class="text-2xl font-black text-red-700">0</h3>
-                <p class="text-xs text-red-600 font-semibold mt-0.5 whitespace-nowrap">Butuh Evakuasi</p>
+                <div id="statButuhEvakuasi" class="text-2xl font-black text-red-800" role="status">0</div>
+                <p class="text-xs text-red-800 font-bold mt-0.5 whitespace-nowrap">Butuh Evakuasi</p>
               </div>
-              <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600 text-lg">
+              <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-700 text-lg">
                 <i class="fa-solid fa-triangle-exclamation"></i>
               </div>
             </div>
@@ -408,10 +418,10 @@
               <div>
                 <span
                   class="inline-block w-6 h-6 rounded-lg bg-amber-500 text-white font-black text-xs text-center leading-6 mb-1">⏳</span>
-                <h3 id="statSedangKoordinasi" class="text-2xl font-black text-amber-700">0</h3>
-                <p class="text-xs text-amber-600 font-semibold mt-0.5 whitespace-nowrap">Sedang Koordinasi</p>
+                <div id="statSedangKoordinasi" class="text-2xl font-black text-amber-800" role="status">0</div>
+                <p class="text-xs text-amber-800 font-bold mt-0.5 whitespace-nowrap">Sedang Koordinasi</p>
               </div>
-              <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 text-lg">
+              <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-700 text-lg">
                 <i class="fa-solid fa-users-gear"></i>
               </div>
             </div>
@@ -453,7 +463,7 @@
                     <span id="nakesPendingReportsTitle">1 Laporan Pasung Baru Masuk dari Kader Jiwa</span>
                   </h3>
                 </div>
-                <button onclick="switchNakesTab('laporan')"
+                <button aria-label="Notifikasi laporan masuk" onclick="switchNakesTab('laporan')"
                   class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded-xl font-bold backdrop-blur-sm transition">
                   Lihat Semua Laporan →
                 </button>
@@ -567,7 +577,7 @@
         <div id="nakesSubDetailKasus" class="space-y-6 hidden">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <button onclick="switchNakesTab('dashboard')"
+              <button aria-label="Kembali ke dashboard" onclick="switchNakesTab('dashboard')"
                 class="w-9 h-9 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-600 transition">
                 <i class="fa-solid fa-arrow-left"></i>
               </button>
@@ -760,7 +770,7 @@
         <!-- SUB-PAGE: 3. VALIDASI LAPORAN (PERSIS GAMBAR 4) -->
         <div id="nakesSubValidasi" class="space-y-6 hidden">
           <div class="flex items-center space-x-3">
-            <button onclick="switchNakesTab('detail')"
+            <button aria-label="Kembali ke detail kasus" onclick="switchNakesTab('detail')"
               class="w-9 h-9 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-600 transition">
               <i class="fa-solid fa-arrow-left"></i>
             </button>
@@ -837,7 +847,7 @@
             </div>
 
             <div class="pt-3 flex flex-col sm:flex-row gap-2">
-              <button onclick="switchNakesTab('dashboard')"
+              <button aria-label="Kembali ke dashboard" onclick="switchNakesTab('dashboard')"
                 class="w-full sm:w-1/4 py-3 rounded-xl border border-red-200 text-red-600 font-bold text-xs hover:bg-red-50">
                 Tolak
               </button>
@@ -858,7 +868,7 @@
         <!-- SUB-PAGE: 4. AKTIVASI EWS (PERSIS GAMBAR 5) -->
         <div id="nakesSubAktivasiEWS" class="space-y-6 hidden">
           <div class="flex items-center space-x-3">
-            <button onclick="switchNakesTab('validasi')"
+            <button aria-label="Kembali ke formulir validasi" onclick="switchNakesTab('validasi')"
               class="w-9 h-9 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-600 transition">
               <i class="fa-solid fa-arrow-left"></i>
             </button>
@@ -926,7 +936,7 @@
         <div id="nakesSubMonitoring" class="space-y-6 hidden">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <button onclick="switchNakesTab('dashboard')"
+              <button aria-label="Kembali ke dashboard" onclick="switchNakesTab('dashboard')"
                 class="w-9 h-9 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-600 transition">
                 <i class="fa-solid fa-arrow-left"></i>
               </button>
@@ -1080,7 +1090,7 @@
               <h2 class="text-xl font-bold text-slate-900">Daftar Semua Kasus EWS</h2>
               <p class="text-xs text-slate-500">Kelola dan telusuri seluruh rekam kasus pasung di wilayah Puskesmas Kokop</p>
             </div>
-            <button onclick="switchNakesTab('dashboard')"
+            <button aria-label="Kembali ke dashboard" onclick="switchNakesTab('dashboard')"
               class="text-xs text-emerald-700 font-bold hover:underline flex items-center self-start sm:self-auto">
               <i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Dashboard
             </button>
@@ -1457,7 +1467,7 @@
               <i class="fa-regular fa-clock text-xs"></i>
               <span>Riwayat</span>
             </button>
-            <button type="button" onclick="openTherapeuticChatModal()"
+            <button type="button" aria-label="Buka pesan dan konsultasi" onclick="openTherapeuticChatModal()"
               class="px-3 py-1.5 rounded-xl hover:bg-white hover:text-emerald-800 transition flex items-center space-x-1.5 relative"
               id="desktopPillChat">
               <i class="fa-regular fa-comments text-xs"></i>
@@ -1535,7 +1545,7 @@
             <!-- TAB NAVIGASI SUB-HALAMAN DESKTOP/TABLET (KADER) (Disembunyikan di Mobile) -->
             <div class="hidden md:flex bg-white/95 backdrop-blur-md rounded-2xl p-2 border border-slate-200/90 shadow-sm flex-wrap items-center justify-between gap-2">
               <div class="flex items-center space-x-1 sm:space-x-2">
-                <button type="button" onclick="switchKaderPwaSub('dashboard')"
+                <button type="button" aria-label="Kembali ke menu kader" onclick="switchKaderPwaSub('dashboard')"
                   class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-sm flex items-center space-x-1.5 transition">
                   <i class="fa-solid fa-house text-xs"></i>
                   <span>Dashboard Saya</span>
@@ -1551,7 +1561,7 @@
                   <span>Riwayat & Status Laporan</span>
                 </button>
               </div>
-              <button type="button" onclick="openTherapeuticChatModal()"
+              <button type="button" aria-label="Buka pesan dan konsultasi" onclick="openTherapeuticChatModal()"
                 class="px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition flex items-center space-x-1.5">
                 <i class="fa-regular fa-comments text-xs"></i>
                 <span>Ruang Diskusi Rembuk</span>
@@ -1620,7 +1630,7 @@
             <div
               class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
               <div class="flex items-center space-x-3 sm:space-x-4">
-                <button type="button" onclick="switchKaderPwaSub('dashboard')"
+                <button type="button" aria-label="Kembali ke menu kader" onclick="switchKaderPwaSub('dashboard')"
                   class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                   <i class="fa-solid fa-arrow-left"></i>
                 </button>
@@ -1753,7 +1763,7 @@
             <div
               class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
               <div class="flex items-center space-x-3 sm:space-x-4">
-                <button type="button" onclick="switchKaderPwaSub('dashboard')"
+                <button type="button" aria-label="Kembali ke menu kader" onclick="switchKaderPwaSub('dashboard')"
                   class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                   <i class="fa-solid fa-arrow-left"></i>
                 </button>
@@ -1861,7 +1871,7 @@
                 <span>Riwayat Dampingan</span>
               </button>
             </div>
-            <button type="button" onclick="openTherapeuticChatModal()"
+            <button type="button" aria-label="Buka pesan dan konsultasi" onclick="openTherapeuticChatModal()"
               class="px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition flex items-center space-x-1.5">
               <i class="fa-regular fa-comments text-xs"></i>
               <span>Live Chat Koordinasi</span>
@@ -2013,7 +2023,7 @@
                 <span>Riwayat Pengawalan</span>
               </button>
             </div>
-            <button type="button" onclick="openTherapeuticChatModal()"
+            <button type="button" aria-label="Buka pesan dan konsultasi" onclick="openTherapeuticChatModal()"
               class="px-3.5 py-2 rounded-xl text-xs font-semibold text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 transition flex items-center space-x-1.5">
               <i class="fa-regular fa-comments text-xs"></i>
               <span>Live Chat Koordinasi</span>
@@ -2116,7 +2126,7 @@
           <div
             class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
             <div class="flex items-center space-x-3 sm:space-x-4">
-              <button type="button" onclick="closeGuruDetailScreen()"
+              <button type="button" aria-label="Tutup detail kasus guru" onclick="closeGuruDetailScreen()"
                 class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
               </button>
@@ -2190,7 +2200,7 @@
           <div
             class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
             <div class="flex items-center space-x-3 sm:space-x-4">
-              <button type="button" onclick="closeRatoDetailScreen()"
+              <button type="button" aria-label="Tutup detail kasus rato" onclick="closeRatoDetailScreen()"
                 class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-indigo-100 hover:text-indigo-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
               </button>
@@ -2264,7 +2274,7 @@
           <div
             class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center space-x-3 sm:space-x-4">
-              <button type="button" onclick="closeGuruRiwayatScreen()"
+              <button type="button" aria-label="Tutup riwayat guru" onclick="closeGuruRiwayatScreen()"
                 class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
               </button>
@@ -2294,7 +2304,7 @@
           <div
             class="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center space-x-3 sm:space-x-4">
-              <button type="button" onclick="closeRatoRiwayatScreen()"
+              <button type="button" aria-label="Tutup riwayat rato" onclick="closeRatoRiwayatScreen()"
                 class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-indigo-100 hover:text-indigo-800 text-slate-700 flex items-center justify-center transition shadow-xs">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
               </button>
@@ -2360,7 +2370,7 @@
           <i class="fa-solid fa-hand-holding-medical text-base" id="mobileNavIconAction"></i>
           <span id="mobileNavTextAction">Aktivitas</span>
         </button>
-        <button id="mobileNavChat" onclick="openTherapeuticChatModal()"
+        <button id="mobileNavChat" aria-label="Buka pesan dan konsultasi" onclick="openTherapeuticChatModal()"
           class="flex flex-col items-center space-y-1 hover:text-emerald-700 relative transition">
           <i class="fa-regular fa-comments text-base"></i>
           <span>Live Chat</span>
@@ -2552,7 +2562,7 @@
           <div class="relative">
             <input type="password" id="addUserPassword" required minlength="6" placeholder="Masukkan kata sandi (min. 6 karakter)"
               class="w-full border rounded-xl p-2.5 pr-10 outline-none focus:border-emerald-600 text-xs">
-            <button type="button" onclick="const p = document.getElementById('addUserPassword'); const icon = this.querySelector('i'); if (p.type === 'password') { p.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } else { p.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }"
+            <button type="button" aria-label="Tampilkan atau sembunyikan kata sandi" onclick="const p = document.getElementById('addUserPassword'); const icon = this.querySelector('i'); if (p.type === 'password') { p.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } else { p.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }"
               class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
               <i class="fa-solid fa-eye"></i>
             </button>
@@ -2700,12 +2710,12 @@
           </div>
         </div>
         <div class="flex items-center space-x-2">
-          <button onclick="fetchTherapeuticChats(true)" id="btnSyncTherapeuticChat"
+          <button onclick="fetchTherapeuticChats(true)" aria-label="Segarkan obrolan" id="btnSyncTherapeuticChat"
             class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs transition border border-white/10"
             title="Muat Ulang & Sinkronisasi Pesan">
             <i class="fa-solid fa-rotate" id="iconSyncTherapeuticChat"></i>
           </button>
-          <button onclick="closeTherapeuticChatModal()"
+          <button aria-label="Tutup jendela percakapan" onclick="closeTherapeuticChatModal()"
             class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm transition border border-white/10"
             title="Tutup Chat">
             <i class="fa-solid fa-xmark"></i>
@@ -2939,7 +2949,7 @@
           <div class="flex items-center space-x-1">
             <input type="tel" id="mKontrolFamilyPhoneInput" placeholder="Contoh: 081234567890"
               class="w-36 font-mono text-xs border border-slate-200 rounded-xl px-2.5 py-1 outline-none focus:border-emerald-600 bg-white">
-            <button type="button" onclick="saveFamilyPhoneOnly()" title="Simpan No. WA Keluarga"
+            <button type="button" aria-label="Simpan nomor WhatsApp keluarga" onclick="saveFamilyPhoneOnly()" title="Simpan No. WA Keluarga"
               class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[11px] font-bold">
               <i class="fa-solid fa-check"></i>
             </button>
@@ -3193,7 +3203,7 @@
             <p class="text-xs text-slate-400 font-mono" id="repDetailReportNumber">LAP-000</p>
           </div>
         </div>
-        <button type="button" onclick="closeReportDetail()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition">
+        <button type="button" aria-label="Tutup detail laporan" onclick="closeReportDetail()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
@@ -3241,7 +3251,7 @@
 
       <!-- Action Footer -->
       <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <button type="button" onclick="closeReportDetail()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
+        <button type="button" aria-label="Tutup detail laporan" onclick="closeReportDetail()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
           Tutup
         </button>
         <div id="repDetailNakesActions" class="w-full sm:w-auto flex items-center gap-2">
@@ -3267,7 +3277,7 @@
             <p class="text-xs text-slate-500 font-medium">Bhu' Ghuru / Tokoh Agama</p>
           </div>
         </div>
-        <button type="button" onclick="closeGuruNeedTimeModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition">
+        <button type="button" aria-label="Tutup jendela konfirmasi waktu" onclick="closeGuruNeedTimeModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
@@ -3291,7 +3301,7 @@
       </div>
 
       <div class="pt-2 border-t border-slate-100 flex items-center justify-end space-x-2">
-        <button type="button" onclick="closeGuruNeedTimeModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
+        <button type="button" aria-label="Tutup jendela konfirmasi waktu" onclick="closeGuruNeedTimeModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
           Batal
         </button>
         <button type="button" onclick="submitGuruNeedTime()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
