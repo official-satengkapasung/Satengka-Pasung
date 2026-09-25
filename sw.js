@@ -1,5 +1,5 @@
 // Service Worker for SATENGKA PASUNG PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v26';
+const CACHE_NAME = 'satengka-pasung-pwa-v27';
 const ASSETS_TO_CACHE = [
   './',
   './login.html',
@@ -9,7 +9,7 @@ const ASSETS_TO_CACHE = [
   './assets/icons/icon-512x512.png',
   './assets/logo_opt.webp',
   './assets/background_opt.webp',
-  './assets/brand_text_official.png',
+  './assets/brand_text_official.webp',
   './assets/splash_official.jpeg',
   './assets/splash_desktop.jpg',
   './assets/icons/role_bhupa.png',
