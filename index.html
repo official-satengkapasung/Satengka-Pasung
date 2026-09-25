@@ -118,7 +118,7 @@
       pointer-events: none !important;
     }
 
-    /* Splash Screen Responsif Proporsional Sempurna di Semua Resolusi Layar */
+    /* Splash Screen Responsif Proporsional Sempurna di Semua Resolusi Layar & Anti-CLS */
     .splash-identity-box {
       display: flex;
       flex-direction: column;
@@ -126,11 +126,14 @@
       text-align: center;
       width: 100%;
       max-width: 90vw;
+      min-height: 240px;
+      contain: layout style;
     }
 
     .splash-logo-img {
       width: clamp(140px, 20vw, 250px);
       height: clamp(140px, 20vw, 250px);
+      aspect-ratio: 1 / 1;
       max-height: 30vh;
       object-fit: contain;
       filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.38));
@@ -139,6 +142,7 @@
     .splash-brand-text {
       width: clamp(280px, 40vw, 540px);
       max-width: 92vw;
+      aspect-ratio: 540 / 175;
       height: auto;
       object-fit: contain;
       margin-top: clamp(4px, 0.8vh, 8px);
@@ -166,10 +170,10 @@
     class="fixed inset-0 z-[9999] text-white select-none overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6">
     <!-- Center Identity Container dengan Fluid Proportions -->
     <div class="splash-identity-box">
-      <!-- 1. Logo Resmi 3D Satengka Pasung Ultra HD Proporsional -->
-      <img src="./assets/logo_opt.png" alt="Logo Satengka Pasung" class="splash-logo-img">
-      <!-- 2. Tipografi Brand Teks Resmi Asli dari Klien -->
-      <img src="./assets/brand_text_official.png" alt="SATENGKA PASUNG - Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung" class="splash-brand-text">
+      <!-- 1. Logo Resmi 3D Satengka Pasung Ultra HD Proporsional (WebP 21 KB) -->
+      <img src="./assets/logo_opt.webp" alt="Logo Satengka Pasung" width="140" height="140" class="splash-logo-img" fetchpriority="high">
+      <!-- 2. Tipografi Brand Teks Resmi Asli (WebP 59 KB) -->
+      <img src="./assets/brand_text_official.webp" alt="SATENGKA PASUNG - Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung" width="340" height="110" class="splash-brand-text">
     </div>
   </div>
 
@@ -197,7 +201,7 @@
             <div class="w-10 h-10 rounded-full p-1.5 flex items-center justify-center shadow-lg border border-[#2ca3ab]/40 relative overflow-hidden shrink-0 transition-transform transform hover:scale-105 duration-300"
                  style="background: #17656e url('./assets/background_opt.webp') center center / cover no-repeat; box-shadow: 0 4px 15px rgba(20, 88, 97, 0.4), 0 0 0 2px rgba(44, 163, 171, 0.2);">
               <div class="absolute inset-0 bg-gradient-to-b from-[#145861]/40 via-transparent to-[#0e434a]/60 pointer-events-none"></div>
-              <img src="./assets/logo_opt.png" alt="Logo Satengka Pasung" class="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] relative z-10">
+              <img src="./assets/logo_opt.webp" alt="Logo Satengka Pasung" class="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] relative z-10">
             </div>
             <div>
               <h2 class="font-black text-white text-sm tracking-wider leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">SATENGKA PASUNG</h2>
@@ -1387,7 +1391,7 @@
           <div class="w-6 h-6 rounded-full p-0.5 flex items-center justify-center shadow-xs border border-[#2ca3ab]/30 relative overflow-hidden shrink-0"
                style="background: #17656e url('./assets/background_opt.webp') center center / cover no-repeat;">
             <div class="absolute inset-0 bg-gradient-to-b from-[#145861]/30 via-transparent to-[#0e434a]/50 pointer-events-none"></div>
-            <img src="./assets/logo_opt.png" alt="Logo Satengka Pasung" class="w-full h-full object-contain filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] relative z-10">
+            <img src="./assets/logo_opt.webp" alt="Logo Satengka Pasung" class="w-full h-full object-contain filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] relative z-10">
           </div>
           <span class="font-bold text-slate-800">SATENGKA PASUNG</span>
           <span class="hidden sm:inline">•</span>
@@ -1421,7 +1425,7 @@
           <div class="w-10 h-10 rounded-full p-1.5 flex items-center justify-center shadow-lg border border-[#2ca3ab]/40 relative overflow-hidden shrink-0 transition-transform transform hover:scale-105 duration-300"
                style="background: #17656e url('./assets/background_opt.webp') center center / cover no-repeat; box-shadow: 0 4px 15px rgba(20, 88, 97, 0.4), 0 0 0 2px rgba(44, 163, 171, 0.2);">
             <div class="absolute inset-0 bg-gradient-to-b from-[#145861]/40 via-transparent to-[#0e434a]/60 pointer-events-none"></div>
-            <img src="./assets/logo_opt.png" alt="Logo Satengka Pasung" class="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] relative z-10">
+            <img src="./assets/logo_opt.webp" alt="Logo Satengka Pasung" class="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] relative z-10">
           </div>
           <div>
             <div class="flex items-center space-x-2">
@@ -2352,7 +2356,7 @@
           <div class="w-6 h-6 rounded-full p-0.5 flex items-center justify-center shadow-xs border border-[#2ca3ab]/30 relative overflow-hidden shrink-0"
                style="background: #17656e url('./assets/background_opt.webp') center center / cover no-repeat;">
             <div class="absolute inset-0 bg-gradient-to-b from-[#145861]/30 via-transparent to-[#0e434a]/50 pointer-events-none"></div>
-            <img src="./assets/logo_opt.png" alt="Logo Satengka Pasung" class="w-full h-full object-contain filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] relative z-10">
+            <img src="./assets/logo_opt.webp" alt="Logo Satengka Pasung" class="w-full h-full object-contain filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] relative z-10">
           </div>
           <span class="font-bold text-slate-800">SATENGKA PASUNG</span>
           <span>•</span>
