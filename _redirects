@@ -1,0 +1,7 @@
+# ==============================================================================
+# SATENGKA PASUNG EWS — Cloudflare Pages Redirects & Clean URLs
+# ==============================================================================
+
+/login       /login.html       200
+/register    /register.html    200
+/test.html   /index.html       404
