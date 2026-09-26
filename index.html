@@ -7,9 +7,9 @@
   <title>SATENGKA PASUNG — Sistem EWS Terpadu Penanganan Pasung (Bhuppa' Bhu' Ghuru Rato)</title>
   <meta name="description" content="SATENGKA PASUNG — Sistem Informasi Early Warning System (EWS) Penanganan Pasung Terpadu Bhuppa' Bhu' Ghuru Rato Puskesmas Kokop Kabupaten Bangkalan.">
   
-  <!-- Preload Gambar Kritis LCP & Preconnect Esensial -->
-  <link rel="preload" as="image" href="./assets/logo_opt.webp" type="image/webp">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- Preload Gambar Kritis LCP & Preconnect CDN -->
+  <link rel="preload" as="image" href="./assets/logo_opt.webp" type="image/webp" fetchpriority="high">
+  <link rel="preload" as="image" href="./assets/brand_text_official.webp" type="image/webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- PWA Manifest & Theme -->
@@ -21,10 +21,12 @@
 
   <!-- Compiled Static Tailwind CSS (Satengka Official Palette: Old Tosca & Light Cyan) -->
   <link rel="stylesheet" href="./assets/css/satengka.css">
-  <!-- Non-blocking FontAwesome & Preconnected Google Fonts -->
+  <!-- Non-blocking FontAwesome & Asynchronous Google Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"></noscript>
   <!-- Leaflet Map CSS & JS (Interactive Kokop Map) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" media="print" onload="this.media='all'" />
@@ -140,8 +142,8 @@
     <div class="splash-identity-box">
       <!-- 1. Logo Resmi 3D Satengka Pasung Ultra HD Proporsional (WebP 21 KB) -->
       <img src="./assets/logo_opt.webp" alt="Logo Satengka Pasung" width="140" height="140" class="splash-logo-img" fetchpriority="high">
-      <!-- 2. Tipografi Brand Teks Resmi Asli (WebP 59 KB) -->
-      <img src="./assets/brand_text_official.webp" alt="SATENGKA PASUNG - Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung" width="340" height="110" class="splash-brand-text">
+      <!-- 2. Tipografi Brand Teks Resmi Asli (WebP Teroptimasi) -->
+      <img src="./assets/brand_text_official.webp" alt="SATENGKA PASUNG - Sistem Komunikasi Terapeutik, Peringatan Dini, dan Evakuasi Pasung" width="340" height="110" class="splash-brand-text" fetchpriority="high">
     </div>
   </div>
 
