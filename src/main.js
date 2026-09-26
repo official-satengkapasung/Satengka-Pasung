@@ -69,26 +69,24 @@ if (typeof window !== 'undefined') {
 
 // 🚀 Inisialisasi Aplikasi (Bootstrap Lifecycle)
 export async function initApp() {
-  const startTime = Date.now();
+  const isAuthed = window.checkSession ? await window.checkSession() : false;
 
-  if (window.firebaseReadyPromise) {
-    try {
-      await window.firebaseReadyPromise;
-    } catch (e) {
-      console.warn('Firebase readiness error:', e);
-    }
+  // Segera hilangkan splash screen begitu antarmuka awal siap (0ms jika unauthenticated/audit bot)
+  if (window.dismissSplashScreen) {
+    window.dismissSplashScreen(isAuthed ? 100 : 0);
   }
 
-  const isAuthed = window.checkSession ? await window.checkSession() : false;
+  // Muat Firebase dan sinkronisasi data faskes di background
   if (isAuthed) {
+    if (window.firebaseReadyPromise) {
+      try {
+        await window.firebaseReadyPromise;
+      } catch (e) {
+        console.warn('Firebase readiness error:', e);
+      }
+    }
     if (window.loadVillages) await window.loadVillages();
     if (window.loadData) await window.loadData();
-  }
-
-  const elapsed = Date.now() - startTime;
-  const remainingDelay = Math.max(100, 500 - elapsed);
-  if (window.dismissSplashScreen) {
-    window.dismissSplashScreen(remainingDelay);
   }
 }
 

@@ -10,11 +10,16 @@ export function dismissSplashScreen(delay = 500) {
   if (typeof document === 'undefined') return;
   const splash = document.getElementById('appSplashScreen');
   if (!splash) return;
+  if (delay <= 0) {
+    splash.classList.add('splash-hidden');
+    splash.style.display = 'none';
+    return;
+  }
   setTimeout(() => {
     splash.classList.add('splash-hidden');
     setTimeout(() => {
       splash.style.display = 'none';
-    }, 550);
+    }, 350);
   }, delay);
 }
 
