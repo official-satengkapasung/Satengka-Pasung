@@ -156,100 +156,134 @@ export function resetDatabase() {
 // =========================================================================
 
 export async function loginUser(identifier, password) {
-  // 1. Ambil data akun faskes terbaru secara realtime dari Cloud Firestore
-  let users = getLocalStore("users", DEFAULT_SEED.users);
-  try {
-    const freshRes = await getUsers();
-    if (freshRes && freshRes.success && Array.isArray(freshRes.data)) {
-      users = freshRes.data;
-    }
-  } catch (syncErr) {
-    console.warn("Gagal sinkron data cloud di awal login:", syncErr);
-  }
-
   const cleanId = (identifier || '').replace(/\D/g, '');
   const idLower = (identifier || '').trim().toLowerCase();
+  const emailToAuth = idLower.includes('@')
+    ? idLower
+    : `${cleanId || idLower || 'user'}@satengka-pasung.id`;
 
-  // 2. Pencocokan akun cerdas (bisa nomor WA, email, ATAU nama akun)
-  const matchedUser = users.find(u => {
-    const uPhone = (u.phone || '').replace(/\D/g, '');
-    const uEmail = (u.email || '').toLowerCase().trim();
-    const uName = (u.name || '').toLowerCase().trim();
-    return (cleanId && (uPhone === cleanId || uPhone.endsWith(cleanId) || cleanId.endsWith(uPhone))) ||
-           (uEmail && uEmail === idLower) ||
-           (uName && (uName === idLower || uName.includes(idLower)));
-  });
+  let fbUserToken = null;
+  let authUser = null;
 
+  // 1. Autentikasi Firebase Auth terlebih dahulu (Aman, tanpa query publik ke users)
+  if (isFirebaseActive && auth) {
+    try {
+      const cred = await signInWithEmailAndPassword(auth, emailToAuth, password);
+      if (cred && cred.user) {
+        authUser = cred.user;
+        fbUserToken = await cred.user.getIdToken();
+      }
+    } catch (authErr) {
+      console.warn("Firebase Auth signIn:", authErr.code);
+    }
+  }
+
+  // 2. Ambil profil pengguna setelah resmi terautentikasi (signedIn())
+  let matchedUser = null;
+  if (authUser && db) {
+    try {
+      const docSnap = await getDoc(doc(db, "users", authUser.uid));
+      if (docSnap.exists()) {
+        matchedUser = { id: docSnap.id, ...docSnap.data() };
+      }
+    } catch (dbErr) {
+      console.warn("Gagal mengambil profil user Firestore setelah login:", dbErr);
+    }
+  }
+
+  // Sinkronisasi data cloud jika belum ditemukan lewat UID langsung
+  if (authUser && !matchedUser) {
+    try {
+      const freshRes = await getUsers();
+      if (freshRes && freshRes.success && Array.isArray(freshRes.data)) {
+        matchedUser = freshRes.data.find(u => {
+          const uPhone = (u.phone || '').replace(/\D/g, '');
+          const uEmail = (u.email || '').toLowerCase().trim();
+          return (cleanId && uPhone === cleanId) || (uEmail && uEmail === idLower) || String(u.id) === String(authUser.uid);
+        });
+      }
+    } catch (syncErr) {
+      console.warn("Gagal sinkron data cloud:", syncErr);
+    }
+  }
+
+  // Fallback lokal/seed jika offline atau kredensial disimpan lokal
   if (!matchedUser) {
-    return { success: false, message: "Nomor WhatsApp, Email, atau Nama Akun belum terdaftar di sistem faskes." };
+    const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+    matchedUser = localUsers.find(u => {
+      const uPhone = (u.phone || '').replace(/\D/g, '');
+      const uEmail = (u.email || '').toLowerCase().trim();
+      const uName = (u.name || '').toLowerCase().trim();
+      return (cleanId && (uPhone === cleanId || uPhone.endsWith(cleanId))) ||
+             (uEmail && uEmail === idLower) ||
+             (uName && uName === idLower);
+    });
+
+    if (matchedUser) {
+      const expectedPass = matchedUser.password || matchedUser.auth_pin;
+      const isPassMatched = expectedPass && String(password).trim() === String(expectedPass).trim();
+      if (!authUser && !isPassMatched) {
+        return { success: false, message: "Kata sandi salah. Silakan periksa kembali." };
+      }
+    }
+  }
+
+  if (!matchedUser && !authUser) {
+    return { success: false, message: "Nomor WhatsApp, Email, atau Akun belum terdaftar di sistem faskes." };
   }
 
   // 3. Validasi status pendaftaran akun
-  if (matchedUser.status === "PENDING_APPROVAL" && matchedUser.role !== "ADMIN") {
+  const status = matchedUser?.status || "ACTIVE";
+  const role = matchedUser?.role || "KADER";
+
+  if (status === "PENDING_APPROVAL" && role !== "ADMIN") {
+    if (auth && auth.currentUser) {
+      try { await signOut(auth); } catch (e) {}
+    }
     return {
       success: false,
       message: "Akun Anda sedang menunggu konfirmasi/persetujuan dari Tenaga Medis Puskesmas Kokop."
     };
   }
-  if (matchedUser.status === "REJECTED") {
+  if (status === "REJECTED") {
+    if (auth && auth.currentUser) {
+      try { await signOut(auth); } catch (e) {}
+    }
     return {
       success: false,
       message: "Pendaftaran akun Anda ditolak oleh Petugas Puskesmas Kokop."
     };
   }
 
-  // 4. Verifikasi kredensial faskes (password atau auth_pin hasil reset admin)
-  const expectedPass = matchedUser.password || matchedUser.auth_pin;
-  const isPassMatched = expectedPass && String(password).trim() === String(expectedPass).trim();
+  const token = fbUserToken || ("token_" + Math.random().toString(36).substring(2) + Date.now());
+  const finalUser = {
+    id: matchedUser?.id || authUser?.uid || cleanId,
+    name: matchedUser?.name || authUser?.displayName || "Pengguna",
+    phone: matchedUser?.phone || cleanId,
+    email: matchedUser?.email || authUser?.email || emailToAuth,
+    role: role,
+    village_name: matchedUser?.village_name || "Kokop",
+    village_id: matchedUser?.village_id || 1,
+    status: status,
+    is_superadmin: role === "ADMIN",
+    photoURL: matchedUser?.photoURL || null
+  };
 
-  // 5. Coba juga autentikasi resmi Firebase Auth jika tersedia
-  let fbUserToken = null;
-  if (isFirebaseActive && auth) {
-    const userPhoneClean = (matchedUser.phone || cleanId).replace(/\D/g, '');
-    const emailToAuth = matchedUser.email || `${userPhoneClean || idLower || 'user'}@satengka-pasung.id`;
-    try {
-      const cred = await signInWithEmailAndPassword(auth, emailToAuth, password);
-      if (cred && cred.user) {
-        fbUserToken = await cred.user.getIdToken();
-      }
-    } catch (authErr) {
-      // Firebase Auth gagal jika password di Cloud Auth belum disinkronkan, tetap gunakan verifikasi kredensial faskes
-    }
+  // Sinkronkan ke local store perangkat saat ini
+  const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+  const existIdx = localUsers.findIndex(u => String(u.id) === String(finalUser.id) || u.phone === finalUser.phone);
+  if (existIdx !== -1) {
+    localUsers[existIdx] = { ...localUsers[existIdx], ...finalUser };
+  } else {
+    localUsers.push(finalUser);
   }
+  setLocalStore("users", localUsers);
 
-  if (fbUserToken || isPassMatched) {
-    const token = fbUserToken || ("token_" + Math.random().toString(36).substring(2) + Date.now());
-    const finalUser = {
-      id: matchedUser.id || matchedUser.uid,
-      name: matchedUser.name,
-      phone: matchedUser.phone,
-      email: matchedUser.email,
-      role: matchedUser.role,
-      village_name: matchedUser.village_name || "Kokop",
-      village_id: matchedUser.village_id || 1,
-      status: matchedUser.status || "ACTIVE",
-      is_superadmin: matchedUser.role === "ADMIN",
-      photoURL: matchedUser.photoURL || null
-    };
-
-    // Sinkronkan ke local store perangkat saat ini
-    const localUsers = getLocalStore("users", DEFAULT_SEED.users);
-    const existIdx = localUsers.findIndex(u => String(u.id) === String(finalUser.id) || u.phone === finalUser.phone);
-    if (existIdx !== -1) {
-      localUsers[existIdx] = { ...localUsers[existIdx], ...finalUser, password, auth_pin: password };
-    } else {
-      localUsers.push({ ...finalUser, password, auth_pin: password });
-    }
-    setLocalStore("users", localUsers);
-
-    return {
-      success: true,
-      message: "Login berhasil.",
-      data: { token, user: finalUser }
-    };
-  }
-
-  return { success: false, message: "Kata sandi salah. Silakan periksa kembali." };
+  return {
+    success: true,
+    message: "Login berhasil.",
+    data: { token, user: finalUser }
+  };
 }
 
 export async function requestPasswordReset(identifier) {
@@ -591,30 +625,27 @@ export async function resetUserPasswordByAdmin(userId, newPassword) {
   user.auth_pin = newPassword;
   user.password_reset_at = new Date().toISOString();
 
-  // Simpan sandi baru ke Cloud Firestore (simpan baik password maupun auth_pin agar tahan aturan security rules)
+  // Simpan sandi baru ke Cloud Firestore koleksi terisolasi user_credentials (hanya isStaff)
   if (isFirebaseActive && db) {
     try {
       const docId = user.uid || String(user.id);
-      const updateData = {
+      await setDoc(doc(db, "user_credentials", docId), {
+        user_id: docId,
         password: newPassword,
         auth_pin: newPassword,
         updated_at: serverTimestamp()
-      };
-      await updateDoc(doc(db, "users", docId), updateData);
-      console.log("🔥 [FIRESTORE] Kata sandi akun berhasil diperbarui di Cloud:", docId);
+      }, { merge: true });
+
+      // Bersihkan password dan auth_pin dari dokumen profil users agar tidak ada kredensial di data umum
+      await updateDoc(doc(db, "users", docId), {
+        password_reset_at: new Date().toISOString(),
+        updated_at: serverTimestamp(),
+        password: deleteField(),
+        auth_pin: deleteField()
+      });
+      console.log("🔥 [FIRESTORE] Kata sandi akun berhasil disimpan terisolasi di user_credentials:", docId);
     } catch (e) {
-      console.warn("Update password direct docId failed, trying query update:", e);
-      try {
-        const uPhone = (user.phone || '').replace(/\D/g, '');
-        if (uPhone) {
-          const qSnap = await getDocs(query(collection(db, "users"), where("phone", "==", user.phone)));
-          qSnap.forEach(async (d) => {
-            await updateDoc(d.ref, { password: newPassword, auth_pin: newPassword, updated_at: serverTimestamp() });
-          });
-        }
-      } catch (qErr) {
-        console.warn("Query update fallback failed:", qErr);
-      }
+      console.warn("Update user_credentials direct docId failed:", e);
     }
   }
 

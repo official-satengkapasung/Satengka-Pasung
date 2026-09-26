@@ -33,8 +33,7 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Izinkan baca untuk pencarian login (lookup nomor WhatsApp/nama) dan profil faskes
-      allow read: if true;
+      allow read: if signedIn();
 
       allow create: if signedIn()
         && request.auth.uid == userId
@@ -49,6 +48,10 @@ service cloud.firestore {
       );
 
       allow delete: if isAdmin() || isStaff();
+    }
+
+    match /user_credentials/{userId} {
+      allow read, write: if isStaff();
     }
 
     match /villages/{villageId} {

@@ -4,4 +4,7 @@
 # tanpa memerlukan rewrite eksplisit agar terhindar dari ERR_TOO_MANY_REDIRECTS.
 # ==============================================================================
 
-/test.html   /index.html       404
+/test.html          /index.html   404
+/firestore.rules    /index.html   404
+/package.json       /index.html   404
+/package-lock.json  /index.html   404
