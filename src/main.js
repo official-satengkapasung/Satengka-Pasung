@@ -86,7 +86,7 @@ export async function initApp() {
   }
 
   const elapsed = Date.now() - startTime;
-  const remainingDelay = Math.max(200, 1400 - elapsed);
+  const remainingDelay = Math.max(100, 500 - elapsed);
   if (window.dismissSplashScreen) {
     window.dismissSplashScreen(remainingDelay);
   }

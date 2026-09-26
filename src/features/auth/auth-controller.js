@@ -6,7 +6,7 @@
 
 import { cleanRoleAccountName, getRoleVisualMeta } from '../../utils/formatters.js';
 
-export function dismissSplashScreen(delay = 1400) {
+export function dismissSplashScreen(delay = 500) {
   if (typeof document === 'undefined') return;
   const splash = document.getElementById('appSplashScreen');
   if (!splash) return;
