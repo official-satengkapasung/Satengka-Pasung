@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "build:css": "tailwindcss -i ./src/input.css -o ./assets/css/satengka.css --minify",
     "build": "node scripts/build-cloudflare.js",
     "build:vite": "node scripts/build-cloudflare.js",
     "preview": "vite preview"
