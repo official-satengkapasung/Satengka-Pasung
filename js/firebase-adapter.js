@@ -686,7 +686,7 @@ function scopedQuery(name, filterParams = {}) {
   const villageId = filterParams.villageId;
   const constraints = [limit(50)];
   if (villageId && role !== "NAKES" && role !== "ADMIN") {
-    constraints.unshift(where("village_id", "==", villageId));
+    constraints.unshift(where("village_id", "in", [Number(villageId), String(villageId)]));
   }
   return query(collection(db, name), ...constraints);
 }
