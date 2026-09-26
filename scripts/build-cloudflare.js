@@ -37,4 +37,66 @@ export const APP_MODE = 'FIREBASE';
   console.log('[CLOUDFLARE BUILD] ✅ firebase-config.js resmi berhasil dipasang.');
 }
 
+// ==============================================================================
+// 🔒 DEVSECOPS BUILD SANITIZATION: ISOLASI BERKAS SENSITIF DARI WEB ROOT
+// Hanya berjalan saat proses build di container Cloudflare Pages (CF_PAGES === '1')
+// ==============================================================================
+if (process.env.CF_PAGES === '1' || process.env.SANITIZE_BUILD === '1') {
+  console.log('[CLOUDFLARE BUILD] 🔒 Menjalankan sanitasi berkas non-web dari output build...');
+  const projectRoot = path.join(__dirname, '..');
+  const sensitiveFiles = [
+    'firestore.rules',
+    'firestore.indexes.json',
+    'package.json',
+    'package-lock.json',
+    'firebase.json',
+    '.firebaserc',
+    'users.json'
+  ];
+
+  const sensitiveDirs = [
+    'docs',
+    'lighthouse',
+    'revisi',
+    'dogfood-output'
+  ];
+
+  for (const f of sensitiveFiles) {
+    const target = path.join(projectRoot, f);
+    if (fs.existsSync(target)) {
+      try {
+        fs.unlinkSync(target);
+        console.log(`[CLOUDFLARE BUILD] 🗑️ Berhasil mengisolasi berkas internal: ${f}`);
+      } catch (e) {
+        console.warn(`[CLOUDFLARE BUILD] Gagal menghapus ${f}:`, e.message);
+      }
+    }
+  }
+
+  for (const d of sensitiveDirs) {
+    const target = path.join(projectRoot, d);
+    if (fs.existsSync(target)) {
+      try {
+        fs.rmSync(target, { recursive: true, force: true });
+        console.log(`[CLOUDFLARE BUILD] 🗑️ Berhasil mengisolasi folder internal: ${d}`);
+      } catch (e) {
+        console.warn(`[CLOUDFLARE BUILD] Gagal menghapus ${d}:`, e.message);
+      }
+    }
+  }
+
+  // Bersihkan berkas dokumentasi markdown lepas di root agar tidak tersaji ke publik
+  try {
+    const rootFiles = fs.readdirSync(projectRoot);
+    for (const rf of rootFiles) {
+      if (rf.endsWith('.md') || rf.startsWith('WhatsApp Image')) {
+        try {
+          fs.unlinkSync(path.join(projectRoot, rf));
+          console.log(`[CLOUDFLARE BUILD] 🗑️ Berhasil mengisolasi berkas lepas: ${rf}`);
+        } catch (e) {}
+      }
+    }
+  } catch (e) {}
+}
+
 console.log('[CLOUDFLARE BUILD] ✅ Build Cloudflare Pages selesai dan siap disajikan!');
