@@ -463,18 +463,9 @@
             return;
           }
 
-          // Fallback akun seed bawaan
-          let fallbackRole = 'NAKES';
-          let fallbackName = 'dr. Siti Amelia';
-          let fallbackId = 2;
-          if (phone === '081234567891') { fallbackRole = 'KADER'; fallbackName = "Siti"; fallbackId = 3; }
-          if (phone === '081234567892') { fallbackRole = 'GURU'; fallbackName = "Kiai H. Kholil"; fallbackId = 4; }
-          if (phone === '081234567893') { fallbackRole = 'RATO'; fallbackName = 'Klebun Kokop'; fallbackId = 5; }
-
-          const demoUser = { id: fallbackId, name: fallbackName, phone: phone, role: fallbackRole, village_name: "Kokop", status: 'ACTIVE' };
-          localStorage.setItem('malekkas_token', 'token_' + Date.now());
-          localStorage.setItem('malekkas_user', JSON.stringify(demoUser));
-          window.location.href = 'index.html';
+          // Akun tidak ditemukan
+          showAlert('Nomor WhatsApp atau kata sandi belum terdaftar. Silakan periksa kembali atau daftar akun baru.');
+          return;
         }
       } catch (err) {
         showAlert('Terjadi kesalahan sistem.');

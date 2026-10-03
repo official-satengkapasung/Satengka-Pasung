@@ -116,13 +116,7 @@ const DEFAULT_SEED = {
     { id: 12, name: "Tlokoh", district: "Kokop", regency: "Bangkalan" },
     { id: 13, name: "Tramok", district: "Kokop", regency: "Bangkalan" }
   ],
-  users: [
-    { id: 1, name: "Administrator EWS", phone: "081100000001", role: "ADMIN", village_id: 1, village_name: "Kokop" },
-    { id: 2, name: "dr. Siti Amelia", phone: "081234567890", role: "NAKES", village_id: 1, village_name: "Kokop" },
-    { id: 3, name: "Siti", phone: "081234567891", role: "KADER", village_id: 1, village_name: "Kokop" },
-    { id: 4, name: "Kiai H. Kholil", phone: "081234567892", role: "GURU", village_id: 1, village_name: "Kokop" },
-    { id: 5, name: "Klebun Kokop", phone: "081234567893", role: "RATO", village_id: 1, village_name: "Kokop" }
-  ],
+  users: [],
   cases: [],
   reports: [],
   chats: {}
@@ -239,7 +233,7 @@ export async function loginUser(identifier, password) {
       const uPhone = (u.phone || '').replace(/\D/g, '');
       const uEmail = (u.email || '').toLowerCase().trim();
       const uName = (u.name || '').toLowerCase().trim();
-      return (cleanId && (uPhone === cleanId || uPhone.endsWith(cleanId))) ||
+      return (cleanId && uPhone === cleanId) ||
              (uEmail && uEmail === idLower) ||
              (uName && uName === idLower);
     });

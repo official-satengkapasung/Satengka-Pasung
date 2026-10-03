@@ -23,14 +23,7 @@
       { id: 12, name: "Tlokoh", district: "Kokop", regency: "Bangkalan" },
       { id: 13, name: "Tramok", district: "Kokop", regency: "Bangkalan" }
     ],
-    users: [
-      { id: 1, name: "Administrator Satengka Pasung", phone: "081100000001", role: "ADMIN", village_id: 1, village_name: "Kokop", status: "ACTIVE", is_superadmin: true },
-      { id: 99, name: "Administrator Puskesmas Kokop", phone: "082333017615", email: "082333017615@satengka-pasung.id", role: "ADMIN", village_id: 1, village_name: "Kokop", status: "ACTIVE", is_superadmin: true },
-      { id: 2, name: "dr. Siti Amelia", phone: "081234567890", role: "NAKES", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
-      { id: 3, name: "Siti", phone: "081234567891", role: "KADER", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
-      { id: 4, name: "Kiai H. Kholil", phone: "081234567892", role: "GURU", village_id: 1, village_name: "Kokop", status: "ACTIVE" },
-      { id: 5, name: "Klebun Kokop", phone: "081234567893", role: "RATO", village_id: 1, village_name: "Kokop", status: "ACTIVE" }
-    ],
+    users: [],
     cases: [],
     reports: [],
     chats: {}
