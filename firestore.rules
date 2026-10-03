@@ -54,6 +54,11 @@ service cloud.firestore {
       allow read, write: if isStaff();
     }
 
+    match /phone_index/{phone} {
+      allow read: if true;
+      allow write: if signedIn();
+    }
+
     match /villages/{villageId} {
       allow read: if signedIn();
       allow write: if isStaff();

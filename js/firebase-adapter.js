@@ -164,7 +164,28 @@ export async function loginUser(identifier, password) {
   const idLower = (identifier || '').trim().toLowerCase();
   let emailToAuth = idLower.includes('@') ? idLower : null;
 
-  // Cek apakah user memiliki email auth khusus di Firestore (misal pendaftar ulang)
+  // 1. Cek mapping phone_index di Firestore (jika user pernah daftar ulang dg email bertimestamp)
+  if (!emailToAuth && cleanId && isFirebaseActive && db) {
+    try {
+      const pSnap = await getDoc(doc(db, "phone_index", cleanId));
+      if (pSnap.exists() && pSnap.data() && pSnap.data().email) {
+        emailToAuth = pSnap.data().email;
+      }
+    } catch (e) {}
+  }
+
+  // 2. Cek apakah user memiliki email auth khusus di local storage
+  if (!emailToAuth && cleanId) {
+    try {
+      const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+      const localMatched = localUsers.find(u => (u.phone || '').replace(/\D/g, '') === cleanId);
+      if (localMatched && localMatched.email && localMatched.email.includes('@')) {
+        emailToAuth = localMatched.email;
+      }
+    } catch (e) {}
+  }
+
+  // 3. Cek apakah user memiliki email auth khusus di Firestore users
   if (!emailToAuth && cleanId && isFirebaseActive && db) {
     try {
       const uSnap = await getDocs(query(collection(db, "users"), where("phone", "==", cleanId), limit(1)));
@@ -382,7 +403,7 @@ export async function getUsers() {
 export async function createUser(userData) {
   const users = getLocalStore("users", DEFAULT_SEED.users);
   const cleanPhone = (userData.phone || '').replace(/\D/g, '');
-  const emailToAuth = (userData.email && userData.email.includes('@')) 
+  let emailToAuth = (userData.email && userData.email.includes('@')) 
     ? userData.email 
     : `${cleanPhone || 'user_' + Date.now()}@satengka-pasung.id`;
   if (!userData.password || String(userData.password).length < 6) {
@@ -478,10 +499,32 @@ export async function createUser(userData) {
       const docId = firebaseUid || String(newId);
       await setDoc(doc(db, "users", docId), { ...newUser, updated_at: serverTimestamp() }, { merge: true });
       console.log("🔥 [FIRESTORE] Dokumen profil pendaftar berhasil disimpan ke Cloud:", docId);
+
+      // Simpan mapping phone_index agar login via nomor HP selalu akurat
+      if (cleanPhone) {
+        try {
+          await setDoc(doc(db, "phone_index", cleanPhone), {
+            phone: cleanPhone,
+            email: emailToAuth,
+            uid: docId,
+            updated_at: serverTimestamp()
+          }, { merge: true });
+          console.log("🔥 [PHONE INDEX] Mapping phone -> email tersimpan di Cloud:", cleanPhone, emailToAuth);
+        } catch (piErr) {
+          console.warn("Phone index save warning:", piErr);
+        }
+      }
     } catch (dbErr) {
       console.warn("Gagal simpan user ke Firestore:", dbErr);
     }
   }
+
+  // Pastikan nomor HP ini dibersihkan dari malekkas_deleted_phones
+  try {
+    const deletedPhones = JSON.parse(localStorage.getItem("malekkas_deleted_phones") || "[]");
+    const updated = deletedPhones.filter(p => p !== cleanPhone);
+    localStorage.setItem("malekkas_deleted_phones", JSON.stringify(updated));
+  } catch (e) {}
 
   // Setelah data profil berhasil tersimpan di Firestore, sign out HANYA jika pendaftaran mandiri (PENDING_APPROVAL)
   if (isFirebaseActive && auth && userStatus === "PENDING_APPROVAL") {
@@ -666,6 +709,19 @@ export async function deleteUser(userId) {
       const docId = targetUser.uid || String(targetUser.id);
       await deleteDoc(doc(db, "users", docId));
       console.log("Firestore document deleted:", docId);
+
+      // Hapus phone_index jika ada
+      if (cleanPhone) {
+        try {
+          await deleteDoc(doc(db, "phone_index", cleanPhone));
+          console.log("Firestore phone_index deleted:", cleanPhone);
+        } catch (e) {}
+      }
+
+      // Hapus user_credentials jika ada
+      try {
+        await deleteDoc(doc(db, "user_credentials", docId));
+      } catch (e) {}
     } catch (e) {
       console.warn("Gagal hapus user di Firestore:", e);
     }
