@@ -166,7 +166,9 @@ export async function loadData() {
   initRealtimeSubscriptions();
 
   if (window.firebaseAdapter && window.firebaseAdapter.isFirebaseActive) {
-    await fetchUsers();
+    if (currentUser && (currentUser.role === 'NAKES' || currentUser.role === 'ADMIN')) {
+      await fetchUsers();
+    }
     return;
   }
 
@@ -265,6 +267,10 @@ export async function fetchReports() {
 
 export async function fetchUsers() {
   try {
+    const currentUser = window.currentUser;
+    if (currentUser && currentUser.role !== 'NAKES' && currentUser.role !== 'ADMIN') {
+      return;
+    }
     if (window.firebaseAdapter && window.firebaseAdapter.getUsers) {
       const res = await window.firebaseAdapter.getUsers();
       if (res.success) {

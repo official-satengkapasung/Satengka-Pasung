@@ -222,7 +222,9 @@ export async function loginUser(identifier, password) {
         });
       }
     } catch (syncErr) {
-      console.warn("Gagal sinkron data cloud:", syncErr);
+      if (syncErr && syncErr.code !== 'permission-denied') {
+        console.warn("Gagal sinkron data cloud:", syncErr);
+      }
     }
   }
 
@@ -355,6 +357,10 @@ export async function getVillages() {
 
 export async function getUsers() {
   if (isFirebaseActive && db) {
+    if (!auth || !auth.currentUser) {
+      const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+      return { success: true, data: localUsers };
+    }
     try {
       const snap = await getDocs(query(collection(db, "users"), limit(100)));
       if (!snap.empty) {
@@ -364,7 +370,9 @@ export async function getUsers() {
         return { success: true, data: cloudUsers };
       }
     } catch (e) {
-      console.warn("Gagal sinkron users dari Firestore, gunakan cache lokal:", e);
+      if (e && e.code !== 'permission-denied') {
+        console.warn("Gagal sinkron users dari Firestore, gunakan cache lokal:", e);
+      }
     }
   }
   const localUsers = getLocalStore("users", DEFAULT_SEED.users);
