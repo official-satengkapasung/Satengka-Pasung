@@ -558,10 +558,22 @@ export async function deleteUser(userId) {
     }
   }
 
+  const cleanPhone = (targetUser.phone || '').replace(/\D/g, '');
+
+  // Catat nomor ke daftar deleted_phones agar tidak di-restore dari DEFAULT_SEED
+  try {
+    const deletedPhones = JSON.parse(localStorage.getItem("malekkas_deleted_phones") || "[]");
+    if (cleanPhone && !deletedPhones.includes(cleanPhone)) {
+      deletedPhones.push(cleanPhone);
+      localStorage.setItem("malekkas_deleted_phones", JSON.stringify(deletedPhones));
+    }
+  } catch (e) {
+    console.warn("Error saving deleted phones:", e);
+  }
+
   // Hapus akun dari Firebase Authentication via Google Identity Toolkit REST API
   if (isFirebaseActive && firebaseConfig && firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("DUMMY")) {
     try {
-      const cleanPhone = (targetUser.phone || '').replace(/\D/g, '');
       const emailToAuth = (targetUser.email && targetUser.email.includes('@')) 
         ? targetUser.email 
         : `${cleanPhone || 'user'}@satengka-pasung.id`;
@@ -1280,9 +1292,11 @@ export async function sendRealtimeMessage(caseId, messageData) {
 
 export async function createReport(reportInput, currentUser) {
   const reports = getLocalStore("reports", DEFAULT_SEED.reports);
-  const newId = reports.length + 1;
-  const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,"");
-  const reportNumber = `LAP-${dateStr}-${String(newId).padStart(3, '0')}`;
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
+  const uniqueSuffix = String(now.getTime()).slice(-4);
+  const newId = `rep_${now.getTime()}_${Math.floor(Math.random() * 1000)}`;
+  const reportNumber = `LAP-${dateStr}-${uniqueSuffix}`;
 
   // Cari nama desa yang sesuai
   const villages = getLocalStore("villages", DEFAULT_SEED.villages);
@@ -1290,7 +1304,9 @@ export async function createReport(reportInput, currentUser) {
   const resolvedVillageName = reportInput.village_name || (matchedVillage ? matchedVillage.name : (currentUser ? currentUser.village_name : "Kokop")) || "Kokop";
 
   const activeUser = currentUser || (typeof localStorage !== "undefined" ? JSON.parse(localStorage.getItem("malekkas_user") || "null") : null);
-  const fallbackReporterId = activeUser ? activeUser.id : 3;
+  const authUid = (isFirebaseActive && auth && auth.currentUser) ? auth.currentUser.uid : null;
+  const fallbackReporterId = authUid || (activeUser ? (activeUser.uid || activeUser.id) : 3);
+  const fallbackReporterUid = authUid || (activeUser ? (activeUser.uid || String(activeUser.id)) : null);
   const fallbackReporterName = activeUser ? activeUser.name : "Kader Jiwa";
   const fallbackReporterPhone = activeUser ? (activeUser.phone || "-") : "-";
 
@@ -1298,6 +1314,7 @@ export async function createReport(reportInput, currentUser) {
     id: newId,
     report_number: reportNumber,
     reporter_id: fallbackReporterId,
+    reporter_uid: fallbackReporterUid,
     reporter_name: fallbackReporterName,
     reporter_phone: fallbackReporterPhone,
     village_id: reportInput.village_id || (activeUser ? activeUser.village_id : 1) || 1,
@@ -1310,7 +1327,7 @@ export async function createReport(reportInput, currentUser) {
     longitude: reportInput.longitude || 113.0234,
     photo_path: reportInput.photo_base64 || null,
     status: "NEW",
-    reported_at: new Date().toISOString()
+    reported_at: now.toISOString()
   };
 
   reports.unshift(newReport);
@@ -1321,9 +1338,10 @@ export async function createReport(reportInput, currentUser) {
     try {
       const docRef = doc(db, "reports", String(newId));
       await setDoc(docRef, { ...newReport, created_at: serverTimestamp() }, { merge: true });
-      console.log("☁️ [Firestore] Laporan baru tersimpan di Cloud:", reportNumber);
+      console.log("☁️ [Firestore] Laporan baru tersimpan di Cloud:", reportNumber, newId);
     } catch (e) {
-      console.warn("⚠️ Gagal simpan laporan ke Firestore:", e);
+      console.error("⚠️ Gagal simpan laporan ke Firestore:", e);
+      throw new Error("Gagal menyinkronkan laporan ke server puskesmas: " + (e.message || "Izin ditolak."));
     }
   }
 
@@ -1684,4 +1702,41 @@ export async function getUserProfileFromCloud(userId) {
   const users = getLocalStore("users", DEFAULT_SEED.users);
   const found = users.find(u => String(u.id) === String(userId) || u.phone === String(userId));
   return { success: !!found, data: found || null };
+}
+export async function checkPhoneAvailability(phoneNumber) {
+  const cleanPhone = (phoneNumber || '').replace(/\D/g, '');
+  if (!cleanPhone) return { available: true };
+
+  // 1. Cek Firestore jika aktif
+  if (isFirebaseActive && db) {
+    try {
+      const q = query(collection(db, "users"), where("phone", "==", cleanPhone), limit(1));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const found = snap.docs[0].data();
+        return { available: false, user: found };
+      }
+      // Jika di cloud Firestore tidak ada, berarti nomor tersebut TERSEDIA (bisa didaftarkan ulang)
+      // Bersihkan juga dari local storage jika nomor tersebut pernah tersangkut
+      const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+      const filtered = localUsers.filter(u => (u.phone || '').replace(/\D/g, '') !== cleanPhone);
+      setLocalStore("users", filtered);
+      return { available: true };
+    } catch (e) {
+      console.warn("Check phone in Firestore warning:", e);
+    }
+  }
+
+  // 2. Cek apakah nomor ada di daftar deleted_phones
+  try {
+    const deletedPhones = JSON.parse(localStorage.getItem("malekkas_deleted_phones") || "[]");
+    if (deletedPhones.includes(cleanPhone)) {
+      return { available: true };
+    }
+  } catch (e) {}
+
+  // 3. Fallback pengecekan lokal
+  const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+  const found = localUsers.find(u => (u.phone || '').replace(/\D/g, '') === cleanPhone);
+  return { available: !found, user: found };
 }

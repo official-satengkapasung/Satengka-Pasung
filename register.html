@@ -482,16 +482,35 @@
       document.getElementById('alertBox').classList.add('hidden');
 
       try {
-        // Cek apakah nomor HP sudah terdaftar di LocalStorage
-        const existingUsers = JSON.parse(localStorage.getItem('malekkas_users') || '[]');
-        const duplicate = existingUsers.find(u => u.phone === phone);
-        if (duplicate) {
-          const roleDisplay = duplicate.role === 'KADER' ? "Bhuppa' Babhu'" : (duplicate.role === 'GURU' ? "Ghuru" : (duplicate.role === 'RATO' ? "Rato" : 'Nakes'));
-          showAlert(`Nomor ${phone} sudah terdaftar sebagai ${roleDisplay} (${duplicate.name}). Silakan masuk langsung.`);
+        // Validasi ketersediaan nomor HP secara dinamis & real-time
+        let isPhoneAvailable = true;
+        let duplicateUser = null;
+
+        if (window.firebaseAdapter && typeof window.firebaseAdapter.checkPhoneAvailability === 'function') {
+          const checkRes = await window.firebaseAdapter.checkPhoneAvailability(phone);
+          isPhoneAvailable = checkRes.available;
+          duplicateUser = checkRes.user;
+        } else {
+          const existingUsers = JSON.parse(localStorage.getItem('malekkas_users') || '[]');
+          const deletedPhones = JSON.parse(localStorage.getItem('malekkas_deleted_phones') || '[]');
+          const cleanPhone = phone.replace(/\D/g, '');
+          if (!deletedPhones.includes(cleanPhone)) {
+            duplicateUser = existingUsers.find(u => (u.phone || '').replace(/\D/g, '') === cleanPhone);
+            isPhoneAvailable = !duplicateUser;
+          }
+        }
+
+        if (!isPhoneAvailable && duplicateUser) {
+          const roleDisplay = duplicateUser.role === 'KADER' ? "Bhuppa' Babhu'" : (duplicateUser.role === 'GURU' ? "Ghuru" : (duplicateUser.role === 'RATO' ? "Rato" : 'Nakes'));
+          showAlert(`Nomor ${phone} sudah terdaftar sebagai ${roleDisplay} (${duplicateUser.name}). Silakan masuk langsung.`);
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-user-plus mr-2"></i><span>Daftar Sekarang & Masuk</span>';
           return;
         }
+
+        // Ambil data users lokal dan bersihkan jika ada data usang dengan nomor ini yang sebelumnya telah dihapus
+        const existingUsers = (JSON.parse(localStorage.getItem('malekkas_users') || '[]')).filter(u => (u.phone || '').replace(/\D/g, '') !== phone.replace(/\D/g, ''));
+        localStorage.setItem('malekkas_users', JSON.stringify(existingUsers));
 
         // Format User Baru dengan Status PENDING_APPROVAL (Menunggu Persetujuan Nakes)
         const newUserId = existingUsers.length > 0 ? Math.max(...existingUsers.map(u => u.id || 0)) + 1 : 10;

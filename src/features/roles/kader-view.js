@@ -256,7 +256,7 @@ export function renderKaderStatusList(reports, totalCount = null) {
   }).join('');
 }
 
-export async function compressImageFile(file, maxWidth = 1280, quality = 0.7) {
+export async function compressImageFile(file, maxWidth = 800, quality = 0.6) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -397,15 +397,10 @@ export async function submitMobileKaderReport() {
       }
     }
   } catch (err) {
-    console.warn('Submit kader report fallback:', err);
+    console.error('Submit kader report error:', err);
     if (window.showToast) {
-      window.showToast('Laporan berhasil disimpan di sistem faskes.', 'success', 4000);
+      window.showToast('Gagal mengirim laporan ke server: ' + (err.message || 'Periksa koneksi atau izin akun.'), 'danger', 6000);
     }
-    if (window.fetchReports) await window.fetchReports();
-    if (window.fetchCases) await window.fetchCases();
-    renderKaderRecentReports(window.currentReports || []);
-    if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
-    switchKaderPwaSub('dashboard');
   } finally {
     if (btn) {
       btn.disabled = false;

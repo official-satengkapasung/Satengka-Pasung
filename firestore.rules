@@ -60,9 +60,12 @@ service cloud.firestore {
     }
 
     match /reports/{reportId} {
-      allow read: if isActive();
-      allow create: if isActive() && noSecretFields()
-        && request.resource.data.reporter_id == request.auth.uid;
+      allow read: if signedIn();
+      allow create: if signedIn() && noSecretFields()
+        && (request.resource.data.reporter_id == request.auth.uid
+            || request.resource.data.reporter_uid == request.auth.uid
+            || isActive()
+            || isStaff());
       allow update, delete: if isStaff();
     }
 
