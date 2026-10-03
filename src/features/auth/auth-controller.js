@@ -38,6 +38,13 @@ export async function checkSession() {
     if (window.currentUser && window.currentUser.name) {
       window.currentUser.name = cleanRoleAccountName(window.currentUser.name);
     }
+    // Cek apakah nomor user ini tercatat sebagai akun yang telah dihapus
+    const userPhone = (window.currentUser?.phone || '').replace(/\D/g, '');
+    const deletedPhones = JSON.parse(localStorage.getItem('malekkas_deleted_phones') || '[]');
+    if (userPhone && deletedPhones.includes(userPhone)) {
+      triggerForcedLogout('Akun Anda telah dinonaktifkan atau dihapus oleh Petugas Puskesmas Kokop. Akses tidak lagi tersedia.');
+      return false;
+    }
   } catch (e) {
     window.location.href = 'login.html';
     return false;
@@ -45,6 +52,33 @@ export async function checkSession() {
 
   renderRoleInterface();
   return true;
+}
+
+export function triggerForcedLogout(reason = 'Akun Anda telah dinonaktifkan atau dihapus oleh Administrator Puskesmas Kokop.') {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const userToClean = window.currentUser;
+    localStorage.removeItem('malekkas_user');
+    localStorage.removeItem('malekkas_token');
+    localStorage.removeItem('malekkas_role');
+    sessionStorage.clear();
+
+    if (userToClean) {
+      const rawUsers = localStorage.getItem('malekkas_users');
+      if (rawUsers) {
+        const users = JSON.parse(rawUsers);
+        const filtered = users.filter(u => String(u.id) !== String(userToClean.id) && (!u.phone || u.phone !== userToClean.phone));
+        localStorage.setItem('malekkas_users', JSON.stringify(filtered));
+      }
+    }
+    window.currentUser = null;
+  } catch (err) {
+    console.warn('[Auth] Gagal membersihkan storage:', err);
+  }
+
+  alert(reason);
+  window.location.replace('login.html');
 }
 
 export function handleLogout() {
@@ -261,6 +295,7 @@ if (typeof window !== 'undefined') {
   window.dismissSplashScreen = dismissSplashScreen;
   window.checkSession = checkSession;
   window.handleLogout = handleLogout;
+  window.triggerForcedLogout = triggerForcedLogout;
   window.toggleNakesMobileSidebar = toggleNakesMobileSidebar;
   window.renderRoleInterface = renderRoleInterface;
   window.updateUserAvatarsUI = updateUserAvatarsUI;
@@ -270,6 +305,7 @@ if (typeof window !== 'undefined') {
     dismissSplashScreen,
     checkSession,
     handleLogout,
+    triggerForcedLogout,
     toggleNakesMobileSidebar,
     renderRoleInterface,
     updateUserAvatarsUI,

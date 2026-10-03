@@ -128,6 +128,23 @@ export function initRealtimeSubscriptions() {
       }
     }, { reporterId, villageId: uvillageId, role: urole, villageName: uvillageName });
   }
+
+  // 3. Real-time Session Watcher: Otomatis kick/logout jika akun dihapus oleh Nakes di faskes
+  if (currentUser && currentUser.id && window.firebaseAdapter && window.firebaseAdapter.subscribeCurrentUserSession) {
+    window.firebaseAdapter.subscribeCurrentUserSession(currentUser.id, (change) => {
+      if (change && change.deleted) {
+        if (window.triggerForcedLogout) {
+          window.triggerForcedLogout(change.reason || 'Akun Anda telah dinonaktifkan atau dihapus oleh Administrator Puskesmas Kokop.');
+        } else {
+          localStorage.removeItem('malekkas_user');
+          localStorage.removeItem('malekkas_token');
+          localStorage.removeItem('malekkas_role');
+          alert('Akun Anda telah dinonaktifkan atau dihapus oleh Administrator Puskesmas Kokop.');
+          window.location.replace('login.html');
+        }
+      }
+    });
+  }
 }
 
 /**
@@ -140,6 +157,13 @@ export async function loadData() {
   if (currentUser && window.firebaseAdapter && window.firebaseAdapter.getUserProfileFromCloud) {
     try {
       const cloudProfile = await window.firebaseAdapter.getUserProfileFromCloud(currentUser.id);
+      if (cloudProfile && cloudProfile.deleted) {
+        if (window.triggerForcedLogout) {
+          window.triggerForcedLogout('Akun Anda telah dinonaktifkan atau dihapus oleh Petugas Puskesmas Kokop.');
+          return;
+        }
+      }
+
       if (cloudProfile && cloudProfile.success && cloudProfile.data) {
         const cp = cloudProfile.data;
         let needUpdate = false;

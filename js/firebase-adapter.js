@@ -164,6 +164,32 @@ export async function loginUser(identifier, password) {
   const idLower = (identifier || '').trim().toLowerCase();
   let emailToAuth = idLower.includes('@') ? idLower : null;
 
+  // 0. Cek apakah nomor akun ini tercatat dalam koleksi deleted_phones (dihapus nakes)
+  if (cleanId && isFirebaseActive && db) {
+    try {
+      const delSnap = await getDoc(doc(db, "deleted_phones", cleanId));
+      if (delSnap.exists()) {
+        // Bersihkan akun ini dari penyimpanan lokal HP agar tidak menjadi zombie cache
+        const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+        const filtered = localUsers.filter(u => (u.phone || '').replace(/\D/g, '') !== cleanId);
+        setLocalStore("users", filtered);
+        try {
+          const cur = JSON.parse(localStorage.getItem('malekkas_user') || 'null');
+          if (cur && (cur.phone || '').replace(/\D/g, '') === cleanId) {
+            localStorage.removeItem('malekkas_user');
+            localStorage.removeItem('malekkas_token');
+            localStorage.removeItem('malekkas_role');
+          }
+        } catch (e) {}
+
+        return {
+          success: false,
+          message: "Akun ini telah dinonaktifkan atau dihapus oleh Administrator Puskesmas Kokop. Akses tidak lagi tersedia."
+        };
+      }
+    } catch (delCheckErr) {}
+  }
+
   // 1. Cek mapping phone_index di Firestore (jika user pernah daftar ulang dg email bertimestamp)
   if (!emailToAuth && cleanId && isFirebaseActive && db) {
     try {
@@ -231,6 +257,27 @@ export async function loginUser(identifier, password) {
     }
   }
 
+  // Jika akun berhasil sign-in di Auth namun dokumen profil di Firestore sudah tidak ada (telah dihapus Nakes):
+  if (authUser && !matchedUser && isFirebaseActive && db) {
+    try { await signOut(auth); } catch (e) {}
+
+    // Bersihkan dari penyimpanan lokal HP
+    const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+    const filtered = localUsers.filter(u => (u.phone || '').replace(/\D/g, '') !== cleanId && u.uid !== authUser.uid);
+    setLocalStore("users", filtered);
+
+    try {
+      localStorage.removeItem('malekkas_user');
+      localStorage.removeItem('malekkas_token');
+      localStorage.removeItem('malekkas_role');
+    } catch (e) {}
+
+    return {
+      success: false,
+      message: "Akun Anda telah dinonaktifkan atau dihapus oleh Petugas Puskesmas Kokop. Akses tidak lagi tersedia."
+    };
+  }
+
   // Sinkronisasi data cloud jika belum ditemukan lewat UID langsung
   if (authUser && !matchedUser) {
     try {
@@ -249,8 +296,15 @@ export async function loginUser(identifier, password) {
     }
   }
 
-  // Fallback lokal/seed jika offline atau kredensial disimpan lokal
+  // Fallback lokal/seed hanya jika offline tanpa koneksi cloud
   if (!matchedUser) {
+    if (isFirebaseActive && typeof navigator !== 'undefined' && navigator.onLine) {
+      return {
+        success: false,
+        message: "Nomor WhatsApp atau akun tidak ditemukan. Akun mungkin telah dihapus oleh Petugas Puskesmas Kokop."
+      };
+    }
+
     const localUsers = getLocalStore("users", DEFAULT_SEED.users);
     matchedUser = localUsers.find(u => {
       const uPhone = (u.phone || '').replace(/\D/g, '');
@@ -708,7 +762,34 @@ export async function deleteUser(userId) {
     try {
       const docId = targetUser.uid || String(targetUser.id);
       await deleteDoc(doc(db, "users", docId));
-      console.log("Firestore document deleted:", docId);
+      if (targetUser.id && String(targetUser.id) !== String(docId)) {
+        try { await deleteDoc(doc(db, "users", String(targetUser.id))); } catch (e) {}
+      }
+      if (targetUser.uid && String(targetUser.uid) !== String(docId)) {
+        try { await deleteDoc(doc(db, "users", String(targetUser.uid))); } catch (e) {}
+      }
+
+      // Hapus dokumen user lain yang memiliki nomor telepon sama di Firestore
+      if (cleanPhone) {
+        try {
+          const qSnap = await getDocs(query(collection(db, "users"), where("phone", "==", targetUser.phone)));
+          for (const d of qSnap.docs) {
+            await deleteDoc(d.ref);
+          }
+        } catch (e) {}
+      }
+
+      // Catat ke koleksi Cloud Firestore deleted_phones agar seluruh perangkat tahu akun ini terhapus
+      if (cleanPhone) {
+        try {
+          await setDoc(doc(db, "deleted_phones", cleanPhone), {
+            phone: cleanPhone,
+            name: targetUser.name,
+            deleted_at: serverTimestamp()
+          }, { merge: true });
+          console.log("☁️ [Firestore] Nomor dicatat ke deleted_phones:", cleanPhone);
+        } catch (e) {}
+      }
 
       // Hapus phone_index jika ada
       if (cleanPhone) {
@@ -1921,17 +2002,58 @@ export async function getUserProfileFromCloud(userId) {
       const userDocRef = doc(db, "users", String(userId));
       const docSnap = await getDoc(userDocRef);
       if (docSnap.exists()) {
-        return { success: true, data: docSnap.data() };
+        const data = docSnap.data();
+        if (data.status === 'DELETED' || data.status === 'REJECTED') {
+          return { success: false, deleted: true, notFound: true, data };
+        }
+        return { success: true, data };
+      } else {
+        // Dokumen tidak ada di Cloud Firestore! Cek apakah merupakan akun seed default (Nakes utama)
+        const isSeedNakes = (String(userId) === '1' || String(userId) === 'nakes');
+        if (!isSeedNakes) {
+          return { success: false, deleted: true, notFound: true, message: "Akun pengguna telah dihapus dari server." };
+        }
       }
     } catch (e) {
       console.warn("⚠️ Gagal mengambil profil user dari Cloud Firestore:", e);
     }
   }
 
-  // Fallback ke penyimpanan lokal
-  const users = getLocalStore("users", DEFAULT_SEED.users);
-  const found = users.find(u => String(u.id) === String(userId) || u.phone === String(userId));
-  return { success: !!found, data: found || null };
+  // Fallback ke penyimpanan lokal hanya jika offline murni
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    const users = getLocalStore("users", DEFAULT_SEED.users);
+    const found = users.find(u => String(u.id) === String(userId) || u.phone === String(userId));
+    return { success: !!found, data: found || null };
+  }
+
+  return { success: false, notFound: true };
+}
+
+/**
+ * Real-time listener untuk memantau status sesi user aktif.
+ * Jika akun dihapus atau ditolak oleh Nakes, langsung beri notifikasi dan trigger logout otomatis.
+ */
+export function subscribeCurrentUserSession(userId, onDeletedOrChanged) {
+  if (!isFirebaseActive || !db || !userId) return () => {};
+  try {
+    const userDocRef = doc(db, "users", String(userId));
+    return onSnapshot(userDocRef, (docSnap) => {
+      if (!docSnap.exists()) {
+        console.warn("🚨 [SESSION WATCHER] Dokumen profil pengguna tidak ditemukan di Cloud Firestore (Akun Dihapus)!");
+        onDeletedOrChanged({ deleted: true, reason: 'Akun telah dihapus oleh Petugas Puskesmas Kokop.' });
+        return;
+      }
+      const data = docSnap.data();
+      if (data && (data.status === 'DELETED' || data.status === 'REJECTED')) {
+        console.warn("🚨 [SESSION WATCHER] Status akun pengguna diubah menjadi:", data.status);
+        onDeletedOrChanged({ deleted: true, status: data.status, reason: 'Akses akun Anda telah dinonaktifkan oleh Petugas Puskesmas Kokop.' });
+      }
+    }, (err) => {
+      console.warn("Session snapshot error:", err);
+    });
+  } catch (e) {
+    return () => {};
+  }
 }
 export async function checkPhoneAvailability(phoneNumber) {
   const cleanPhone = (phoneNumber || '').replace(/\D/g, '');

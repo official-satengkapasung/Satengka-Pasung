@@ -445,16 +445,23 @@
           }
         } else {
           // Fallback langsung via LocalStorage jika adapter belum siap
+          const cleanPhoneInput = (phone || '').replace(/\D/g, '');
+          const deletedPhones = JSON.parse(localStorage.getItem('malekkas_deleted_phones') || '[]');
+          if (cleanPhoneInput && deletedPhones.includes(cleanPhoneInput)) {
+            showAlert('Akun ini telah dinonaktifkan atau dihapus oleh Administrator Puskesmas Kokop. Akses tidak lagi tersedia.');
+            return;
+          }
+
           const rawUsers = localStorage.getItem('malekkas_users');
           const localUsers = rawUsers ? JSON.parse(rawUsers) : [];
-          const matched = localUsers.find(u => u.phone === phone);
+          const matched = localUsers.find(u => (u.phone || '').replace(/\D/g, '') === cleanPhoneInput);
           if (matched) {
             if (matched.status === 'PENDING_APPROVAL') {
               showAlert('Akun Anda sedang menunggu konfirmasi/persetujuan dari Tenaga Medis (Nakes) Puskesmas Kokop. Silakan hubungi Nakes jika memerlukan akses darurat.');
               return;
             }
-            if (matched.status === 'REJECTED') {
-              showAlert('Pendaftaran akun Anda ditolak oleh Petugas Puskesmas Kokop. Silakan hubungi faskes terkait.');
+            if (matched.status === 'REJECTED' || matched.status === 'DELETED') {
+              showAlert('Pendaftaran akun Anda ditolak atau dihapus oleh Petugas Puskesmas Kokop. Silakan hubungi faskes terkait.');
               return;
             }
             localStorage.setItem('malekkas_token', 'token_' + Date.now());
