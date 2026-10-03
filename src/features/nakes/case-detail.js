@@ -627,6 +627,57 @@ export async function validateOnlyNoDispatch() {
   if (window.switchNakesTab) window.switchNakesTab('dashboard');
 }
 
+export async function rejectReportAction() {
+  if (typeof document === 'undefined') return;
+  const activeReportId = window.activeReportId;
+  if (!activeReportId) {
+    if (window.switchNakesTab) window.switchNakesTab('dashboard');
+    return;
+  }
+
+  const reason = prompt('Masukkan alasan penolakan laporan ini (misal: Data tidak akurat / bukan kasus pasung / laporan duplikat):', 'Laporan tidak memenuhi kriteria temuan pasung.');
+  if (reason === null) return; // Batal klik cancel
+
+  const adapter = window.firebaseAdapter || window.malekkasEngine;
+  try {
+    if (adapter && adapter.rejectReport) {
+      const res = await adapter.rejectReport(activeReportId, reason);
+      if (res && res.success) {
+        alert('✓ Laporan berhasil ditolak dan status diperbarui.');
+        window.activeReportId = null;
+        if (window.fetchReports) await window.fetchReports();
+        if (window.fetchCases) await window.fetchCases();
+        if (window.switchNakesTab) window.switchNakesTab('dashboard');
+        return;
+      }
+    }
+  } catch (err) {
+    console.error('Error saat menolak laporan:', err);
+  }
+
+  // Fallback lokal
+  const reports = JSON.parse(localStorage.getItem('malekkas_reports') || '[]');
+  const match = reports.find(r => String(r.id) === String(activeReportId));
+  if (match) {
+    match.status = 'REJECTED';
+    match.nakes_notes = reason;
+    localStorage.setItem('malekkas_reports', JSON.stringify(reports));
+  }
+  alert('✓ Laporan berhasil ditolak.');
+  window.activeReportId = null;
+  if (window.fetchReports) await window.fetchReports();
+  if (window.switchNakesTab) window.switchNakesTab('dashboard');
+}
+
+export function rejectReportFromDetail() {
+  if (typeof window === 'undefined') return;
+  if (window.activeDetailReportId) {
+    window.activeReportId = window.activeDetailReportId;
+    if (window.closeReportDetail) window.closeReportDetail();
+    rejectReportAction();
+  }
+}
+
 // 🛡️ Global Scope Preservation (Window Bridge)
 if (typeof window !== 'undefined') {
   window.openEditPatientModal = openEditPatientModal;
@@ -639,4 +690,6 @@ if (typeof window !== 'undefined') {
   window.goToValidasiScreen = goToValidasiScreen;
   window.goToAktivasiEwsScreen = goToAktivasiEwsScreen;
   window.validateOnlyNoDispatch = validateOnlyNoDispatch;
+  window.rejectReportAction = rejectReportAction;
+  window.rejectReportFromDetail = rejectReportFromDetail;
 }

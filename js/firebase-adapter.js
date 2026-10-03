@@ -1576,6 +1576,40 @@ export async function validateReport(reportId, validationData = {}) {
   };
 }
 
+export async function rejectReport(reportId, rejectionNotes = "Laporan ditolak oleh Petugas Nakes.") {
+  const reports = getLocalStore("reports", DEFAULT_SEED.reports);
+  const rep = reports.find(r => String(r.id) === String(reportId));
+  if (!rep) {
+    return { success: false, message: "Laporan tidak ditemukan." };
+  }
+
+  rep.status = "REJECTED";
+  rep.nakes_notes = rejectionNotes;
+  rep.rejected_at = new Date().toISOString();
+
+  if (isFirebaseActive && db) {
+    try {
+      await updateDoc(doc(db, "reports", String(rep.id)), {
+        status: "REJECTED",
+        nakes_notes: rejectionNotes,
+        rejected_at: serverTimestamp(),
+        updated_at: serverTimestamp()
+      });
+      console.log("🔥 [FIRESTORE] Laporan berhasil ditolak:", rep.id);
+    } catch (e) {
+      console.warn("⚠️ Gagal update status penolakan laporan di Firestore:", e);
+    }
+  }
+
+  setLocalStore("reports", reports);
+  window.dispatchEvent(new Event("storage"));
+  return {
+    success: true,
+    message: "Laporan temuan berhasil ditolak.",
+    data: { report_id: rep.id, status: "REJECTED" }
+  };
+}
+
 export async function activateSiagaEws(payload, currentUser) {
   const cases = getLocalStore("cases", DEFAULT_SEED.cases);
   const reports = getLocalStore("reports", DEFAULT_SEED.reports);

@@ -597,6 +597,23 @@
       };
     },
 
+    rejectReport: async function(reportId, rejectionNotes = "Laporan ditolak oleh Petugas Nakes.") {
+      const reports = getLocalStore("reports", DEFAULT_SEED.reports);
+      const rep = reports.find(r => String(r.id) === String(reportId));
+      if (!rep) return { success: false, message: "Laporan tidak ditemukan." };
+
+      rep.status = "REJECTED";
+      rep.nakes_notes = rejectionNotes;
+      rep.rejected_at = new Date().toISOString();
+
+      setLocalStore("reports", reports);
+      return {
+        success: true,
+        message: "Laporan temuan berhasil ditolak.",
+        data: { report_id: rep.id, status: "REJECTED" }
+      };
+    },
+
     activateSiagaEws: async function(payload, currentUser) {
       const cases = getLocalStore("cases", DEFAULT_SEED.cases);
       const reports = getLocalStore("reports", DEFAULT_SEED.reports);

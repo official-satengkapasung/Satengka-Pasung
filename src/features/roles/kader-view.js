@@ -256,30 +256,73 @@ export function renderKaderStatusList(reports, totalCount = null) {
   }).join('');
 }
 
-export async function compressImageFile(file, maxWidth = 800, quality = 0.6) {
+export async function compressImageFile(file, maxWidth = 800, quality = 0.7) {
+  if (!file) return { base64: null, sizeKB: 0 };
+
+  // Strategi A: Gunakan createImageBitmap modern jika didukung (hardware decoding & orientasi EXIF aman)
+  if (typeof window !== 'undefined' && typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(file);
+      let width = bitmap.width;
+      let height = bitmap.height;
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d', { alpha: false });
+      if (ctx) {
+        // Penting: Isi background putih solid agar gambar JPEG tidak menjadi hitam pekat jika ada transparansi
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(bitmap, 0, 0, width, height);
+        const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+        const sizeKB = Math.round((compressedBase64.length * 3 / 4) / 1024);
+        return { base64: compressedBase64, sizeKB };
+      }
+    } catch (bitmapErr) {
+      console.warn("createImageBitmap compression fallback:", bitmapErr);
+    }
+  }
+
+  // Strategi B: Fallback HTML Image decoding
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (event) => {
+      const rawBase64 = event.target.result;
       const img = new Image();
-      img.src = event.target.result;
+      img.src = rawBase64;
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
+        try {
+          const canvas = document.createElement('canvas');
+          let width = img.naturalWidth || img.width;
+          let height = img.naturalHeight || img.height;
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            // Latar putih mencegah hitam pada format transparan saat di-convert ke JPEG
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+            const sizeKB = Math.round((compressedBase64.length * 3 / 4) / 1024);
+            resolve({ base64: compressedBase64, sizeKB });
+            return;
+          }
+        } catch (canvasErr) {
+          console.warn("Canvas drawImage error, using raw base64:", canvasErr);
         }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-        const sizeKB = Math.round((compressedBase64.length * 3 / 4) / 1024);
-        resolve({ base64: compressedBase64, sizeKB });
+        resolve({ base64: rawBase64, sizeKB: Math.round(file.size / 1024) });
       };
-      img.onerror = () => resolve({ base64: event.target.result, sizeKB: Math.round(file.size / 1024) });
+      img.onerror = () => resolve({ base64: rawBase64, sizeKB: Math.round(file.size / 1024) });
     };
     reader.onerror = () => resolve({ base64: null, sizeKB: 0 });
   });

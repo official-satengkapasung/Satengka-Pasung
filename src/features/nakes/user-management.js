@@ -181,76 +181,197 @@ export function renderUsersTable(users) {
     } else {
       pendingContainer.classList.add('hidden');
       pendingContainer.innerHTML = '';
-    }
-  }
+    }  }
 
   if (!tbody) return;
 
-  tbody.innerHTML = (users || []).map(u => {
-    const safeName = (u.name || '').replace(/'/g, "\\'");
-    const safePhone = (u.phone || '').replace(/'/g, "\\'");
-    const isPending = u.status === 'PENDING_APPROVAL';
-    const isRejected = u.status === 'REJECTED';
+  // Inisialisasi state filter & pagination tabel mitra jika belum ada
+  if (!window.usersTableState) {
+    window.usersTableState = {
+      page: 1,
+      perPage: 8,
+      search: '',
+      role: 'ALL',
+      village: 'ALL'
+    };
+  }
+  const uState = window.usersTableState;
 
-    let statusBadge = '<span class="text-emerald-700 font-bold">● Aktif</span>';
-    if (isPending) {
-      statusBadge = '<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300"><i class="fa-solid fa-clock mr-1"></i>Menunggu</span>';
-    } else if (isRejected) {
-      statusBadge = '<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300"><i class="fa-solid fa-ban mr-1"></i>Ditolak</span>';
+  // Baca input dari DOM jika tersedia
+  const searchInput = document.getElementById('usersSearchInput');
+  const roleSelect = document.getElementById('usersRoleFilter');
+  const villageSelect = document.getElementById('usersVillageFilter');
+
+  if (searchInput && searchInput.value !== undefined) {
+    uState.search = searchInput.value.trim().toLowerCase();
+  }
+  if (roleSelect) {
+    uState.role = roleSelect.value || 'ALL';
+  }
+  if (villageSelect) {
+    uState.village = villageSelect.value || 'ALL';
+  }
+
+  // Filter daftar pengguna aktif
+  const filteredUsers = (users || []).filter(u => {
+    // 1. Filter Peran
+    if (uState.role && uState.role !== 'ALL') {
+      if (String(u.role).toUpperCase() !== String(uState.role).toUpperCase()) return false;
     }
 
-    const roleBadgeHtml = u.role === 'ADMIN'
-      ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold bg-indigo-50 text-indigo-800 border border-indigo-200"><i class="fa-solid fa-crown text-indigo-600 text-xs"></i> Administrator</span>`
-      : `<span class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-700">${u.role === 'KADER' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain"> Bhuppa' Babhu' (Kader Jiwa)</span>` : (u.role === 'GURU' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3.5 h-3.5 object-contain"> Ghuru</span>` : (u.role === 'RATO' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain"> Rato</span>` : (u.role === 'NAKES' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_nakes.png" class="w-3.5 h-3.5 object-contain"> Nakes</span>` : u.role)))}</span>`;
+    // 2. Filter Desa
+    if (uState.village && uState.village !== 'ALL') {
+      const matchVillage = String(u.village_id) === String(uState.village) ||
+                           (u.village_name && u.village_name.toLowerCase().includes(uState.village.toLowerCase()));
+      if (!matchVillage) return false;
+    }
 
-    return `
-    <tr class="hover:bg-slate-50 transition border-b border-slate-100 ${isPending ? 'bg-amber-50/30' : ''}">
-      <td class="p-3.5 font-bold text-slate-800">${cleanRole(u.name)}</td>
-      <td class="p-3.5">${roleBadgeHtml}</td>
-      <td class="p-3.5 font-mono text-slate-600">${u.phone}</td>
-      <td class="p-3.5">${u.village_name || 'Kokop'}</td>
-      <td class="p-3.5">${statusBadge}</td>
-      <td class="p-3.5 text-center">
-        <div class="inline-flex items-center justify-center gap-1.5">
-          ${isPending ? `
-            <button onclick="handleApproveUser('${u.id}', '${safeName}')" title="Konfirmasi & Setujui Akun"
-              class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition shadow-xs flex items-center gap-1 text-xs font-bold">
-              <i class="fa-solid fa-check"></i>
-              <span>Konfirmasi</span>
+    // 3. Pencarian Teks (Nama, HP, Email, Nama Desa)
+    if (uState.search) {
+      const name = (u.name || '').toLowerCase();
+      const phone = (u.phone || '').toLowerCase();
+      const email = (u.email || '').toLowerCase();
+      const village = (u.village_name || '').toLowerCase();
+      const match = name.includes(uState.search) || phone.includes(uState.search) || email.includes(uState.search) || village.includes(uState.search);
+      if (!match) return false;
+    }
+
+    return true;
+  });
+
+  const totalFiltered = filteredUsers.length;
+  const totalPages = Math.ceil(totalFiltered / uState.perPage) || 1;
+  if (uState.page > totalPages) uState.page = totalPages;
+  if (uState.page < 1) uState.page = 1;
+
+  const startIndex = (uState.page - 1) * uState.perPage;
+  const pagedUsers = filteredUsers.slice(startIndex, startIndex + uState.perPage);
+
+  if (filteredUsers.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="p-8 text-center text-slate-500 bg-slate-50/50">
+          <i class="fa-solid fa-users-slash text-2xl text-slate-300 block mb-2"></i>
+          <p class="font-bold text-sm">Tidak ada kontak tokoh atau kader yang sesuai filter</p>
+          <p class="text-xs text-slate-400 mt-1">Coba ubah kata kunci pencarian, filter peran, atau filter desa.</p>
+        </td>
+      </tr>
+    `;
+  } else {
+    tbody.innerHTML = pagedUsers.map(u => {
+      const safeName = (u.name || '').replace(/'/g, "\\'");
+      const safePhone = (u.phone || '').replace(/'/g, "\\'");
+      const isPending = u.status === 'PENDING_APPROVAL';
+      const isRejected = u.status === 'REJECTED';
+
+      let statusBadge = '<span class="text-emerald-700 font-bold">● Aktif</span>';
+      if (isPending) {
+        statusBadge = '<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300"><i class="fa-solid fa-clock mr-1"></i>Menunggu</span>';
+      } else if (isRejected) {
+        statusBadge = '<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300"><i class="fa-solid fa-ban mr-1"></i>Ditolak</span>';
+      }
+
+      const roleBadgeHtml = u.role === 'ADMIN'
+        ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold bg-indigo-50 text-indigo-800 border border-indigo-200"><i class="fa-solid fa-crown text-indigo-600 text-xs"></i> Administrator</span>`
+        : `<span class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-700">${u.role === 'KADER' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain"> Bhuppa' Babhu' (Kader Jiwa)</span>` : (u.role === 'GURU' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3.5 h-3.5 object-contain"> Ghuru</span>` : (u.role === 'RATO' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain"> Rato</span>` : (u.role === 'NAKES' ? `<span class="inline-flex items-center gap-1.5"><img src="./assets/icons/role_nakes.png" class="w-3.5 h-3.5 object-contain"> Nakes</span>` : u.role)))}</span>`;
+
+      return `
+      <tr class="hover:bg-slate-50 transition border-b border-slate-100 ${isPending ? 'bg-amber-50/30' : ''}">
+        <td class="p-3.5 font-bold text-slate-800">${cleanRole(u.name)}</td>
+        <td class="p-3.5">${roleBadgeHtml}</td>
+        <td class="p-3.5 font-mono text-slate-600">${u.phone}</td>
+        <td class="p-3.5">${u.village_name || 'Kokop'}</td>
+        <td class="p-3.5">${statusBadge}</td>
+        <td class="p-3.5 text-center">
+          <div class="inline-flex items-center justify-center gap-1.5">
+            ${isPending ? `
+              <button onclick="handleApproveUser('${u.id}', '${safeName}')" title="Konfirmasi & Setujui Akun"
+                class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition shadow-xs flex items-center gap-1 text-xs font-bold">
+                <i class="fa-solid fa-check"></i>
+                <span>Konfirmasi</span>
+              </button>
+              <button onclick="handleRejectUser('${u.id}', '${safeName}')" title="Tolak Akun"
+                class="px-2.5 py-1.5 border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-xl transition flex items-center gap-1 text-xs font-bold">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Tolak</span>
+              </button>
+            ` : isRejected ? `
+              <button onclick="handleApproveUser('${u.id}', '${safeName}')" title="Setujui Ulang Akun"
+                class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition shadow-xs flex items-center gap-1 text-xs font-bold">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Aktifkan</span>
+              </button>
+            ` : `
+              <button onclick="openEditUserModal('${u.id}')" title="Edit Data Akun Tokoh"
+                class="p-2 text-teal-700 hover:bg-teal-50 hover:border-teal-400 rounded-xl transition border border-teal-200 shadow-sm flex items-center gap-1 text-xs font-semibold">
+                <i class="fa-solid fa-user-pen"></i>
+                <span class="hidden md:inline">Edit</span>
+              </button>
+              <button onclick="openAdminResetPasswordModal('${u.id}', '${safeName}', '${safePhone}')" title="Reset Kata Sandi Akun"
+                class="p-2 text-amber-700 hover:bg-amber-50 hover:border-amber-400 rounded-xl transition border border-amber-200 shadow-sm flex items-center gap-1 text-xs font-semibold">
+                <i class="fa-solid fa-key"></i>
+                <span class="hidden md:inline">Reset</span>
+              </button>
+            `}
+            <button onclick="handleDeleteUser('${u.id}', '${safeName}')" title="Hapus Akun Tokoh"
+              class="p-2 text-rose-600 hover:bg-rose-50 hover:border-rose-400 rounded-xl transition border border-rose-200 shadow-sm flex items-center gap-1 text-xs font-semibold">
+              <i class="fa-solid fa-trash-can"></i>
+              <span class="hidden md:inline">Hapus</span>
             </button>
-            <button onclick="handleRejectUser('${u.id}', '${safeName}')" title="Tolak Akun"
-              class="px-2 py-1.5 border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-xl transition flex items-center gap-1 text-xs font-bold">
-              <i class="fa-solid fa-xmark"></i>
-              <span>Tolak</span>
-            </button>
-          ` : isRejected ? `
-            <button onclick="handleApproveUser('${u.id}', '${safeName}')" title="Setujui Ulang Akun"
-              class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition shadow-xs flex items-center gap-1 text-xs font-bold">
-              <i class="fa-solid fa-rotate-left"></i>
-              <span>Aktifkan</span>
-            </button>
-          ` : `
-            <button onclick="openEditUserModal('${u.id}')" title="Edit Data Akun Tokoh"
-              class="p-2 text-teal-700 hover:bg-teal-50 hover:border-teal-400 rounded-xl transition border border-teal-200 shadow-sm flex items-center gap-1 text-xs font-semibold">
-              <i class="fa-solid fa-user-pen"></i>
-              <span class="hidden md:inline">Edit</span>
-            </button>
-            <button onclick="openAdminResetPasswordModal('${u.id}', '${safeName}', '${safePhone}')" title="Reset Kata Sandi Akun"
-              class="p-2 text-amber-700 hover:bg-amber-50 hover:border-amber-400 rounded-xl transition border border-amber-200 shadow-sm flex items-center gap-1 text-xs font-semibold">
-              <i class="fa-solid fa-key"></i>
-              <span class="hidden md:inline">Reset</span>
-            </button>
-          `}
-          <button onclick="handleDeleteUser('${u.id}', '${safeName}')" title="Hapus Akun Tokoh"
-            class="p-2 text-rose-600 hover:bg-rose-50 hover:border-rose-400 rounded-xl transition border border-rose-200 shadow-sm flex items-center gap-1 text-xs font-semibold">
-            <i class="fa-solid fa-trash-can"></i>
-            <span class="hidden md:inline">Hapus</span>
-          </button>
-        </div>
-      </td>
-    </tr>
-  `;
-  }).join('');
+          </div>
+        </td>
+      </tr>
+    `;
+    }).join('');
+  }
+
+  // Render Kontrol Navigasi Pagination
+  const paginationContainer = document.getElementById('usersTablePagination');
+  if (paginationContainer) {
+    paginationContainer.innerHTML = `
+      <div class="text-slate-500 font-medium">
+        Menampilkan <b>${pagedUsers.length}</b> dari <b>${totalFiltered}</b> kontak
+        ${totalPages > 1 ? `(Halaman <b>${uState.page}</b> dari <b>${totalPages}</b>)` : ''}
+      </div>
+      ${totalPages > 1 ? `
+      <div class="flex items-center gap-1.5">
+        <button type="button" onclick="changeUsersTablePage(-1)" ${uState.page <= 1 ? 'disabled class="opacity-40 cursor-not-allowed"' : 'class="hover:bg-slate-200 cursor-pointer"'}
+          class="px-3 py-1.5 rounded-xl border border-slate-300 bg-white font-bold text-slate-700 transition flex items-center gap-1 text-xs">
+          <i class="fa-solid fa-chevron-left text-[10px]"></i> Sebelumnya
+        </button>
+        <span class="px-3 py-1.5 bg-emerald-50 text-emerald-800 font-black rounded-xl border border-emerald-200 text-xs">
+          ${uState.page}
+        </span>
+        <button type="button" onclick="changeUsersTablePage(1)" ${uState.page >= totalPages ? 'disabled class="opacity-40 cursor-not-allowed"' : 'class="hover:bg-slate-200 cursor-pointer"'}
+          class="px-3 py-1.5 rounded-xl border border-slate-300 bg-white font-bold text-slate-700 transition flex items-center gap-1 text-xs">
+          Selanjutnya <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </button>
+      </div>
+      ` : ''}
+    `;
+  }
+}
+
+export function onUsersFilterChanged() {
+  if (window.usersTableState) {
+    window.usersTableState.page = 1;
+  }
+  const currentUsers = window.currentUsers || [];
+  renderUsersTable(currentUsers);
+}
+
+export function changeUsersTablePage(delta) {
+  if (!window.usersTableState) return;
+  window.usersTableState.page += delta;
+  const currentUsers = window.currentUsers || [];
+  renderUsersTable(currentUsers);
+}
+
+export function goToUsersTablePage(page) {
+  if (!window.usersTableState) return;
+  window.usersTableState.page = page;
+  const currentUsers = window.currentUsers || [];
+  renderUsersTable(currentUsers);
 }
 
 const DEFINITIVE_VILLAGES = [
@@ -690,4 +811,7 @@ if (typeof window !== 'undefined') {
   window.handleApproveAllPendingUsers = handleApproveAllPendingUsers;
   window.changePendingUsersPage = changePendingUsersPage;
   window.searchPendingUsers = searchPendingUsers;
+  window.onUsersFilterChanged = onUsersFilterChanged;
+  window.changeUsersTablePage = changeUsersTablePage;
+  window.goToUsersTablePage = goToUsersTablePage;
 }
