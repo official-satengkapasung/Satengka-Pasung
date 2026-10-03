@@ -1409,14 +1409,61 @@
 
         <!-- SUB-PAGE: 9. EVAKUASI AKTIF & SELESAI (NAKES) -->
         <div id="nakesSubEvakuasi" class="space-y-6 hidden">
-          <div class="flex justify-between items-center">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
-              <h2 class="text-xl font-bold text-slate-900">Manajemen Evakuasi Medis</h2>
+              <div class="flex items-center space-x-2.5">
+                <h2 class="text-xl font-bold text-slate-900">Manajemen Evakuasi Medis</h2>
+                <span id="evacTotalBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  0 Siaga Evakuasi
+                </span>
+              </div>
               <p class="text-xs text-slate-500">Koordinasi ambulans Puskesmas Kokop dan tim pengamanan terpadu</p>
+            </div>
+            <button aria-label="Kembali ke dashboard" onclick="switchNakesTab('dashboard')"
+              class="text-xs text-emerald-700 font-bold hover:underline flex items-center self-start sm:self-auto cursor-pointer">
+              <i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Dashboard
+            </button>
+          </div>
+
+          <!-- Toolbar Pencarian & Filter Desa Evakuasi -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+            <div class="relative flex-1 min-w-[240px]">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400"></i>
+              <input type="text" id="evacSearchInput" oninput="window.onEvacuationFilterChanged && window.onEvacuationFilterChanged()"
+                placeholder="Cari nama pasien, no kasus, atau alamat..."
+                class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:border-emerald-600 outline-none transition">
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5 min-w-[170px]">
+                <i class="fa-solid fa-location-dot text-emerald-700 ml-1"></i>
+                <select id="evacVillageFilter" onchange="window.onEvacuationFilterChanged && window.onEvacuationFilterChanged()"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:border-emerald-600 outline-none transition">
+                  <option value="ALL">Semua Desa</option>
+                  <option value="1">Desa Ampara'an</option>
+                  <option value="2">Desa Bandang Laok</option>
+                  <option value="3">Desa Dupok</option>
+                  <option value="4">Desa Geger</option>
+                  <option value="5">Desa Katol Barat</option>
+                  <option value="6">Desa Kokop</option>
+                  <option value="7">Desa Lembung Gunong</option>
+                  <option value="8">Desa Mandung</option>
+                  <option value="9">Desa Mano'an</option>
+                  <option value="10">Desa Tlokoh</option>
+                  <option value="11">Desa Tramok</option>
+                  <option value="12">Desa Bandang Dajah</option>
+                  <option value="13">Desa Batokaban</option>
+                </select>
+              </div>
             </div>
           </div>
 
+          <!-- Wadah Grid Kartu Evakuasi -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="evacuationCardsContainer">
+            <!-- Diisi otomatis oleh JS -->
+          </div>
+
+          <!-- Kontainer Navigasi Pagination Evakuasi -->
+          <div id="evacuationPaginationContainer">
             <!-- Diisi otomatis oleh JS -->
           </div>
         </div>

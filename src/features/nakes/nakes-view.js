@@ -508,23 +508,112 @@ import {
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
-    // 3. MODUL EVAKUASI AKTIF
+    // 3. MODUL EVAKUASI AKTIF DENGAN SEARCH, FILTER & PAGINATION
     // -------------------------------------------------------------------------
+    export const evacTableState = {
+      page: 1,
+      perPage: 4, // 4 kartu per halaman agar pas dan proporsional di layar
+      search: '',
+      village: 'ALL'
+    };
+
+    export function onEvacuationFilterChanged() {
+      const searchInput = document.getElementById('evacSearchInput');
+      const villageSelect = document.getElementById('evacVillageFilter');
+
+      evacTableState.search = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      evacTableState.village = villageSelect ? villageSelect.value : 'ALL';
+      evacTableState.page = 1;
+
+      renderEvacuationCards();
+    }
+
+    export function changeEvacuationPage(delta) {
+      evacTableState.page += delta;
+      renderEvacuationCards();
+    }
+
     export function renderEvacuationCards() {
       const container = document.getElementById('evacuationCardsContainer');
+      const paginationContainer = document.getElementById('evacuationPaginationContainer');
+      const totalBadge = document.getElementById('evacTotalBadge');
       if (!container) return;
-      const evacs = currentCases.filter(c => c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA');
-      if (evacs.length === 0) {
-        container.innerHTML = `<div class="col-span-2 p-8 text-center text-slate-400 bg-white rounded-3xl border border-slate-200">Tidak ada jadwal evakuasi yang aktif saat ini.</div>`;
+
+      const allEvacs = (currentCases || []).filter(c => 
+        c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA'
+      );
+
+      // Baca input filter jika ada
+      const searchInput = document.getElementById('evacSearchInput');
+      const villageSelect = document.getElementById('evacVillageFilter');
+      if (searchInput && searchInput.value !== undefined) {
+        evacTableState.search = searchInput.value.trim().toLowerCase();
+      }
+      if (villageSelect) {
+        evacTableState.village = villageSelect.value || 'ALL';
+      }
+
+      // Filter daftar evakuasi
+      const filtered = allEvacs.filter(c => {
+        // 1. Filter Desa
+        if (evacTableState.village && evacTableState.village !== 'ALL') {
+          const matchVillage = String(c.village_id) === String(evacTableState.village) ||
+                               (c.village_name && c.village_name.toLowerCase().includes(evacTableState.village.toLowerCase()));
+          if (!matchVillage) return false;
+        }
+
+        // 2. Pencarian Teks
+        if (evacTableState.search) {
+          const name = (c.patient_name || '').toLowerCase();
+          const caseNo = (c.case_number || '').toLowerCase();
+          const addr = (c.patient_address || '').toLowerCase();
+          const vName = (c.village_name || '').toLowerCase();
+          const repName = (c.reporter_name || '').toLowerCase();
+          const match = name.includes(evacTableState.search) || caseNo.includes(evacTableState.search) ||
+                        addr.includes(evacTableState.search) || vName.includes(evacTableState.search) || repName.includes(evacTableState.search);
+          if (!match) return false;
+        }
+
+        return true;
+      });
+
+      // Update badge counter di toolbar
+      if (totalBadge) {
+        totalBadge.innerText = `${filtered.length} Siaga Evakuasi`;
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-1 md:col-span-2 p-10 text-center text-slate-500 bg-white rounded-3xl border border-slate-200 shadow-xs">
+            <i class="fa-solid fa-truck-medical text-3xl text-slate-300 block mb-3"></i>
+            <p class="font-bold text-sm text-slate-800">Tidak ada jadwal evakuasi yang sesuai filter</p>
+            <p class="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau filter wilayah desa.</p>
+          </div>
+        `;
+        if (paginationContainer) paginationContainer.innerHTML = '';
         return;
       }
-      container.innerHTML = evacs.map(c => `
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm space-y-4">
-          <div class="flex justify-between items-start border-b pb-3">
+
+      // Hitung Pagination
+      const totalFiltered = filtered.length;
+      const totalPages = Math.ceil(totalFiltered / evacTableState.perPage) || 1;
+      if (evacTableState.page > totalPages) evacTableState.page = totalPages;
+      if (evacTableState.page < 1) evacTableState.page = 1;
+
+      const startIndex = (evacTableState.page - 1) * evacTableState.perPage;
+      const pagedEvacs = filtered.slice(startIndex, startIndex + evacTableState.perPage);
+
+      // Render Kartu Evakuasi
+      container.innerHTML = pagedEvacs.map(c => `
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-xs hover:shadow-md transition space-y-4">
+          <div class="flex justify-between items-start border-b border-slate-100 pb-3">
             <div>
               <span class="font-mono text-xs font-bold text-slate-400">${c.case_number}</span>
               <h3 class="font-bold text-base text-slate-900">${c.patient_name}</h3>
-              <p class="text-xs text-slate-500">${c.patient_address || c.village_name}</p>
+              <p class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                <i class="fa-solid fa-location-dot text-emerald-600 text-[10px]"></i>
+                ${c.patient_address || c.village_name || 'Desa Kokop'}
+              </p>
             </div>
             <span class="px-2.5 py-1 rounded-full text-xs font-bold ${c.status === 'EVACUATION' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'}">
               ${formatStatusIndo(c.status)}
@@ -534,12 +623,45 @@ import {
             Didampingi oleh pilar <strong>Bhu' Ghuru</strong> dan <strong>Rato</strong> setempat. Ambulans siaga dari Puskesmas Kokop.
           </p>
           <div class="flex space-x-2 pt-1">
-            <button onclick="selectCaseDetail('${c.id}')" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow flex items-center justify-center">
+            <button onclick="selectCaseDetail('${c.id}')" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
               <i class="fa-solid fa-truck-medical mr-1.5"></i> Buka Monitoring Evakuasi
             </button>
           </div>
         </div>
       `).join('');
+
+      // Render Pagination Kontrol
+      if (paginationContainer) {
+        if (totalPages > 1) {
+          paginationContainer.innerHTML = `
+            <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs mt-2">
+              <div class="text-slate-500 font-medium">
+                Menampilkan <b>${pagedEvacs.length}</b> dari <b>${totalFiltered}</b> kasus evakuasi 
+                (Halaman <b>${evacTableState.page}</b> dari <b>${totalPages}</b>)
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="changeEvacuationPage(-1)" ${evacTableState.page <= 1 ? 'disabled class="opacity-40 cursor-not-allowed"' : 'class="hover:bg-slate-100 cursor-pointer"'}
+                  class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 transition flex items-center gap-1">
+                  <i class="fa-solid fa-chevron-left text-[10px]"></i> Sebelumnya
+                </button>
+                <span class="px-3 py-1.5 bg-emerald-50 text-emerald-800 font-black rounded-xl border border-emerald-200">
+                  ${evacTableState.page}
+                </span>
+                <button type="button" onclick="changeEvacuationPage(1)" ${evacTableState.page >= totalPages ? 'disabled class="opacity-40 cursor-not-allowed"' : 'class="hover:bg-slate-100 cursor-pointer"'}
+                  class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 transition flex items-center gap-1">
+                  Selanjutnya <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        } else {
+          paginationContainer.innerHTML = `
+            <div class="text-center text-xs text-slate-400 font-medium py-2">
+              Menampilkan seluruh ${totalFiltered} kasus evakuasi aktif
+            </div>
+          `;
+        }
+      }
     }
 
 
@@ -650,6 +772,8 @@ if (typeof window !== 'undefined') {
   window.setMapCategoryFilter = setMapCategoryFilter;
   window.switchNakesTab = switchNakesTab;
   window.renderEvacuationCards = renderEvacuationCards;
+  window.onEvacuationFilterChanged = onEvacuationFilterChanged;
+  window.changeEvacuationPage = changeEvacuationPage;
   window.openReminderWaModal = openReminderWaModal;
   window.closeReminderWaModal = closeReminderWaModal;
   window.sendDirectWaReminder = sendDirectWaReminder;
@@ -662,6 +786,8 @@ if (typeof window !== 'undefined') {
     setMapCategoryFilter,
     switchNakesTab,
     renderEvacuationCards,
+    onEvacuationFilterChanged,
+    changeEvacuationPage,
     openReminderWaModal,
     closeReminderWaModal,
     sendDirectWaReminder,
