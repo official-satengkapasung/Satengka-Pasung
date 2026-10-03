@@ -85,6 +85,15 @@ export async function initApp() {
         console.warn('Firebase readiness error:', e);
       }
     }
+    if (window.firebaseAdapter && window.firebaseAdapter.authReadyPromise) {
+      try {
+        // Tunggu maksimal 1.5 detik agar sesi Firebase Auth terverifikasi
+        await Promise.race([
+          window.firebaseAdapter.authReadyPromise,
+          new Promise(r => setTimeout(r, 1500))
+        ]);
+      } catch (e) {}
+    }
     if (window.loadVillages) await window.loadVillages();
     if (window.loadData) await window.loadData();
   }

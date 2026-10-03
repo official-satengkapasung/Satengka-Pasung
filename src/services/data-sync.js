@@ -8,6 +8,7 @@ import { cleanRoleAccountName } from '../utils/formatters.js';
 
 let casesUnsubscribe = null;
 let reportsUnsubscribe = null;
+let usersUnsubscribe = null;
 
 /**
  * Load Master Data Villages (Zero-Cost Engine / Firebase)
@@ -103,6 +104,16 @@ export function initRealtimeSubscriptions() {
 
   // 2. Sinkronisasi Real-time Laporan Temuan Kader
   if (window.firebaseAdapter.subscribeReports) {
+    // 3. Sinkronisasi Real-time Daftar User & Permintaan Registrasi Baru (Nakes/Admin)
+    if (window.firebaseAdapter.subscribeUsers && currentUser && (currentUser.role === 'NAKES' || currentUser.role === 'ADMIN')) {
+      if (usersUnsubscribe) usersUnsubscribe();
+      usersUnsubscribe = window.firebaseAdapter.subscribeUsers((users) => {
+        window.currentUsers = users;
+        if (window.renderUsersTable) window.renderUsersTable(users);
+        if (window.populateEwsSelects) window.populateEwsSelects(users);
+      });
+    }
+
     if (reportsUnsubscribe) reportsUnsubscribe();
     reportsUnsubscribe = window.firebaseAdapter.subscribeReports((reports) => {
       window.currentReports = reports;

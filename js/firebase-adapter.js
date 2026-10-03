@@ -48,6 +48,8 @@ import { firebaseConfig } from "../firebase-config.js";
 let db = null;
 let auth = null;
 let storage = null;
+let resolveAuthReady;
+export const authReadyPromise = new Promise(res => { resolveAuthReady = res; });
 export let isFirebaseActive = false;
 
 // Inisialisasi Firebase Cloud Firestore, Firebase Auth, & Firebase Storage
@@ -76,6 +78,14 @@ try {
     isFirebaseActive = true;
     if (typeof window !== "undefined") {
       window.firebaseAuth = auth;
+    if (auth) {
+      onAuthStateChanged(auth, (user) => {
+        if (resolveAuthReady) {
+          resolveAuthReady(user);
+          resolveAuthReady = null;
+        }
+      });
+    }
       window.firebaseDb = db;
       window.firebaseStorage = storage;
     }
@@ -350,39 +360,21 @@ export async function getVillages() {
 }
 
 export async function getUsers() {
-  const localUsers = getLocalStore("users", DEFAULT_SEED.users);
   if (isFirebaseActive && db) {
     try {
       const snap = await getDocs(query(collection(db, "users"), limit(100)));
       if (!snap.empty) {
         const cloudUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        // Deduplikasi akun berdasarkan phone atau id unik
-        const userMap = new Map();
-        // Masukkan seed / local dulu
-        localUsers.forEach(u => {
-          const key = (u.phone || '').trim() || String(u.id);
-          userMap.set(key, u);
-        });
-        // Override dengan data cloud Firestore jika ada
-        cloudUsers.forEach(u => {
-          const key = (u.phone || '').trim() || String(u.id);
-          userMap.set(key, { ...userMap.get(key), ...u });
-        });
-        const mergedUsers = Array.from(userMap.values());
-        setLocalStore("users", mergedUsers);
-        return { success: true, data: mergedUsers };
+        // Cloud Firestore adalah kebenaran mutlak (Single Source of Truth)
+        setLocalStore("users", cloudUsers);
+        return { success: true, data: cloudUsers };
       }
     } catch (e) {
       console.warn("Gagal sinkron users dari Firestore, gunakan cache lokal:", e);
     }
   }
-  // Deduplikasi lokal jika ada data lama yang tersimpan dobel
-  const cleanMap = new Map();
-  localUsers.forEach(u => {
-    const key = (u.phone || '').trim() || String(u.id);
-    cleanMap.set(key, u);
-  });
-  return { success: true, data: Array.from(cleanMap.values()) };
+  const localUsers = getLocalStore("users", DEFAULT_SEED.users);
+  return { success: true, data: localUsers };
 }
 
 export async function createUser(userData) {
@@ -1798,4 +1790,21 @@ export async function checkPhoneAvailability(phoneNumber) {
   const localUsers = getLocalStore("users", DEFAULT_SEED.users);
   const found = localUsers.find(u => (u.phone || '').replace(/\D/g, '') === cleanPhone);
   return { available: !found, user: found };
+}
+
+export function subscribeUsers(callback) {
+  if (isFirebaseActive && db) {
+    try {
+      return onSnapshot(collection(db, "users"), (snap) => {
+        const users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setLocalStore("users", users);
+        callback(users);
+      }, (err) => {
+        console.warn("Realtime users snapshot warning:", err);
+      });
+    } catch (e) {
+      console.warn("Subscribe users error:", e);
+    }
+  }
+  return () => {};
 }
