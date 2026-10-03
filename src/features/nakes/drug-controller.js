@@ -511,7 +511,7 @@ export function sendTargetedDrugReminder(targetRole) {
     let cleanPhone = phone.replace(/[^0-9]/g, '');
     if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
 
-    const waText = encodeURIComponent(`*PENGINGAT MINUM OBAT & KONTROL DARI PUSKESMAS KOKOP*\n\nAssalamu’alaikum Wr. Wb. Bhuppa’ Bhu’ (Keluarga ${patientName}),\nSemoga senantiasa diberikan kesehatan dan ketenteraman keluarga.\n\nKami dari Petugas Kesehatan Puskesmas Kokop mengingatkan agar Bapak/Ibu mendampingi saudara kita *${patientName}* untuk rutin meminum obat sesuai dosis dokter (Catatan: ${visitCount > 0 ? `Tahap Pemulihan Kontrol Ke-${visitCount}` : 'Pemantauan Rutin'}).\n\nBila ada keluhan atau obat akan habis, segera hubungi Kader Jiwa desa kita. Matator sakalangkong atas perhatian dan kasih sayang keluarga.`);
+    const waText = encodeURIComponent(`*PENGINGAT MINUM OBAT & KONTROL DARI PUSKESMAS KOKOP*\n\nAssalamu’alaikum Wr. Wb. Bhuppa’ Bhabbu’ (Keluarga ${patientName}),\nSemoga senantiasa diberikan kesehatan dan ketenteraman keluarga.\n\nKami dari Petugas Kesehatan Puskesmas Kokop mengingatkan agar Bapak/Ibu mendampingi saudara kita *${patientName}* untuk rutin meminum obat sesuai dosis dokter (Catatan: ${visitCount > 0 ? `Tahap Pemulihan Kontrol Ke-${visitCount}` : 'Pemantauan Rutin'}).\n\nBila ada keluhan atau obat akan habis, segera hubungi Kader Jiwa desa kita. Matator sakalangkong atas perhatian dan kasih sayang keluarga.`);
     window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waText}`, '_blank');
   }
 }
