@@ -426,7 +426,7 @@ export function handleReportsFilterSort(resetPage = false) {
           <td class="p-3.5 font-medium text-amber-700">${r.report_type}</td>
           <td class="p-3.5">
             <div class="flex items-center space-x-2">
-              ${r.photo_path ? `<a href="${r.photo_path}" target="_blank" class="text-blue-600 font-bold hover:underline">Foto</a>` : '<span class="text-slate-400">-</span>'}
+              ${(r.photo_path || r.photo_url) ? `<button type="button" onclick="previewReportPhoto('${r.id}')" class="text-blue-600 font-bold hover:underline cursor-pointer inline-flex items-center gap-1"><i class="fa-solid fa-image text-xs"></i> Foto</button>` : '<span class="text-slate-400">-</span>'}
               ${r.latitude ? `<a href="https://maps.google.com/?q=${r.latitude},${r.longitude}" target="_blank" class="text-emerald-700 font-bold hover:underline">GPS</a>` : ''}
             </div>
           </td>

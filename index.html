@@ -3499,8 +3499,13 @@
       </div>
 
       <!-- Preview Foto Bukti Lapangan -->
-      <div id="repDetailPhotoContainer" class="bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 text-center relative max-h-60 flex items-center justify-center hidden">
-        <img id="repDetailPhotoImg" src="" alt="Foto Bukti Temuan Pasung" class="w-full h-auto max-h-60 object-contain rounded-2xl">
+      <div id="repDetailPhotoContainer" onclick="previewReportPhoto(window.activeDetailReportId)" title="Klik untuk memperbesar foto bukti"
+        class="bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 text-center relative max-h-60 flex items-center justify-center cursor-pointer group hover:border-blue-400 transition hidden">
+        <img id="repDetailPhotoImg" src="" alt="Foto Bukti Temuan Pasung" class="w-full h-auto max-h-60 object-contain rounded-2xl group-hover:scale-101 transition duration-200">
+        <div class="absolute bottom-2 right-2 px-2.5 py-1 rounded-lg bg-black/60 text-white text-[10px] font-bold backdrop-blur-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+          <i class="fa-solid fa-magnifying-glass-plus"></i>
+          <span>Perbesar</span>
+        </div>
       </div>
 
       <!-- Grid Data Pelapor & Pasien -->
@@ -3601,6 +3606,48 @@
         <button type="button" onclick="submitGuruNeedTime()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
           <i class="fa-solid fa-paper-plane text-xs"></i>
           <span>Kirim Konfirmasi Waktu</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LIGHTBOX / PREVIEW FOTO LAPANGAN RESMI (ANTI-BLANK TOP-FRAME CHROME) -->
+  <div id="modalPhotoLightbox" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold shrink-0">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+          <div>
+            <h3 id="photoLightboxTitle" class="font-bold text-slate-900 text-sm">Foto Bukti Temuan Lapangan</h3>
+            <p id="photoLightboxSubtitle" class="text-[11px] text-slate-500 font-medium">Dokumentasi resmi kader jiwa</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <button type="button" id="photoLightboxNewTabBtn" title="Buka di Tab Baru (Blob Aman)" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
+            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+          </button>
+          <button type="button" id="photoLightboxDownloadBtn" title="Unduh Foto" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
+            <i class="fa-solid fa-download text-xs"></i>
+          </button>
+          <button type="button" onclick="closePhotoLightbox()" title="Tutup" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Image Area -->
+      <div class="p-3 sm:p-4 bg-slate-950/90 flex-1 flex items-center justify-center overflow-auto min-h-[300px] max-h-[72vh]">
+        <img id="photoLightboxImg" src="" alt="Foto Bukti" class="max-w-full max-h-[70vh] object-contain rounded-xl shadow-lg transition-transform">
+      </div>
+
+      <!-- Footer Info -->
+      <div class="px-5 py-3 bg-white border-t border-slate-100 flex items-center justify-between text-xs">
+        <span id="photoLightboxCaption" class="text-slate-500 truncate">-</span>
+        <button type="button" onclick="closePhotoLightbox()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+          Tutup
         </button>
       </div>
     </div>
