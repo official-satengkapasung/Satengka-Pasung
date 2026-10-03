@@ -158,9 +158,24 @@ export function resetDatabase() {
 export async function loginUser(identifier, password) {
   const cleanId = (identifier || '').replace(/\D/g, '');
   const idLower = (identifier || '').trim().toLowerCase();
-  const emailToAuth = idLower.includes('@')
-    ? idLower
-    : `${cleanId || idLower || 'user'}@satengka-pasung.id`;
+  let emailToAuth = idLower.includes('@') ? idLower : null;
+
+  // Cek apakah user memiliki email auth khusus di Firestore (misal pendaftar ulang)
+  if (!emailToAuth && cleanId && isFirebaseActive && db) {
+    try {
+      const uSnap = await getDocs(query(collection(db, "users"), where("phone", "==", cleanId), limit(1)));
+      if (!uSnap.empty) {
+        const uDoc = uSnap.docs[0].data();
+        if (uDoc && uDoc.email) {
+          emailToAuth = uDoc.email;
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (!emailToAuth) {
+    emailToAuth = `${cleanId || idLower || 'user'}@satengka-pasung.id`;
+  }
 
   let fbUserToken = null;
   let authUser = null;
@@ -396,7 +411,51 @@ export async function createUser(userData) {
     } catch (authErr) {
       console.warn("Firebase createUser Auth:", authErr.code, authErr.message);
       if (authErr.code === "auth/email-already-in-use") {
-        throw new Error("Nomor HP / Akun ini sudah terdaftar di Firebase Authentication. Silakan masuk langsung.");
+        // Cek apakah nomor HP masih aktif di profil Firestore
+        let isStillInCloud = false;
+        if (db) {
+          try {
+            const checkSnap = await getDocs(query(collection(db, "users"), where("phone", "==", cleanPhone), limit(1)));
+            if (!checkSnap.empty) {
+              isStillInCloud = true;
+            }
+          } catch (e) {
+            console.warn("Check user in firestore error:", e);
+          }
+        }
+
+        if (isStillInCloud) {
+          throw new Error("Nomor HP ini sudah aktif terdaftar di sistem faskes. Silakan langsung masuk.");
+        }
+
+        // Akun lama telah dihapus oleh Nakes dari Firestore, tapi masih tersisa di Firebase Auth (Orphan Auth).
+        // Strategi A: Coba adopsi akun dengan password yang diinput
+        let adopted = false;
+        try {
+          const loginRes = await signInWithEmailAndPassword(auth, emailToAuth, password);
+          if (loginRes && loginRes.user) {
+            firebaseUid = loginRes.user.uid;
+            await updateProfile(loginRes.user, { displayName: userData.name });
+            console.log("🔥 [ADOPTED] Berhasil mengadopsi akun Firebase Auth lama:", emailToAuth);
+            adopted = true;
+          }
+        } catch (signInErr) {}
+
+        // Strategi B: Jika password lama berbeda, buat akun auth baru dengan token timestamp
+        if (!adopted) {
+          try {
+            emailToAuth = `${cleanPhone}_v${Date.now()}@satengka-pasung.id`;
+            const retryCred = await createUserWithEmailAndPassword(auth, emailToAuth, password);
+            if (retryCred && retryCred.user) {
+              firebaseUid = retryCred.user.uid;
+              await updateProfile(retryCred.user, { displayName: userData.name });
+              console.log("🔥 [RE-REGISTER] Pendaftaran ulang berhasil dengan auth ID baru:", emailToAuth);
+            }
+          } catch (retryErr) {
+            console.error("Gagal mendaftarkan ulang akun:", retryErr);
+            throw new Error("Gagal mendaftarkan akun ke server: " + (retryErr.message || "Email sudah digunakan"));
+          }
+        }
       } else if (authErr.code === "auth/weak-password") {
         throw new Error("Kata sandi terlalu pendek. Minimal 6 karakter sesuai ketentuan keamanan Firebase.");
       } else {
