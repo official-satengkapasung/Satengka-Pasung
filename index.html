@@ -464,14 +464,64 @@
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Kolom Kiri: Kasus Membutuhkan Aksi (2 Kolom) -->
             <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-5 shadow-sm space-y-4">
-              <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-900 text-sm md:text-base">Kasus Membutuhkan Aksi</h3>
-                <a href="#" aria-label="Lihat seluruh daftar kasus" onclick="switchNakesTab('kasus'); return false;"
-                  class="text-xs text-emerald-700 font-bold hover:underline">Lihat Semua</a>
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 pb-3">
+                <div class="flex items-center space-x-2">
+                  <h3 class="font-bold text-slate-900 text-sm md:text-base">Kasus Membutuhkan Aksi</h3>
+                  <span id="nakesAksiTotalBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-700">0</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <select id="nakesAksiVillageFilter" onchange="window.onNakesAksiFilterChanged && window.onNakesAksiFilterChanged()"
+                    class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-700 outline-none focus:ring-1 focus:ring-emerald-600">
+                    <option value="ALL">Semua Daerah (13 Desa)</option>
+                    <option value="1">Desa Ampara'an</option>
+                    <option value="2">Desa Bandang Laok</option>
+                    <option value="3">Desa Bandasoleh</option>
+                    <option value="4">Desa Batokorogan</option>
+                    <option value="5">Desa Dupok</option>
+                    <option value="6">Desa Durjan</option>
+                    <option value="7">Desa Katol Timur</option>
+                    <option value="8">Desa Kokop</option>
+                    <option value="9">Desa Lembung Gunong</option>
+                    <option value="10">Desa Mandung</option>
+                    <option value="11">Desa Mano'an</option>
+                    <option value="12">Desa Tlokoh</option>
+                    <option value="13">Desa Tramok</option>
+                  </select>
+                  <a href="#" aria-label="Lihat seluruh daftar kasus" onclick="switchNakesTab('kasus'); return false;"
+                    class="text-xs text-emerald-700 font-bold hover:underline shrink-0">Lihat Semua</a>
+                </div>
+              </div>
+
+              <!-- Filter Kategori Status Kasus Aksi Cepat -->
+              <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs" id="nakesAksiStatusFilters">
+                <button type="button" onclick="setNakesAksiStatusFilter('ALL')" id="btnAksiFilter_ALL"
+                  class="px-2.5 py-1 rounded-xl font-bold bg-[#145861] text-white shadow-2xs shrink-0 transition">
+                  Semua
+                </button>
+                <button type="button" onclick="setNakesAksiStatusFilter('NEW')" id="btnAksiFilter_NEW"
+                  class="px-2.5 py-1 rounded-xl font-semibold bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-700 shrink-0 transition flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+                  Laporan Baru
+                </button>
+                <button type="button" onclick="setNakesAksiStatusFilter('EVACUATION')" id="btnAksiFilter_EVACUATION"
+                  class="px-2.5 py-1 rounded-xl font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 shrink-0 transition flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                  Siap Evakuasi
+                </button>
+                <button type="button" onclick="setNakesAksiStatusFilter('COORDINATION')" id="btnAksiFilter_COORDINATION"
+                  class="px-2.5 py-1 rounded-xl font-semibold bg-slate-100 hover:bg-amber-50 text-slate-700 hover:text-amber-800 shrink-0 transition flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                  Koordinasi Pilar
+                </button>
               </div>
 
               <!-- List Kasus Aksi Cepat -->
-              <div id="nakesAksiList" class="space-y-3 min-h-[300px]">
+              <div id="nakesAksiList" class="space-y-3 min-h-[260px]">
+                <!-- Diisi otomatis oleh JS -->
+              </div>
+
+              <!-- Kontrol Pagination Kasus Aksi Cepat -->
+              <div id="nakesAksiPagination" class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                 <!-- Diisi otomatis oleh JS -->
               </div>
             </div>
@@ -884,8 +934,8 @@
               </div>
             </div>
 
-            <!-- Pilihan Tokoh Ghuru (Multi-Select & Lintas Desa) -->
-            <div class="space-y-1.5">
+            <!-- Pilihan Tokoh Ghuru (Multi-Select, Search, Filter Desa, & Pagination) -->
+            <div class="space-y-2">
               <div class="flex items-center justify-between">
                 <label class="block text-xs font-bold text-slate-700 uppercase">
                   <i class="fa-solid fa-mosque text-emerald-700 mr-1"></i> Bhu' Ghuru / Kiai <span class="text-[10px] text-slate-500 font-normal lowercase">(bisa pilih lebih dari 1)</span>
@@ -895,13 +945,47 @@
                   <span>Sertakan Kiai Lintas Desa</span>
                 </label>
               </div>
-              <div id="ewsGuruContainer" class="max-h-44 overflow-y-auto border border-slate-200 rounded-2xl p-2.5 space-y-1.5 bg-slate-50/70">
+
+              <!-- Search & Filter Desa Ghuru -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div class="relative">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                  <input type="text" id="ewsGuruSearchInput" oninput="window.filterEwsGuruList && window.filterEwsGuruList()"
+                    placeholder="Cari nama Kiai atau no WA..."
+                    class="w-full bg-slate-50 pl-8 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-emerald-600 outline-none transition">
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-location-dot text-emerald-700 text-xs ml-1"></i>
+                  <select id="ewsGuruVillageFilter" onchange="window.filterEwsGuruList && window.filterEwsGuruList()"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs font-semibold text-slate-800 focus:bg-white focus:border-emerald-600 outline-none transition">
+                    <option value="ALL">Semua Desa</option>
+                    <option value="1">Desa Ampara'an</option>
+                    <option value="2">Desa Bandang Laok</option>
+                    <option value="3">Desa Dupok</option>
+                    <option value="4">Desa Geger</option>
+                    <option value="5">Desa Katol Barat</option>
+                    <option value="6">Desa Kokop</option>
+                    <option value="7">Desa Lembung Gunong</option>
+                    <option value="8">Desa Mandung</option>
+                    <option value="9">Desa Mano'an</option>
+                    <option value="10">Desa Tlokoh</option>
+                    <option value="11">Desa Tramok</option>
+                    <option value="12">Desa Bandang Dajah</option>
+                    <option value="13">Desa Batokaban</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="ewsGuruContainer" class="max-h-48 overflow-y-auto border border-slate-200 rounded-2xl p-2.5 space-y-1.5 bg-slate-50/70">
                 <p class="text-xs text-slate-400 italic p-2 text-center">Memuat daftar tokoh Kiai...</p>
               </div>
+
+              <!-- Navigasi Pagination Ghuru -->
+              <div id="ewsGuruPagination" class="flex items-center justify-between text-xs pt-0.5 px-1"></div>
             </div>
 
-            <!-- Pilihan Tokoh Rato (Multi-Select & Lintas Desa) -->
-            <div class="space-y-1.5">
+            <!-- Pilihan Tokoh Rato (Multi-Select, Search, Filter Desa, & Pagination) -->
+            <div class="space-y-2">
               <div class="flex items-center justify-between">
                 <label class="block text-xs font-bold text-slate-700 uppercase">
                   <i class="fa-solid fa-landmark text-blue-700 mr-1"></i> Rato / Aparat Desa <span class="text-[10px] text-slate-500 font-normal lowercase">(bisa pilih lebih dari 1)</span>
@@ -911,9 +995,43 @@
                   <span>Sertakan Rato Lintas Desa</span>
                 </label>
               </div>
-              <div id="ewsRatoContainer" class="max-h-44 overflow-y-auto border border-slate-200 rounded-2xl p-2.5 space-y-1.5 bg-slate-50/70">
+
+              <!-- Search & Filter Desa Rato -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div class="relative">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                  <input type="text" id="ewsRatoSearchInput" oninput="window.filterEwsRatoList && window.filterEwsRatoList()"
+                    placeholder="Cari nama Aparat atau no WA..."
+                    class="w-full bg-slate-50 pl-8 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-blue-600 outline-none transition">
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-location-dot text-blue-700 text-xs ml-1"></i>
+                  <select id="ewsRatoVillageFilter" onchange="window.filterEwsRatoList && window.filterEwsRatoList()"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs font-semibold text-slate-800 focus:bg-white focus:border-blue-600 outline-none transition">
+                    <option value="ALL">Semua Desa</option>
+                    <option value="1">Desa Ampara'an</option>
+                    <option value="2">Desa Bandang Laok</option>
+                    <option value="3">Desa Dupok</option>
+                    <option value="4">Desa Geger</option>
+                    <option value="5">Desa Katol Barat</option>
+                    <option value="6">Desa Kokop</option>
+                    <option value="7">Desa Lembung Gunong</option>
+                    <option value="8">Desa Mandung</option>
+                    <option value="9">Desa Mano'an</option>
+                    <option value="10">Desa Tlokoh</option>
+                    <option value="11">Desa Tramok</option>
+                    <option value="12">Desa Bandang Dajah</option>
+                    <option value="13">Desa Batokaban</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="ewsRatoContainer" class="max-h-48 overflow-y-auto border border-slate-200 rounded-2xl p-2.5 space-y-1.5 bg-slate-50/70">
                 <p class="text-xs text-slate-400 italic p-2 text-center">Memuat daftar aparatur desa...</p>
               </div>
+
+              <!-- Navigasi Pagination Rato -->
+              <div id="ewsRatoPagination" class="flex items-center justify-between text-xs pt-0.5 px-1"></div>
             </div>
 
             <div>
@@ -2723,20 +2841,52 @@
         </div>
       </div>
 
-      <!-- Quick Context Info (Kasus Terkait) -->
-      <div
-        class="px-3.5 sm:px-4 py-2.5 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between gap-2.5 text-xs shrink-0">
-        <div class="flex items-center space-x-2 text-slate-700 flex-1 min-w-0">
-          <i class="fa-solid fa-user-injured text-emerald-700 shrink-0 text-sm"></i>
-          <span class="font-bold text-slate-800 shrink-0 text-xs">Fokus Kasus:</span>
-          <select id="chatCaseSelector" onchange="onChatCaseChanged()"
-            class="flex-1 min-w-0 w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-600 transition shadow-2xs truncate">
-            <!-- Dinamis -->
-          </select>
+      <!-- Quick Context Info & Filter Kasus Live Chat -->
+      <div class="px-3.5 sm:px-4 py-2.5 bg-slate-50/90 border-b border-slate-200/80 space-y-2 shrink-0">
+        <!-- Search Nama Pasien & Filter Daerah -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 text-xs">
+          <div class="relative flex-1 min-w-0">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <input type="text" id="chatPatientSearchInput" oninput="window.filterChatCaseSelector && window.filterChatCaseSelector()"
+              placeholder="Cari nama pasien atau no. kasus..."
+              class="w-full bg-white pl-8 pr-3 py-1.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:border-emerald-600 outline-none transition shadow-2xs">
+          </div>
+          <div class="flex items-center gap-1.5 sm:w-48 shrink-0">
+            <i class="fa-solid fa-location-dot text-emerald-700 text-xs ml-1"></i>
+            <select id="chatVillageFilterSelect" onchange="window.filterChatCaseSelector && window.filterChatCaseSelector()"
+              class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-600 transition shadow-2xs">
+              <option value="ALL">Semua Daerah</option>
+              <option value="1">Desa Ampara'an</option>
+              <option value="2">Desa Bandang Laok</option>
+              <option value="3">Desa Dupok</option>
+              <option value="4">Desa Geger</option>
+              <option value="5">Desa Katol Barat</option>
+              <option value="6">Desa Kokop</option>
+              <option value="7">Desa Lembung Gunong</option>
+              <option value="8">Desa Mandung</option>
+              <option value="9">Desa Mano'an</option>
+              <option value="10">Desa Tlokoh</option>
+              <option value="11">Desa Tramok</option>
+              <option value="12">Desa Bandang Dajah</option>
+              <option value="13">Desa Batokaban</option>
+            </select>
+          </div>
         </div>
-        <span
-          class="hidden sm:inline-block font-mono text-emerald-800 bg-emerald-100/70 border border-emerald-300/80 px-2.5 py-1 rounded-lg text-[10px] font-bold shrink-0 shadow-2xs"
-          id="chatTargetCaseNumber">#CAS-20260908-001</span>
+
+        <!-- Fokus Kasus Terpilih -->
+        <div class="flex items-center justify-between gap-2.5 text-xs">
+          <div class="flex items-center space-x-2 text-slate-700 flex-1 min-w-0">
+            <i class="fa-solid fa-user-injured text-emerald-700 shrink-0 text-sm"></i>
+            <span class="font-bold text-slate-800 shrink-0 text-xs">Fokus Kasus:</span>
+            <select id="chatCaseSelector" onchange="onChatCaseChanged()"
+              class="flex-1 min-w-0 w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-600 transition shadow-2xs truncate">
+              <!-- Dinamis -->
+            </select>
+          </div>
+          <span
+            class="hidden sm:inline-block font-mono text-emerald-800 bg-emerald-100/70 border border-emerald-300/80 px-2.5 py-1 rounded-lg text-[10px] font-bold shrink-0 shadow-2xs"
+            id="chatTargetCaseNumber">#CAS-20260908-001</span>
+        </div>
       </div>
 
       <!-- Daftar Template Pesan Cepat & Say Hello (Persis Review Klien) -->

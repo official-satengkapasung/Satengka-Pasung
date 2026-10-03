@@ -86,10 +86,40 @@ import {
       }
     }
 
+    let nakesAksiStatusFilter = 'ALL';
+    let nakesAksiPaginationState = { page: 1, perPage: 4 };
+
+    export function setNakesAksiStatusFilter(status) {
+      nakesAksiStatusFilter = status;
+      nakesAksiPaginationState.page = 1;
+      const buttons = ['ALL', 'NEW', 'EVACUATION', 'COORDINATION'];
+      buttons.forEach(b => {
+        const btn = document.getElementById('btnAksiFilter_' + b);
+        if (btn) {
+          if (b === status) {
+            btn.className = 'px-2.5 py-1 rounded-xl font-bold bg-[#145861] text-white shadow-2xs shrink-0 transition';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-xl font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 shrink-0 transition flex items-center gap-1';
+          }
+        }
+      });
+      renderNakesDashboardCases(window.currentCases || []);
+    }
+
+    export function onNakesAksiFilterChanged() {
+      nakesAksiPaginationState.page = 1;
+      renderNakesDashboardCases(window.currentCases || []);
+    }
+
+    export function goToNakesAksiPage(page) {
+      nakesAksiPaginationState.page = page;
+      renderNakesDashboardCases(window.currentCases || []);
+    }
+
     // Render Kasus Membutuhkan Aksi & Laporan Baru di Dashboard Nakes (Persis Gambar 2)
     export function renderNakesDashboardCases(cases) {
-      // 1. Render Banner Alert Laporan Masuk Baru dari Kader (Jika Ada)
-      const pendingReports = currentReports.filter(r => r.status === 'NEW');
+      const allReports = window.currentReports || currentReports || [];
+      const pendingReports = allReports.filter(r => r.status === 'NEW');
       const bannerContainer = document.getElementById('nakesPendingReportsContainer');
       const bannerList = document.getElementById('nakesPendingReportsList');
       const bannerTitle = document.getElementById('nakesPendingReportsTitle');
@@ -128,42 +158,69 @@ import {
         }
       }
 
-      // 2. Render Daftar Aksi Cepat
       const container = document.getElementById('nakesAksiList');
+      const pagContainer = document.getElementById('nakesAksiPagination');
+      const totalBadge = document.getElementById('nakesAksiTotalBadge');
       if (!container) return;
 
-      // Gabungkan laporan NEW di paling atas daftar aksi jika ada
-      let actionItemsHtml = '';
+      const villageFilter = document.getElementById('nakesAksiVillageFilter')?.value || 'ALL';
+      let combinedItems = [];
 
-      if (pendingReports.length > 0) {
-        actionItemsHtml += pendingReports.map(r => `
-          <div onclick="openReportDetail('${r.id}')" class="p-3.5 rounded-2xl border-2 border-red-300 bg-red-50/50 hover:bg-red-50 cursor-pointer transition flex justify-between items-center shadow-xs">
-            <div class="flex items-center space-x-3">
-              <div class="w-9 h-9 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm shrink-0">
-                <i class="fa-solid fa-bell animate-bounce"></i>
-              </div>
-              <div>
-                <div class="flex items-center space-x-2">
-                  <h4 class="font-bold text-slate-900 text-sm">${r.patient_name_input}</h4>
-                  <span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-red-200 text-red-800 font-bold">${r.report_number}</span>
+      if (nakesAksiStatusFilter === 'ALL' || nakesAksiStatusFilter === 'NEW') {
+        const matchedPendingReports = pendingReports.filter(r => {
+          if (villageFilter !== 'ALL') {
+            return String(r.village_id) === String(villageFilter);
+          }
+          return true;
+        });
+
+        matchedPendingReports.forEach(r => {
+          combinedItems.push({
+            type: 'REPORT',
+            data: r,
+            html: `
+              <div onclick="openReportDetail('${r.id}')" class="p-3.5 rounded-2xl border-2 border-red-300 bg-red-50/50 hover:bg-red-50 cursor-pointer transition flex justify-between items-center shadow-xs">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm shrink-0">
+                    <i class="fa-solid fa-bell animate-bounce"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center space-x-2">
+                      <h4 class="font-bold text-slate-900 text-sm">${r.patient_name_input}</h4>
+                      <span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-red-200 text-red-800 font-bold">${r.report_number}</span>
+                    </div>
+                    <p class="text-xs text-slate-500">${r.address_input || 'Desa Kokop'} • <span class="text-red-600 font-semibold">Laporan Kader (Belum Divalidasi)</span></p>
+                  </div>
                 </div>
-                <p class="text-xs text-slate-500">${r.address_input || 'Desa Kokop'} • <span class="text-red-600 font-semibold">Laporan Kader (Belum Divalidasi)</span></p>
+                <div class="flex items-center space-x-1.5 shrink-0">
+                  <button onclick="event.stopPropagation(); openReportDetail('${r.id}');" class="px-2.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 font-bold text-xs rounded-xl shadow-xs">
+                    <i class="fa-solid fa-eye mr-1 text-slate-400"></i> Detail
+                  </button>
+                  <button onclick="event.stopPropagation(); openSiagaFromReport('${r.id}');" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow">
+                    Validasi Satengka
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="flex items-center space-x-1.5 shrink-0">
-              <button onclick="event.stopPropagation(); openReportDetail('${r.id}');" class="px-2.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 font-bold text-xs rounded-xl shadow-xs">
-                <i class="fa-solid fa-eye mr-1 text-slate-400"></i> Detail
-              </button>
-              <button onclick="event.stopPropagation(); openSiagaFromReport('${r.id}');" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow">
-                Validasi Satengka
-              </button>
-            </div>
-          </div>
-        `).join('');
+            `
+          });
+        });
       }
 
-      if (cases.length > 0) {
-        actionItemsHtml += cases.slice(0, 5).map(c => {
+      if (nakesAksiStatusFilter !== 'NEW' && cases && cases.length > 0) {
+        const activeCases = cases.filter(c => {
+          if (c.status === 'CLOSED' || c.status === 'RESOLVED') return false;
+          if (villageFilter !== 'ALL' && String(c.village_id) !== String(villageFilter)) return false;
+
+          if (nakesAksiStatusFilter === 'EVACUATION') {
+            return c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION';
+          }
+          if (nakesAksiStatusFilter === 'COORDINATION') {
+            return c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'REPORTED';
+          }
+          return true;
+        });
+
+        activeCases.forEach(c => {
           let badgeHtml = '';
           if (c.status === 'SIAGA' || c.status === 'REPORTED') {
             badgeHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-700 flex items-center"><i class="fa-solid fa-triangle-exclamation mr-1 text-[10px]"></i> Butuh Evakuasi</span>`;
@@ -188,11 +245,10 @@ import {
             partnerPills += `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain inline-block" alt="Rato"> Rato: Siap</span>`;
           }
 
-          // Info Narahubung Pelapor & Tokoh Kemitraan
           let repName = c.reporter_name;
           let repPhone = c.reporter_phone;
           if ((!repName || repName === 'Siti') && c.report_id) {
-            const matchedRep = (currentReports || []).find(r => String(r.id) === String(c.report_id));
+            const matchedRep = allReports.find(r => String(r.id) === String(c.report_id));
             if (matchedRep && matchedRep.reporter_name) {
               repName = matchedRep.reporter_name;
               if (matchedRep.reporter_phone) repPhone = matchedRep.reporter_phone;
@@ -206,17 +262,17 @@ import {
             }
           }
           if (!repName || repName === 'Siti') {
-            const matchedKader = (currentUsers || []).find(u => u.role === 'KADER' && (String(u.id) === String(c.reporter_id) || (u.village_id && String(u.village_id) === String(c.village_id))));
+            const matchedKader = (window.currentUsers || []).find(u => u.role === 'KADER' && (String(u.id) === String(c.reporter_id) || (u.village_id && String(u.village_id) === String(c.village_id))));
             if (matchedKader) {
               repName = matchedKader.name;
               if (matchedKader.phone) repPhone = matchedKader.phone;
             }
           }
-          const reporterName = cleanRoleAccountName(repName || "Kader Jiwa");
+          const reporterName = cleanRoleAccountName(repName || 'Kader Jiwa');
           const reporterPhone = repPhone || '-';
           const cleanRepPhone = reporterPhone.replace(/\D/g, '').replace(/^0/, '62');
 
-          const guruName = cleanRoleAccountName((guruP && guruP.name) ? guruP.name : "Kiai H. Kholil");
+          const guruName = cleanRoleAccountName((guruP && guruP.name) ? guruP.name : 'Kiai H. Kholil');
           const guruPhone = (guruP && guruP.phone) ? guruP.phone : '081234567892';
           const cleanGuruPhone = guruPhone.replace(/\D/g, '').replace(/^0/, '62');
           let guruResponseText = 'Menunggu Konfirmasi';
@@ -231,85 +287,110 @@ import {
           let ratoResponseClass = 'text-slate-500';
           if (ratoP && (ratoP.response === 'READY' || ratoP.response === 'SIAP' || ratoP.response === 'AGREE')) { ratoResponseText = '✓ Siap Kawal'; ratoResponseClass = 'text-indigo-700 font-bold'; }
 
-          return `
-            <div onclick="selectCaseDetail('${c.id}')" class="p-4 rounded-2xl md:rounded-3xl border border-slate-200/90 bg-white hover:border-emerald-500 hover:shadow-md cursor-pointer transition space-y-3">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
-                    <i class="fa-solid fa-hospital-user"></i>
-                  </div>
+          combinedItems.push({
+            type: 'CASE',
+            data: c,
+            html: `
+              <div onclick="openCaseDetail('${c.id}')" class="p-4 rounded-2xl border border-slate-200 bg-white hover:border-emerald-400 hover:shadow-md cursor-pointer transition space-y-3">
+                <div class="flex justify-between items-start">
                   <div>
                     <div class="flex items-center space-x-2">
-                      <h4 class="font-black text-slate-900 text-sm sm:text-base">${c.patient_name}</h4>
-                      <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 text-slate-600 border border-slate-200">${c.case_number || 'CAS-001'}</span>
+                      <h4 class="font-bold text-slate-900 text-sm md:text-base">${c.patient_name}</h4>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-600 font-semibold">${c.case_number}</span>
                     </div>
-                    <p class="text-xs text-slate-500 font-medium">${c.patient_address || c.village_name} • <span class="text-slate-700 font-semibold">${c.report_type || 'Kasus Pasung'}</span></p>
+                    <p class="text-xs text-slate-500">${c.patient_address || c.village_name || 'Desa Kokop'}</p>
+                  </div>
+                  <div class="flex flex-col items-end gap-1">
+                    ${badgeHtml}
+                    <div class="flex items-center gap-1">${partnerPills}</div>
                   </div>
                 </div>
-                <div class="flex items-center space-x-2 shrink-0 self-start sm:self-auto">
-                  ${partnerPills}
-                  ${badgeHtml}
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 border-t border-slate-100">
+                  <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-100 shadow-2xs">
+                    <div class="truncate mr-1">
+                      <span class="text-[9px] font-bold uppercase text-emerald-700 flex items-center gap-1 tracking-wider">
+                        <img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Bhuppa'"> Bhuppa' Babhu'
+                      </span>
+                      <span class="font-bold text-slate-800 truncate block">${reporterName}</span>
+                      <span class="text-[10px] text-slate-500 block">${reporterPhone}</span>
+                    </div>
+                    <a href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + reporterName + ', koordinasi Puskesmas Kokop terkait kasus pasien ' + c.patient_name)}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Kader Pelapor">
+                      <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                  </div>
+
+                  <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-100 shadow-2xs">
+                    <div class="truncate mr-1">
+                      <span class="text-[9px] font-bold uppercase text-teal-700 flex items-center gap-1 tracking-wider">
+                        <img src="./assets/icons/role_bhu-ghuru.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Ghuru"> Ghuru
+                      </span>
+                      <span class="font-bold text-slate-800 truncate block">${guruName}</span>
+                      <span class="text-[10px] ${guruResponseClass} block">${guruResponseText}</span>
+                    </div>
+                    <a href="https://wa.me/${cleanGuruPhone}?text=${encodeURIComponent('Assalamualaikum ' + guruName + ', koordinasi pendekatan rembuk santun pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Ghuru">
+                      <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                  </div>
+
+                  <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-100 shadow-2xs">
+                    <div class="truncate mr-1">
+                      <span class="text-[9px] font-bold uppercase text-indigo-700 flex items-center gap-1 tracking-wider">
+                        <img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Rato"> Rato
+                      </span>
+                      <span class="font-bold text-slate-800 truncate block">${ratoName}</span>
+                      <span class="text-[10px] ${ratoResponseClass} block">${ratoResponseText}</span>
+                    </div>
+                    <a href="https://wa.me/${cleanRatoPhone}?text=${encodeURIComponent('Halo ' + ratoName + ', koordinasi pengamanan evakuasi pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" target="_blank" class="w-7 h-7 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Rato">
+                      <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                  </div>
                 </div>
               </div>
-
-              <!-- Baris Narahubung Lengkap (Bhuppa' Babhu', Ghuru, Rato) -->
-              <div class="bg-slate-50/80 rounded-xl p-2.5 border border-slate-200/60 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]" onclick="event.stopPropagation()">
-                <!-- Bhuppa' Babhu' -->
-                <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-100 shadow-2xs">
-                  <div class="truncate mr-1">
-                    <span class="text-[9px] font-bold uppercase text-emerald-700 flex items-center gap-1 tracking-wider">
-                      <img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Bhuppa' Babhu'"> Bhuppa' Babhu'
-                    </span>
-                    <span class="font-bold text-slate-800 truncate block">${reporterName}</span>
-                    <span class="text-[10px] text-slate-600 font-mono font-semibold">${reporterPhone}</span>
-                  </div>
-                  <a aria-label="Hubungi WhatsApp Bhuppa Babhu" href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + reporterName + ', koordinasi faskes Puskesmas Kokop terkait laporan pasien ' + c.patient_name)}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Bhuppa' Babhu'">
-                    <i class="fa-brands fa-whatsapp"></i>
-                  </a>
-                </div>
-
-                <!-- Ghuru -->
-                <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-100 shadow-2xs">
-                  <div class="truncate mr-1">
-                    <span class="text-[9px] font-bold uppercase text-teal-700 flex items-center gap-1 tracking-wider">
-                      <img src="./assets/icons/role_bhu-ghuru.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Ghuru"> Ghuru
-                    </span>
-                    <span class="font-bold text-slate-800 truncate block">${guruName}</span>
-                    <span class="text-[10px] ${guruResponseClass} block">${guruResponseText}</span>
-                  </div>
-                  <a href="https://wa.me/${cleanGuruPhone}?text=${encodeURIComponent('Assalamualaikum ' + guruName + ', koordinasi pendekatan rembuk santun pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Ghuru">
-                    <i class="fa-brands fa-whatsapp"></i>
-                  </a>
-                </div>
-
-                <!-- Rato -->
-                <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-100 shadow-2xs">
-                  <div class="truncate mr-1">
-                    <span class="text-[9px] font-bold uppercase text-indigo-700 flex items-center gap-1 tracking-wider">
-                      <img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Rato"> Rato
-                    </span>
-                    <span class="font-bold text-slate-800 truncate block">${ratoName}</span>
-                    <span class="text-[10px] ${ratoResponseClass} block">${ratoResponseText}</span>
-                  </div>
-                  <a href="https://wa.me/${cleanRatoPhone}?text=${encodeURIComponent('Halo ' + ratoName + ', koordinasi pengamanan evakuasi pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" target="_blank" class="w-7 h-7 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Rato">
-                    <i class="fa-brands fa-whatsapp"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
+            `
+          });
+        });
       }
 
-      if (!actionItemsHtml) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Tidak ada kasus yang membutuhkan aksi saat ini.</p>`;
-      } else {
-        container.innerHTML = actionItemsHtml;
+      const totalItems = combinedItems.length;
+      if (totalBadge) totalBadge.innerText = totalItems;
+
+      if (totalItems === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">Tidak ada kasus yang membutuhkan aksi pada filter ini.</p>`;
+        if (pagContainer) pagContainer.innerHTML = '';
+        setTimeout(initOrUpdateLeafletMap, 50);
+        return;
       }
 
-      // 3. Render Peta Interaktif Leaflet.js
+      const perPage = nakesAksiPaginationState.perPage;
+      const totalPages = Math.ceil(totalItems / perPage) || 1;
+      if (nakesAksiPaginationState.page > totalPages) nakesAksiPaginationState.page = totalPages;
+      if (nakesAksiPaginationState.page < 1) nakesAksiPaginationState.page = 1;
+
+      const currentPage = nakesAksiPaginationState.page;
+      const startIndex = (currentPage - 1) * perPage;
+      const paginatedItems = combinedItems.slice(startIndex, startIndex + perPage);
+
+      container.innerHTML = paginatedItems.map(item => item.html).join('');
+
+      if (pagContainer) {
+        pagContainer.innerHTML = `
+          <span>Menampilkan <strong>${startIndex + 1}–${Math.min(startIndex + perPage, totalItems)}</strong> dari <strong>${totalItems}</strong> kasus aksi</span>
+          <div class="flex items-center space-x-1.5">
+            <button type="button" onclick="goToNakesAksiPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold transition"'}>
+              <i class="fa-solid fa-chevron-left mr-1"></i> Prev
+            </button>
+            <span class="px-2 font-semibold text-slate-700">Hal ${currentPage} / ${totalPages}</span>
+            <button type="button" onclick="goToNakesAksiPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold transition"'}>
+              Next <i class="fa-solid fa-chevron-right ml-1"></i>
+            </button>
+          </div>
+        `;
+      }
+
       setTimeout(initOrUpdateLeafletMap, 50);
     }
+
 
     // Inisialisasi / Sinkronisasi Peta Interaktif Leaflet (Desa Kokop)
     let leafletMapInstance = null;
@@ -563,6 +644,9 @@ if (typeof window !== 'undefined') {
   window.updateNakesCounters = updateNakesCounters;
   window.updateRoleMetricCounters = updateRoleMetricCounters;
   window.renderNakesDashboardCases = renderNakesDashboardCases;
+    window.setNakesAksiStatusFilter = setNakesAksiStatusFilter;
+    window.onNakesAksiFilterChanged = onNakesAksiFilterChanged;
+    window.goToNakesAksiPage = goToNakesAksiPage;
   window.setMapCategoryFilter = setMapCategoryFilter;
   window.switchNakesTab = switchNakesTab;
   window.renderEvacuationCards = renderEvacuationCards;

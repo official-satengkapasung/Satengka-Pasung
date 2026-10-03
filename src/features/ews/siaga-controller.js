@@ -61,31 +61,99 @@ export function openSiagaFromReport(reportId) {
 }
 
 
+// State pemilihan & pagination tokoh EWS
+export const selectedGuruIds = new Set();
+export const selectedRatoIds = new Set();
+let currentGuruPage = 1;
+const GURU_PAGE_SIZE = 5;
+let currentRatoPage = 1;
+const RATO_PAGE_SIZE = 5;
+
+export function toggleGuruSelection(id, checked) {
+  if (checked) {
+    selectedGuruIds.add(String(id));
+  } else {
+    selectedGuruIds.delete(String(id));
+  }
+}
+
+export function toggleRatoSelection(id, checked) {
+  if (checked) {
+    selectedRatoIds.add(String(id));
+  } else {
+    selectedRatoIds.delete(String(id));
+  }
+}
+
+export function changeGuruPage(newPage) {
+  currentGuruPage = newPage;
+  filterEwsGuruList();
+}
+
+export function changeRatoPage(newPage) {
+  currentRatoPage = newPage;
+  filterEwsRatoList();
+}
+
 export function renderEwsGuruCheckboxes(gurus, targetVillageId) {
   const container = document.getElementById('ewsGuruContainer');
+  const paginationContainer = document.getElementById('ewsGuruPagination');
   if (!container) return;
   const cleanRole = window.cleanRoleAccountName || (n => n);
   const showCross = document.getElementById('chkGuruCrossVillage')?.checked;
+  const searchInput = document.getElementById('ewsGuruSearchInput');
+  const villageSelect = document.getElementById('ewsGuruVillageFilter');
+
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  const villageFilter = villageSelect ? villageSelect.value : 'ALL';
 
   const filtered = gurus.filter(g => {
-    if (showCross) return true; // Tampilkan seluruh desa
-    if (!targetVillageId) return true;
-    return String(g.village_id) === String(targetVillageId);
+    // 1. Filter Desa Spesifik Dropdown jika dipilih
+    if (villageFilter && villageFilter !== 'ALL') {
+      const vMatch = String(g.village_id) === String(villageFilter) ||
+                     (g.village_name && g.village_name.toLowerCase().includes(villageFilter.toLowerCase()));
+      if (!vMatch) return false;
+    } else if (!showCross && targetVillageId) {
+      // Jika dropdown 'Semua Desa' tapi 'Sertakan Lintas Desa' tidak dicentang, batasi ke target village
+      if (String(g.village_id) !== String(targetVillageId)) return false;
+    }
+
+    // 2. Filter Search Teks (Nama atau No Kontak)
+    if (query) {
+      const name = (g.name || '').toLowerCase();
+      const phone = (g.phone || '').toLowerCase();
+      const vName = (g.village_name || '').toLowerCase();
+      const match = name.includes(query) || phone.includes(query) || vName.includes(query);
+      if (!match) return false;
+    }
+
+    return true;
   });
 
   if (filtered.length === 0) {
     container.innerHTML = `<div class="p-3 text-center text-xs text-slate-500 bg-white rounded-xl border border-dashed border-slate-200">
-      Tidak ada Kiai di desa ini. Centang <strong>"Sertakan Kiai Lintas Desa"</strong> di kanan atas untuk mengikutsertakan Kiai dari desa lain.
+      Tidak ada tokoh Kiai yang sesuai filter. Centang <strong>"Sertakan Kiai Lintas Desa"</strong> atau ubah kata kunci pencarian.
     </div>`;
+    if (paginationContainer) paginationContainer.innerHTML = '';
     return;
   }
 
-  container.innerHTML = filtered.map((g, idx) => {
+  // Hitung Pagination
+  const totalPages = Math.ceil(filtered.length / GURU_PAGE_SIZE) || 1;
+  if (currentGuruPage > totalPages) currentGuruPage = totalPages;
+  if (currentGuruPage < 1) currentGuruPage = 1;
+
+  const startIndex = (currentGuruPage - 1) * GURU_PAGE_SIZE;
+  const pageItems = filtered.slice(startIndex, startIndex + GURU_PAGE_SIZE);
+
+  container.innerHTML = pageItems.map((g) => {
     const isTargetVillage = targetVillageId && String(g.village_id) === String(targetVillageId);
+    const gid = String(g.id || g.uid);
+    const isChecked = selectedGuruIds.has(gid);
     return `
       <label class="flex items-center justify-between p-2 rounded-xl bg-white hover:bg-emerald-50/60 border border-slate-200/80 cursor-pointer transition select-none">
         <div class="flex items-center space-x-2.5">
-          <input type="checkbox" name="ews_guru_id" value="${g.id || g.uid}" ${idx === 0 && isTargetVillage ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded cursor-pointer">
+          <input type="checkbox" name="ews_guru_id" value="${gid}" ${isChecked ? 'checked' : ''} onchange="window.toggleGuruSelection && window.toggleGuruSelection('${gid}', this.checked)" class="w-4 h-4 text-emerald-600 rounded cursor-pointer">
           <div>
             <span class="text-xs font-bold text-slate-800 block">${cleanRole(g.name)}</span>
             <span class="text-[11px] text-slate-500">${g.phone ? '<i class="fa-brands fa-whatsapp text-emerald-600 mr-0.5"></i>' + g.phone : 'Belum ada kontak WA'}</span>
@@ -97,33 +165,89 @@ export function renderEwsGuruCheckboxes(gurus, targetVillageId) {
       </label>
     `;
   }).join('');
+
+  // Render pagination kontrol
+  if (paginationContainer) {
+    if (totalPages > 1) {
+      paginationContainer.innerHTML = `
+        <span class="text-[11px] text-slate-500 font-medium">
+          Hal. <strong class="text-slate-700">${currentGuruPage}</strong> dari ${totalPages} <span class="text-slate-400">(${filtered.length} Kiai)</span>
+        </span>
+        <div class="flex items-center gap-1.5">
+          <button type="button" onclick="window.changeGuruPage && window.changeGuruPage(${currentGuruPage - 1})" ${currentGuruPage <= 1 ? 'disabled' : ''}
+            class="px-2 py-0.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-[11px]">
+            &larr; Prev
+          </button>
+          <button type="button" onclick="window.changeGuruPage && window.changeGuruPage(${currentGuruPage + 1})" ${currentGuruPage >= totalPages ? 'disabled' : ''}
+            class="px-2 py-0.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-[11px]">
+            Next &rarr;
+          </button>
+        </div>
+      `;
+    } else {
+      paginationContainer.innerHTML = `<span class="text-[11px] text-slate-500">Menampilkan ${filtered.length} Kiai</span>`;
+    }
+  }
 }
 
 export function renderEwsRatoCheckboxes(ratos, targetVillageId) {
   const container = document.getElementById('ewsRatoContainer');
+  const paginationContainer = document.getElementById('ewsRatoPagination');
   if (!container) return;
   const cleanRole = window.cleanRoleAccountName || (n => n);
   const showCross = document.getElementById('chkRatoCrossVillage')?.checked;
+  const searchInput = document.getElementById('ewsRatoSearchInput');
+  const villageSelect = document.getElementById('ewsRatoVillageFilter');
+
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  const villageFilter = villageSelect ? villageSelect.value : 'ALL';
 
   const filtered = ratos.filter(r => {
-    if (showCross) return true; // Tampilkan seluruh desa
-    if (!targetVillageId) return true;
-    return String(r.village_id) === String(targetVillageId);
+    // 1. Filter Desa Spesifik Dropdown jika dipilih
+    if (villageFilter && villageFilter !== 'ALL') {
+      const vMatch = String(r.village_id) === String(villageFilter) ||
+                     (r.village_name && r.village_name.toLowerCase().includes(villageFilter.toLowerCase()));
+      if (!vMatch) return false;
+    } else if (!showCross && targetVillageId) {
+      if (String(r.village_id) !== String(targetVillageId)) return false;
+    }
+
+    // 2. Filter Search Teks (Nama atau No Kontak)
+    if (query) {
+      const name = (r.name || '').toLowerCase();
+      const phone = (r.phone || '').toLowerCase();
+      const vName = (r.village_name || '').toLowerCase();
+      const match = name.includes(query) || phone.includes(query) || vName.includes(query);
+      if (!match) return false;
+    }
+
+    return true;
   });
 
   if (filtered.length === 0) {
     container.innerHTML = `<div class="p-3 text-center text-xs text-slate-500 bg-white rounded-xl border border-dashed border-slate-200">
-      Tidak ada Rato di desa ini. Centang <strong>"Sertakan Rato Lintas Desa"</strong> di kanan atas untuk mengikutsertakan aparatur desa lain.
+      Tidak ada aparatur desa yang sesuai filter. Centang <strong>"Sertakan Rato Lintas Desa"</strong> atau ubah kata kunci pencarian.
     </div>`;
+    if (paginationContainer) paginationContainer.innerHTML = '';
     return;
   }
 
-  container.innerHTML = filtered.map((r, idx) => {
+  // Hitung Pagination
+  const totalPages = Math.ceil(filtered.length / RATO_PAGE_SIZE) || 1;
+  if (currentRatoPage > totalPages) currentRatoPage = totalPages;
+  if (currentRatoPage < 1) currentRatoPage = 1;
+
+  const startIndex = (currentRatoPage - 1) * RATO_PAGE_SIZE;
+  const pageItems = filtered.slice(startIndex, startIndex + RATO_PAGE_SIZE);
+
+  container.innerHTML = pageItems.map((r) => {
     const isTargetVillage = targetVillageId && String(r.village_id) === String(targetVillageId);
+    const rid = String(r.id || r.uid);
+    const isChecked = selectedRatoIds.has(rid);
     return `
       <label class="flex items-center justify-between p-2 rounded-xl bg-white hover:bg-blue-50/60 border border-slate-200/80 cursor-pointer transition select-none">
         <div class="flex items-center space-x-2.5">
-          <input type="checkbox" name="ews_rato_id" value="${r.id || r.uid}" ${idx === 0 && isTargetVillage ? 'checked' : ''} class="w-4 h-4 text-blue-600 rounded cursor-pointer">
+          <input type="checkbox" name="ews_rato_id" value="${rid}" ${isChecked ? 'checked' : ''} onchange="window.toggleRatoSelection && window.toggleRatoSelection('${rid}', this.checked)" class="w-4 h-4 text-blue-600 rounded cursor-pointer">
           <div>
             <span class="text-xs font-bold text-slate-800 block">${cleanRole(r.name)}</span>
             <span class="text-[11px] text-slate-500">${r.phone ? '<i class="fa-brands fa-whatsapp text-emerald-600 mr-0.5"></i>' + r.phone : 'Belum ada kontak WA'}</span>
@@ -135,6 +259,29 @@ export function renderEwsRatoCheckboxes(ratos, targetVillageId) {
       </label>
     `;
   }).join('');
+
+  // Render pagination kontrol
+  if (paginationContainer) {
+    if (totalPages > 1) {
+      paginationContainer.innerHTML = `
+        <span class="text-[11px] text-slate-500 font-medium">
+          Hal. <strong class="text-slate-700">${currentRatoPage}</strong> dari ${totalPages} <span class="text-slate-400">(${filtered.length} Aparat)</span>
+        </span>
+        <div class="flex items-center gap-1.5">
+          <button type="button" onclick="window.changeRatoPage && window.changeRatoPage(${currentRatoPage - 1})" ${currentRatoPage <= 1 ? 'disabled' : ''}
+            class="px-2 py-0.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-[11px]">
+            &larr; Prev
+          </button>
+          <button type="button" onclick="window.changeRatoPage && window.changeRatoPage(${currentRatoPage + 1})" ${currentRatoPage >= totalPages ? 'disabled' : ''}
+            class="px-2 py-0.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-[11px]">
+            Next &rarr;
+          </button>
+        </div>
+      `;
+    } else {
+      paginationContainer.innerHTML = `<span class="text-[11px] text-slate-500">Menampilkan ${filtered.length} Aparat</span>`;
+    }
+  }
 }
 
 export function filterEwsGuruList() {
@@ -169,6 +316,20 @@ export function populateEwsSelects(users) {
   const ratos = (users || []).filter(u => u.role === 'RATO');
   const targetVillageId = getActiveTargetVillageId();
 
+  // Reset pagination ke hal. 1 saat inisialisasi form
+  currentGuruPage = 1;
+  currentRatoPage = 1;
+
+  // Jika belum ada yang dipilih, pilih otomatis tokoh pertama di target desa jika ada
+  if (selectedGuruIds.size === 0 && targetVillageId) {
+    const matchGuru = gurus.find(g => String(g.village_id) === String(targetVillageId));
+    if (matchGuru) selectedGuruIds.add(String(matchGuru.id || matchGuru.uid));
+  }
+  if (selectedRatoIds.size === 0 && targetVillageId) {
+    const matchRato = ratos.find(r => String(r.village_id) === String(targetVillageId));
+    if (matchRato) selectedRatoIds.add(String(matchRato.id || matchRato.uid));
+  }
+
   renderEwsGuruCheckboxes(gurus, targetVillageId);
   renderEwsRatoCheckboxes(ratos, targetVillageId);
 }
@@ -177,11 +338,15 @@ export function populateEwsSelects(users) {
 export async function executeEwsActivation() {
   if (typeof document === 'undefined') return;
   
-  const selectedGuruCheckboxes = Array.from(document.querySelectorAll('input[name="ews_guru_id"]:checked'));
-  const selectedRatoCheckboxes = Array.from(document.querySelectorAll('input[name="ews_rato_id"]:checked'));
+  // Sinkronkan pilihan dari checkbox yang ada di DOM halaman aktif saat ini
+  const domGuruCheckboxes = Array.from(document.querySelectorAll('input[name="ews_guru_id"]:checked')).map(cb => cb.value);
+  domGuruCheckboxes.forEach(id => selectedGuruIds.add(String(id)));
   
-  const guruIds = selectedGuruCheckboxes.map(cb => cb.value);
-  const ratoIds = selectedRatoCheckboxes.map(cb => cb.value);
+  const domRatoCheckboxes = Array.from(document.querySelectorAll('input[name="ews_rato_id"]:checked')).map(cb => cb.value);
+  domRatoCheckboxes.forEach(id => selectedRatoIds.add(String(id)));
+
+  const guruIds = Array.from(selectedGuruIds);
+  const ratoIds = Array.from(selectedRatoIds);
   
   const msg = document.getElementById('ewsCustomMessage')?.value;
   const dispatchGuru = document.getElementById('chkDispatchGuru') ? document.getElementById('chkDispatchGuru').checked : true;
@@ -312,4 +477,10 @@ if (typeof window !== 'undefined') {
   window.populateEwsSelects = populateEwsSelects;
   window.executeEwsActivation = executeEwsActivation;
   window.finishEvacuationProcess = finishEvacuationProcess;
+  window.filterEwsGuruList = filterEwsGuruList;
+  window.filterEwsRatoList = filterEwsRatoList;
+  window.toggleGuruSelection = toggleGuruSelection;
+  window.toggleRatoSelection = toggleRatoSelection;
+  window.changeGuruPage = changeGuruPage;
+  window.changeRatoPage = changeRatoPage;
 }

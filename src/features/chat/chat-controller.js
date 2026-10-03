@@ -8,26 +8,102 @@ let chatUnsubscribe = null;
 let cachedChatMessages = [];
 let selectedChatCaseId = null;
 
+export function getFilteredChatCases() {
+  const currentCases = window.currentCases || [];
+  const searchInput = document.getElementById('chatPatientSearchInput');
+  const villageSelect = document.getElementById('chatVillageFilterSelect');
+
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  const villageVal = villageSelect ? villageSelect.value : 'ALL';
+
+  return currentCases.filter(c => {
+    // 1. Filter Daerah / Desa
+    if (villageVal && villageVal !== 'ALL') {
+      const vMatch = String(c.village_id) === String(villageVal) ||
+                     (c.village_name && c.village_name.toLowerCase().includes(villageVal.toLowerCase()));
+      if (!vMatch) return false;
+    }
+
+    // 2. Filter Pencarian Nama Pasien atau No. Kasus
+    if (query) {
+      const pName = (c.patient_name || '').toLowerCase();
+      const cNum = (c.case_number || '').toLowerCase();
+      const rName = (c.reporter_name || '').toLowerCase();
+      const vName = (c.village_name || '').toLowerCase();
+      const match = pName.includes(query) || cNum.includes(query) || rName.includes(query) || vName.includes(query);
+      if (!match) return false;
+    }
+
+    return true;
+  });
+}
+
+export function filterChatCaseSelector() {
+  if (typeof document === 'undefined') return;
+  const select = document.getElementById('chatCaseSelector');
+  if (!select) return;
+
+  const filteredCases = getFilteredChatCases();
+
+  if (filteredCases.length === 0) {
+    select.innerHTML = `<option value="">Tidak ada kasus yang sesuai filter</option>`;
+    selectedChatCaseId = null;
+    window.selectedChatCaseId = null;
+    const caseBadge = document.getElementById('chatTargetCaseNumber');
+    if (caseBadge) caseBadge.innerText = '-';
+    fetchTherapeuticChats();
+    return;
+  }
+
+  // Cek apakah kasus yang saat ini aktif masih ada dalam hasil filter
+  const isStillPresent = filteredCases.some(c => String(c.id) === String(selectedChatCaseId));
+  const activeId = isStillPresent ? selectedChatCaseId : filteredCases[0].id;
+
+  select.innerHTML = filteredCases.map(c => `
+    <option value="${c.id}" ${String(activeId) === String(c.id) ? 'selected' : ''}>
+      ${c.patient_name} (${c.village_name || 'Desa Kokop'}) - ${c.case_number}
+    </option>
+  `).join('');
+
+  select.value = activeId;
+  onChatCaseChanged();
+}
+
 export function populateChatCaseSelector(targetCaseId = null) {
   if (typeof document === 'undefined') return;
   const select = document.getElementById('chatCaseSelector');
   if (!select) return;
 
+  // Jika targetCaseId spesifik diberikan, arahkan pencarian/filter agar mencakupnya
   const currentCases = window.currentCases || [];
+  if (targetCaseId) {
+    const targetCase = currentCases.find(c => String(c.id) === String(targetCaseId));
+    if (targetCase && targetCase.village_id) {
+      const vSelect = document.getElementById('chatVillageFilterSelect');
+      // Bila targetCase di luar filter desa saat ini, reset filter desa ke ALL
+      if (vSelect && vSelect.value !== 'ALL' && String(vSelect.value) !== String(targetCase.village_id)) {
+        vSelect.value = 'ALL';
+      }
+    }
+  }
 
-  if (currentCases.length === 0) {
+  const filteredCases = getFilteredChatCases();
+
+  if (filteredCases.length === 0) {
     select.innerHTML = `<option value="">Semua Kasus Terpadu</option>`;
     return;
   }
 
-  select.innerHTML = currentCases.map(c => `
-    <option value="${c.id}" ${targetCaseId && targetCaseId == c.id ? 'selected' : ''}>
+  const chosenId = targetCaseId || (filteredCases.length > 0 ? filteredCases[0].id : null);
+
+  select.innerHTML = filteredCases.map(c => `
+    <option value="${c.id}" ${chosenId && String(chosenId) === String(c.id) ? 'selected' : ''}>
       ${c.patient_name} (${c.village_name || 'Desa Kokop'}) - ${c.case_number}
     </option>
   `).join('');
 
-  if (targetCaseId) {
-    select.value = targetCaseId;
+  if (chosenId) {
+    select.value = chosenId;
   }
   onChatCaseChanged();
 }
@@ -305,6 +381,8 @@ export async function handleSendTherapeuticChat(e) {
 // 🛡️ Global Scope Preservation (Window Bridge)
 if (typeof window !== 'undefined') {
   window.populateChatCaseSelector = populateChatCaseSelector;
+  window.filterChatCaseSelector = filterChatCaseSelector;
+  window.getFilteredChatCases = getFilteredChatCases;
   window.onChatCaseChanged = onChatCaseChanged;
   window.openTherapeuticChatModal = openTherapeuticChatModal;
   window.closeTherapeuticChatModal = closeTherapeuticChatModal;
