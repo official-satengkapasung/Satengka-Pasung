@@ -104,7 +104,8 @@ export function renderGuruMobileRequests(cases) {
   const paged = filtered.slice(start, start + perPage);
 
   container.innerHTML = paged.map(c => {
-    const myPart = c.participants ? c.participants.find(p => p.participant_role === 'GURU') : null;
+    const curUid = window.currentUser ? window.currentUser.id : null;
+    const myPart = c.participants ? (c.participants.find(p => p.participant_role === 'GURU' && (String(p.user_id) === String(curUid) || !curUid || !p.user_id)) || c.participants.find(p => p.participant_role === 'GURU')) : null;
     const isAgreed = myPart && (myPart.response === 'AGREE' || myPart.response === 'SIAP' || myPart.response === 'READY');
     const isNeedTime = myPart && myPart.response === 'NEED_TIME';
 
@@ -207,7 +208,8 @@ export function renderRatoMobileRequests(cases) {
   const paged = filtered.slice(start, start + perPage);
 
   container.innerHTML = paged.map(c => {
-    const myPart = c.participants ? c.participants.find(p => p.participant_role === 'RATO') : null;
+    const curUid = window.currentUser ? window.currentUser.id : null;
+    const myPart = c.participants ? (c.participants.find(p => p.participant_role === 'RATO' && (String(p.user_id) === String(curUid) || !curUid || !p.user_id)) || c.participants.find(p => p.participant_role === 'RATO')) : null;
     const isReady = myPart && (myPart.response === 'READY' || myPart.response === 'AGREE' || myPart.response === 'SIAP');
 
     return `
@@ -276,7 +278,8 @@ export function openGuruDetailScreen(caseId) {
   const formatStatus = window.formatStatusIndo || (s => s);
   document.getElementById('mGuruDetailBadge').innerText = formatStatus(targetCase.status);
 
-  const myPart = targetCase.participants ? targetCase.participants.find(p => p.participant_role === 'GURU') : null;
+  const curUid = window.currentUser ? window.currentUser.id : null;
+  const myPart = targetCase.participants ? (targetCase.participants.find(p => p.participant_role === 'GURU' && (String(p.user_id) === String(curUid) || !curUid || !p.user_id)) || targetCase.participants.find(p => p.participant_role === 'GURU')) : null;
   const isAgreed = myPart && (myPart.response === 'AGREE' || myPart.response === 'SIAP' || myPart.response === 'READY');
   const isNeedTime = myPart && myPart.response === 'NEED_TIME';
 
@@ -337,7 +340,8 @@ export function openRatoDetailScreen(caseId) {
   const formatStatus = window.formatStatusIndo || (s => s);
   document.getElementById('mRatoDetailBadge').innerText = formatStatus(targetCase.status);
 
-  const myPart = targetCase.participants ? targetCase.participants.find(p => p.participant_role === 'RATO') : null;
+  const curUid = window.currentUser ? window.currentUser.id : null;
+  const myPart = targetCase.participants ? (targetCase.participants.find(p => p.participant_role === 'RATO' && (String(p.user_id) === String(curUid) || !curUid || !p.user_id)) || targetCase.participants.find(p => p.participant_role === 'RATO')) : null;
   const isReady = myPart && (myPart.response === 'READY' || myPart.response === 'AGREE' || myPart.response === 'SIAP');
 
   const actionContainer = document.getElementById('mRatoDetailActionBtns');
@@ -384,15 +388,26 @@ function updateMemoryCaseParticipant(caseId, role, responseVal, note = '') {
   if (!target.participants || !Array.isArray(target.participants)) {
     target.participants = [];
   }
-  const existingPart = target.participants.find(p => p.participant_role === role);
+  const currentUserId = window.currentUser ? window.currentUser.id : null;
+  let existingPart = null;
+  if (currentUserId) {
+    existingPart = target.participants.find(p => p.participant_role === role && String(p.user_id) === String(currentUserId));
+  }
+  if (!existingPart) {
+    existingPart = target.participants.find(p => p.participant_role === role);
+  }
+
   if (existingPart) {
     existingPart.response = responseVal;
     if (note) existingPart.note = note;
     existingPart.responded_at = new Date().toISOString();
+    if (currentUserId && !existingPart.user_id) existingPart.user_id = currentUserId;
   } else {
     target.participants.push({
       participant_role: role,
-      user_id: window.currentUser ? window.currentUser.id : null,
+      user_id: currentUserId,
+      name: window.currentUser ? window.currentUser.name : null,
+      phone: window.currentUser ? window.currentUser.phone : null,
       response: responseVal,
       note: note,
       responded_at: new Date().toISOString()

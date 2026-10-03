@@ -287,27 +287,90 @@ export function selectCaseDetail(caseId) {
   const repWa = document.getElementById('detailReporterWaBtn');
   if (repWa) repWa.href = `https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + repName + ', koordinasi Puskesmas Kokop terkait kasus pasien ' + activeSelectedCase.patient_name)}`;
 
-  const guruObj = (activeSelectedCase.participants || []).find(p => p.participant_role === 'GURU');
-  const rawGName = guruObj ? (guruObj.name || 'Kiai H. Kholil') : 'Kiai H. Kholil';
-  const gName = cleanRole(rawGName);
-  const gPhone = guruObj ? (guruObj.phone || '081234567892') : '081234567892';
-  const elGName = document.getElementById('detailGuruName');
-  const elGPhone = document.getElementById('detailGuruPhone');
-  if (elGName) elGName.innerText = gName;
-  if (elGPhone) elGPhone.innerText = gPhone;
-  const gWa = document.getElementById('detailGuruWaBtn');
-  if (gWa) gWa.href = `https://wa.me/${gPhone.replace(/\D/g, '').replace(/^0/, '62')}?text=${encodeURIComponent('Assalamualaikum ' + gName + ', koordinasi rembuk santun pasien ' + activeSelectedCase.patient_name + ' dari Puskesmas Kokop')}`;
+  const pilarContainer = document.getElementById('detailPilarListContainer');
+  const allParticipants = activeSelectedCase.participants || [];
+  const guruList = allParticipants.filter(p => p.participant_role === 'GURU');
+  const ratoList = allParticipants.filter(p => p.participant_role === 'RATO');
 
-  const ratoObj = (activeSelectedCase.participants || []).find(p => p.participant_role === 'RATO');
-  const rawRName = ratoObj ? (ratoObj.name || 'Klebun Kokop') : 'Klebun Kokop';
-  const rName = cleanRole(rawRName);
-  const rPhone = ratoObj ? (ratoObj.phone || '081234567893') : '081234567893';
-  const elRName = document.getElementById('detailRatoName');
-  const elRPhone = document.getElementById('detailRatoPhone');
-  if (elRName) elRName.innerText = rName;
-  if (elRPhone) elRPhone.innerText = rPhone;
-  const rWa = document.getElementById('detailRatoWaBtn');
-  if (rWa) rWa.href = `https://wa.me/${rPhone.replace(/\D/g, '').replace(/^0/, '62')}?text=${encodeURIComponent('Halo ' + rName + ', koordinasi pengamanan evakuasi pasien ' + activeSelectedCase.patient_name + ' dari Puskesmas Kokop')}`;
+  // Fallback data jika belum ada aktivasi tokoh
+  const effectiveGuruList = guruList.length > 0 ? guruList : [{
+    name: 'Kiai H. Kholil',
+    phone: '081234567892',
+    village_name: activeSelectedCase.village_name || 'Desa Kokop'
+  }];
+
+  const effectiveRatoList = ratoList.length > 0 ? ratoList : [{
+    name: 'Klebun Kokop',
+    phone: '081234567893',
+    village_name: activeSelectedCase.village_name || 'Desa Kokop'
+  }];
+
+  if (pilarContainer) {
+    const reporterCard = `
+      <div class="p-2.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between shadow-2xs">
+        <div class="truncate mr-1">
+          <span class="text-[9px] font-bold uppercase text-emerald-700 flex items-center gap-1 tracking-wider">
+            <img src="./assets/icons/role_bhupa.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Bhuppa' Babhu'"> Bhuppa' Babhu'
+          </span>
+          <p id="detailReporterName" class="font-bold text-slate-900 text-xs truncate">${repName}</p>
+          <p id="detailReporterPhone" class="text-[10px] text-slate-500 font-mono">${repPhone}</p>
+        </div>
+        <a id="detailReporterWaBtn" href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + repName + ', koordinasi Puskesmas Kokop terkait kasus pasien ' + activeSelectedCase.patient_name)}" target="_blank"
+          class="w-8 h-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-sm shrink-0 transition shadow-xs"
+          title="Hubungi Bhuppa' Babhu' via WhatsApp">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+      </div>
+    `;
+
+    const guruCards = effectiveGuruList.map((g, idx) => {
+      const gName = cleanRole(g.name || 'Kiai H. Kholil');
+      const gPhone = g.phone || '081234567892';
+      const cleanGPhone = gPhone.replace(/\D/g, '').replace(/^0/, '62');
+      const gVil = g.village_name ? ` • ${g.village_name}` : '';
+      return `
+        <div class="p-2.5 rounded-xl border border-teal-200/90 bg-teal-50/20 flex items-center justify-between shadow-2xs">
+          <div class="truncate mr-1">
+            <span class="text-[9px] font-bold uppercase text-teal-800 flex items-center gap-1 tracking-wider">
+              <img src="./assets/icons/role_bhu-ghuru.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Ghuru"> Ghuru${effectiveGuruList.length > 1 ? ' (' + (idx + 1) + ')' : ''}<span class="text-[9px] text-teal-600 font-normal lowercase">${gVil}</span>
+            </span>
+            <p class="font-bold text-slate-900 text-xs truncate">${gName}</p>
+            <p class="text-[10px] text-slate-500 font-mono">${gPhone}</p>
+          </div>
+          <a href="https://wa.me/${cleanGPhone}?text=${encodeURIComponent('Assalamualaikum ' + gName + ', koordinasi rembuk santun pasien ' + activeSelectedCase.patient_name + ' dari Puskesmas Kokop')}" target="_blank"
+            class="w-8 h-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-sm shrink-0 transition shadow-xs"
+            title="Hubungi Ghuru via WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+        </div>
+      `;
+    }).join('');
+
+    const ratoCards = effectiveRatoList.map((r, idx) => {
+      const rName = cleanRole(r.name || 'Klebun Kokop');
+      const rPhone = r.phone || '081234567893';
+      const cleanRPhone = rPhone.replace(/\D/g, '').replace(/^0/, '62');
+      const rVil = r.village_name ? ` • ${r.village_name}` : '';
+      return `
+        <div class="p-2.5 rounded-xl border border-indigo-200/90 bg-indigo-50/20 flex items-center justify-between shadow-2xs">
+          <div class="truncate mr-1">
+            <span class="text-[9px] font-bold uppercase text-indigo-800 flex items-center gap-1 tracking-wider">
+              <img src="./assets/icons/role_rato.png" class="w-3.5 h-3.5 object-contain inline-block" alt="Rato"> Rato${effectiveRatoList.length > 1 ? ' (' + (idx + 1) + ')' : ''}<span class="text-[9px] text-indigo-600 font-normal lowercase">${rVil}</span>
+            </span>
+            <p class="font-bold text-slate-900 text-xs truncate">${rName}</p>
+            <p class="text-[10px] text-slate-500 font-mono">${rPhone}</p>
+          </div>
+          <a href="https://wa.me/${cleanRPhone}?text=${encodeURIComponent('Halo ' + rName + ', koordinasi pengamanan evakuasi pasien ' + activeSelectedCase.patient_name + ' dari Puskesmas Kokop')}" target="_blank"
+            class="w-8 h-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-sm shrink-0 transition shadow-xs"
+            title="Hubungi Rato via WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+        </div>
+      `;
+    }).join('');
+
+    pilarContainer.innerHTML = reporterCard + guruCards + ratoCards;
+  }
 
   document.getElementById('detailDescription').innerText = activeSelectedCase.notes || 'Pasien dipasung di rumah, membutuhkan evakuasi medis dan rembuk santun.';
 
@@ -354,27 +417,42 @@ export function selectCaseDetail(caseId) {
   const btnMainAction = document.getElementById('btnDetailMainAction');
 
   const parts = activeSelectedCase.participants || [];
-  const guruP = parts.find(p => p.participant_role === 'GURU');
-  const ratoP = parts.find(p => p.participant_role === 'RATO');
+  const guruParts = parts.filter(p => p.participant_role === 'GURU');
+  const ratoParts = parts.filter(p => p.participant_role === 'RATO');
 
-  let guruPill = '';
-  if (guruP && (guruP.response === 'AGREE' || guruP.response === 'SIAP' || guruP.response === 'READY')) {
-    guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain" alt="Ghuru"> Bhu' Ghuru: Siap</span>`;
-  } else if (guruP && guruP.response === 'NEED_TIME') {
-    guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 animate-pulse"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain" alt="Ghuru"> Bhu' Ghuru: Butuh Waktu</span>`;
+  let guruPills = '';
+  if (guruParts.length === 0) {
+    guruPills = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain opacity-60" alt="Ghuru"> Bhu' Ghuru: Menunggu</span>`;
   } else {
-    guruPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain opacity-60" alt="Ghuru"> Bhu' Ghuru: Menunggu</span>`;
+    guruPills = guruParts.map((gp, idx) => {
+      const gLabel = cleanRole(gp.name || `Ghuru ${idx + 1}`);
+      const isReady = gp.response === 'AGREE' || gp.response === 'SIAP' || gp.response === 'READY';
+      const isNeedTime = gp.response === 'NEED_TIME';
+      if (isReady) {
+        return `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain" alt="Ghuru"> ${gLabel}: Siap</span>`;
+      } else if (isNeedTime) {
+        return `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 animate-pulse"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain" alt="Ghuru"> ${gLabel}: Butuh Waktu</span>`;
+      }
+      return `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain opacity-60" alt="Ghuru"> ${gLabel}: Menunggu</span>`;
+    }).join('');
   }
 
-  let ratoPill = '';
-  if (ratoP && (ratoP.response === 'READY' || ratoP.response === 'SIAP' || ratoP.response === 'AGREE')) {
-    ratoPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain" alt="Rato"> Rato: Siap Kawal</span>`;
+  let ratoPills = '';
+  if (ratoParts.length === 0) {
+    ratoPills = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain opacity-60" alt="Rato"> Rato: Menunggu</span>`;
   } else {
-    ratoPill = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain opacity-60" alt="Rato"> Rato: Menunggu</span>`;
+    ratoPills = ratoParts.map((rp, idx) => {
+      const rLabel = cleanRole(rp.name || `Rato ${idx + 1}`);
+      const isReady = rp.response === 'READY' || rp.response === 'SIAP' || rp.response === 'AGREE';
+      if (isReady) {
+        return `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain" alt="Rato"> ${rLabel}: Siap Kawal</span>`;
+      }
+      return `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_rato.png" class="w-3 h-3 object-contain opacity-60" alt="Rato"> ${rLabel}: Menunggu</span>`;
+    }).join('');
   }
 
   if (bannerPilarEl) {
-    bannerPilarEl.innerHTML = guruPill + ratoPill;
+    bannerPilarEl.innerHTML = guruPills + ratoPills;
   }
 
   const isActivated = activeSelectedCase.status === 'SIAGA' || activeSelectedCase.status === 'COORDINATION' || activeSelectedCase.status === 'READY_FOR_EVACUATION' || activeSelectedCase.status === 'EVACUATION';
@@ -442,20 +520,49 @@ export function selectCaseDetail(caseId) {
             <p class="text-slate-500 text-[11px]">Tingkat Prioritas: <strong>${activeSelectedCase.priority || 'Belum divalidasi'}</strong></p>
           </div>
         </div>
-        <div class="flex items-start space-x-3 text-xs">
-          <span class="w-3 h-3 rounded-full ${guruP && guruP.response ? (guruP.response === 'AGREE' ? 'bg-emerald-600' : 'bg-amber-500') : 'bg-slate-300'} mt-1 shrink-0"></span>
-          <div>
-            <p class="font-bold text-slate-800">Pilar Bhu' Ghuru: ${guruP && guruP.response === 'AGREE' ? 'Siap Membantu' : (guruP && guruP.response === 'NEED_TIME' ? 'Butuh Waktu (Sedang Hubungi Keluarga)' : 'Menunggu Tanggapan')}</p>
-            <p class="text-slate-500 text-[11px]">${guruP && guruP.response_note ? guruP.response_note : "Notifikasi siaga rembuk santun terkirim ke Bhu' Ghuru."}</p>
+        ${guruParts.length > 0 ? guruParts.map(gp => {
+          const gName = cleanRole(gp.name || 'Bhu\' Ghuru');
+          const isAgree = gp.response === 'AGREE' || gp.response === 'SIAP' || gp.response === 'READY';
+          const isNeedTime = gp.response === 'NEED_TIME';
+          return `
+            <div class="flex items-start space-x-3 text-xs">
+              <span class="w-3 h-3 rounded-full ${isAgree ? 'bg-emerald-600' : (isNeedTime ? 'bg-amber-500' : 'bg-slate-300')} mt-1 shrink-0"></span>
+              <div>
+                <p class="font-bold text-slate-800">Ghuru: ${gName} ${isAgree ? '— Siap Membantu' : (isNeedTime ? '— Butuh Waktu (Mediasi)' : '— Menunggu Tanggapan')}</p>
+                <p class="text-slate-500 text-[11px]">${gp.response_note || gp.note || (isAgree ? 'Terkonfirmasi siap mendampingi evakuasi secara santun.' : 'Notifikasi siaga rembuk santun terkirim.')}</p>
+              </div>
+            </div>
+          `;
+        }).join('') : `
+          <div class="flex items-start space-x-3 text-xs">
+            <span class="w-3 h-3 rounded-full bg-slate-300 mt-1 shrink-0"></span>
+            <div>
+              <p class="font-bold text-slate-800">Pilar Bhu' Ghuru: Menunggu Penugasan</p>
+              <p class="text-slate-500 text-[11px]">Belum ada tokoh agama/kiai yang ditugaskan pada kasus ini.</p>
+            </div>
           </div>
-        </div>
-        <div class="flex items-start space-x-3 text-xs">
-          <span class="w-3 h-3 rounded-full ${ratoP && ratoP.response === 'READY' ? 'bg-indigo-600' : 'bg-slate-300'} mt-1 shrink-0"></span>
-          <div>
-            <p class="font-bold text-slate-800">Pilar Rato: ${ratoP && ratoP.response === 'READY' ? 'Siap Kawal Pengamanan' : 'Menunggu Tanggapan'}</p>
-            <p class="text-slate-500 text-[11px]">${ratoP && ratoP.response_note ? ratoP.response_note : 'Pemberitahuan pengawalan terkirim ke aparat desa.'}</p>
+        `}
+        ${ratoParts.length > 0 ? ratoParts.map(rp => {
+          const rName = cleanRole(rp.name || 'Rato');
+          const isReady = rp.response === 'READY' || rp.response === 'SIAP' || rp.response === 'AGREE';
+          return `
+            <div class="flex items-start space-x-3 text-xs">
+              <span class="w-3 h-3 rounded-full ${isReady ? 'bg-indigo-600' : 'bg-slate-300'} mt-1 shrink-0"></span>
+              <div>
+                <p class="font-bold text-slate-800">Rato: ${rName} ${isReady ? '— Siap Kawal Pengamanan' : '— Menunggu Tanggapan'}</p>
+                <p class="text-slate-500 text-[11px]">${rp.response_note || rp.note || (isReady ? 'Terkonfirmasi siap mengawal keamanan penjemputan.' : 'Pemberitahuan pengawalan terkirim ke aparat desa.')}</p>
+              </div>
+            </div>
+          `;
+        }).join('') : `
+          <div class="flex items-start space-x-3 text-xs">
+            <span class="w-3 h-3 rounded-full bg-slate-300 mt-1 shrink-0"></span>
+            <div>
+              <p class="font-bold text-slate-800">Pilar Rato: Menunggu Penugasan</p>
+              <p class="text-slate-500 text-[11px]">Belum ada aparat desa/Linmas yang ditugaskan pada kasus ini.</p>
+            </div>
           </div>
-        </div>
+        `}
       </div>
     `;
   }

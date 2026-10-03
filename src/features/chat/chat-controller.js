@@ -200,12 +200,14 @@ export function renderTherapeuticChatMessages(messages) {
     }
 
     const safeName = escape(cleanRole(msg.sender_name));
+    const safeVillage = msg.sender_village ? `<span class="text-[9px] text-slate-500 font-medium font-sans">(${escape(msg.sender_village)})</span>` : '';
     const safeMessage = escape(msg.message);
 
     return `
       <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
         <div class="flex items-center space-x-1.5 mb-1 text-[10px] text-slate-400">
           <span class="font-bold ${isMe ? 'text-emerald-800' : 'text-slate-700'}">${safeName}</span>
+          ${safeVillage}
           ${roleBadge}
           <span class="font-mono text-[9px]">${msg.time_formatted || ''}</span>
         </div>
@@ -250,6 +252,7 @@ export async function handleSendTherapeuticChat(e) {
   const senderId = currentUser ? currentUser.id : 1;
   const senderName = cleanRole(currentUser ? currentUser.name : 'Pengguna Faskes');
   const senderRole = currentUser ? currentUser.role : 'NAKES';
+  const senderVillage = currentUser ? (currentUser.village_name || '') : '';
 
   // Optimistic Message Object
   const optimisticId = 'msg_' + Date.now();
@@ -260,6 +263,7 @@ export async function handleSendTherapeuticChat(e) {
     sender_id: senderId,
     sender_name: senderName,
     sender_role: senderRole,
+    sender_village: senderVillage,
     message: text,
     time_formatted: timeFormatted,
     timestamp: Date.now(),

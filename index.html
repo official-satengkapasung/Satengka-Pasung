@@ -629,7 +629,7 @@
                   <i class="fa-solid fa-address-book text-emerald-600 mr-1.5"></i>
                   <span>Narahubung & Mitra Lapangan (Siaga Koordinasi):</span>
                 </p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div id="detailPilarListContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <!-- 1. Pelapor (Kader Jiwa / Bhupa') -->
                   <div
                     class="p-2.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between shadow-2xs">
@@ -884,18 +884,36 @@
               </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Guru / Kiai</label>
-              <select id="ewsGuruSelect" class="w-full border rounded-xl p-3 text-sm bg-white font-medium">
-                <!-- Dinamis -->
-              </select>
+            <!-- Pilihan Tokoh Ghuru (Multi-Select & Lintas Desa) -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-slate-700 uppercase">
+                  <i class="fa-solid fa-mosque text-emerald-700 mr-1"></i> Bhu' Ghuru / Kiai <span class="text-[10px] text-slate-500 font-normal lowercase">(bisa pilih lebih dari 1)</span>
+                </label>
+                <label class="text-[11px] text-teal-800 font-bold cursor-pointer flex items-center space-x-1 hover:text-teal-950 select-none">
+                  <input type="checkbox" id="chkGuruCrossVillage" onchange="window.filterEwsGuruList && window.filterEwsGuruList()" class="w-3.5 h-3.5 text-teal-600 rounded">
+                  <span>Sertakan Kiai Lintas Desa</span>
+                </label>
+              </div>
+              <div id="ewsGuruContainer" class="max-h-44 overflow-y-auto border border-slate-200 rounded-2xl p-2.5 space-y-1.5 bg-slate-50/70">
+                <p class="text-xs text-slate-400 italic p-2 text-center">Memuat daftar tokoh Kiai...</p>
+              </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Rato / Kades</label>
-              <select id="ewsRatoSelect" class="w-full border rounded-xl p-3 text-sm bg-white font-medium">
-                <!-- Dinamis -->
-              </select>
+            <!-- Pilihan Tokoh Rato (Multi-Select & Lintas Desa) -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-slate-700 uppercase">
+                  <i class="fa-solid fa-landmark text-blue-700 mr-1"></i> Rato / Aparat Desa <span class="text-[10px] text-slate-500 font-normal lowercase">(bisa pilih lebih dari 1)</span>
+                </label>
+                <label class="text-[11px] text-teal-800 font-bold cursor-pointer flex items-center space-x-1 hover:text-teal-950 select-none">
+                  <input type="checkbox" id="chkRatoCrossVillage" onchange="window.filterEwsRatoList && window.filterEwsRatoList()" class="w-3.5 h-3.5 text-teal-600 rounded">
+                  <span>Sertakan Rato Lintas Desa</span>
+                </label>
+              </div>
+              <div id="ewsRatoContainer" class="max-h-44 overflow-y-auto border border-slate-200 rounded-2xl p-2.5 space-y-1.5 bg-slate-50/70">
+                <p class="text-xs text-slate-400 italic p-2 text-center">Memuat daftar aparatur desa...</p>
+              </div>
             </div>
 
             <div>

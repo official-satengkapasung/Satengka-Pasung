@@ -830,7 +830,14 @@ function filterCasesForUser(cases, filterParams = {}) {
       return false;
     });
   } else if (userId && (role === "GURU" || role === "RATO")) {
-    list = list.filter(c => c.participants && c.participants.some(p => String(p.user_id) === String(userId) || p.participant_role === role));
+    list = list.filter(c => {
+      // 1. Kasus di desa domisili tokoh
+      if (villageId && String(c.village_id) === String(villageId)) return true;
+      if (villageName && (c.village_name || '').trim().toLowerCase() === (villageName || '').trim().toLowerCase()) return true;
+      // 2. Kasus lintas desa di mana tokoh tercatat dalam daftar penugasan participants
+      if (c.participants && c.participants.some(p => String(p.user_id) === String(userId) || (p.participant_role === role && (!villageId && !villageName)))) return true;
+      return false;
+    });
   }
   // Urutkan ID terbesar / activated_at terbaru di atas
   return list.sort((a, b) => {
@@ -1510,17 +1517,36 @@ export async function activateSiagaEws(payload, currentUser) {
   const reports = getLocalStore("reports", DEFAULT_SEED.reports);
   const users = getLocalStore("users", DEFAULT_SEED.users);
 
-  const guru = users.find(u => String(u.id) === String(payload.guru_id)) || { id: 4, name: "Kiai H. Kholil", phone: "081234567892" };
-  const rato = users.find(u => String(u.id) === String(payload.rato_id)) || { id: 5, name: "Klebun Kokop", phone: "081234567893" };
+  // Kumpulkan daftar ID Guru (bisa array multi-tokoh atau ID tunggal fallback)
+  const guruIds = Array.isArray(payload.guru_ids) ? payload.guru_ids : (payload.guru_id ? [payload.guru_id] : []);
+  const ratoIds = Array.isArray(payload.rato_ids) ? payload.rato_ids : (payload.rato_id ? [payload.rato_id] : []);
+
+  // Ambil profil seluruh Guru yang dipilih
+  const selectedGurus = [];
+  guruIds.forEach(gid => {
+    const found = users.find(u => String(u.id) === String(gid) || (u.uid && String(u.uid) === String(gid)));
+    if (found) {
+      selectedGurus.push(found);
+    }
+  });
+
+  // Ambil profil seluruh Rato yang dipilih
+  const selectedRatos = [];
+  ratoIds.forEach(rid => {
+    const found = users.find(u => String(u.id) === String(rid) || (u.uid && String(u.uid) === String(rid)));
+    if (found) {
+      selectedRatos.push(found);
+    }
+  });
 
   let caseId = payload.case_id;
 
   if (!caseId && payload.report_id) {
-    const rep = reports.find(r => r.id === payload.report_id);
+    const rep = reports.find(r => String(r.id) === String(payload.report_id));
     if (rep) rep.status = "VALIDATED";
     
     caseId = cases.length + 1;
-    const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,"");
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const caseNumber = `CAS-${dateStr}-${String(caseId).padStart(3, '0')}`;
 
     const repReporterName = rep ? (rep.reporter_name || "Kader Jiwa") : (currentUser ? currentUser.name : "Kader Jiwa");
@@ -1528,6 +1554,33 @@ export async function activateSiagaEws(payload, currentUser) {
     const repReporterId = rep ? rep.reporter_id : (currentUser ? currentUser.id : null);
     const repVillageId = rep ? (rep.village_id || 1) : 1;
     const repVillageName = rep ? (rep.village_name || "Kokop") : "Kokop";
+
+    // Bangun daftar multi-partisipan 4 Pilar
+    const participantsList = [
+      { participant_role: "BHUPA", name: repReporterName, phone: repReporterPhone, user_id: repReporterId, response: "READY", village_name: repVillageName }
+    ];
+
+    selectedGurus.forEach(g => {
+      participantsList.push({
+        participant_role: "GURU",
+        name: g.name,
+        phone: g.phone,
+        user_id: g.id || g.uid,
+        village_name: g.village_name || "Kokop",
+        response: "PENDING"
+      });
+    });
+
+    selectedRatos.forEach(r => {
+      participantsList.push({
+        participant_role: "RATO",
+        name: r.name,
+        phone: r.phone,
+        user_id: r.id || r.uid,
+        village_name: r.village_name || "Kokop",
+        response: "PENDING"
+      });
+    });
 
     const newCase = {
       id: caseId,
@@ -1550,11 +1603,7 @@ export async function activateSiagaEws(payload, currentUser) {
       longitude: rep ? (rep.longitude || 113.0234) : 113.0234,
       photo_path: rep ? rep.photo_path : null,
       notes: payload.notes || "Aktivasi EWS Siaga",
-      participants: [
-        { participant_role: "BHUPA", name: repReporterName, phone: repReporterPhone, user_id: repReporterId, response: "READY" },
-        { participant_role: "GURU", name: guru.name, phone: guru.phone, user_id: guru.id, response: "PENDING" },
-        { participant_role: "RATO", name: rato.name, phone: rato.phone, user_id: rato.id, response: "PENDING" }
-      ]
+      participants: participantsList
     };
     cases.unshift(newCase);
 
@@ -1573,10 +1622,33 @@ export async function activateSiagaEws(payload, currentUser) {
     if (c) {
       c.status = "SIAGA";
       c.activated_at = new Date().toISOString();
-      c.participants = [
-        { participant_role: "GURU", name: guru.name, phone: guru.phone, user_id: guru.id, response: "PENDING" },
-        { participant_role: "RATO", name: rato.name, phone: rato.phone, user_id: rato.id, response: "PENDING" }
-      ];
+      if (!c.participants) c.participants = [];
+
+      selectedGurus.forEach(g => {
+        if (!c.participants.some(p => String(p.user_id) === String(g.id || g.uid))) {
+          c.participants.push({
+            participant_role: "GURU",
+            name: g.name,
+            phone: g.phone,
+            user_id: g.id || g.uid,
+            village_name: g.village_name || "Kokop",
+            response: "PENDING"
+          });
+        }
+      });
+
+      selectedRatos.forEach(r => {
+        if (!c.participants.some(p => String(p.user_id) === String(r.id || r.uid))) {
+          c.participants.push({
+            participant_role: "RATO",
+            name: r.name,
+            phone: r.phone,
+            user_id: r.id || r.uid,
+            village_name: r.village_name || "Kokop",
+            response: "PENDING"
+          });
+        }
+      });
 
       if (isFirebaseActive && db) {
         try {
@@ -1603,21 +1675,36 @@ export async function respondParticipant(caseId, userId, responseVal, note = "",
   let readyCount = 0;
   let hasAnyResponse = false;
   if (targetCase.participants && Array.isArray(targetCase.participants)) {
-    targetCase.participants.forEach(p => {
-      const matchId = userId && String(p.user_id) === String(userId);
-      const matchRole = userRole && p.participant_role === userRole;
-      const matchInferred = (responseVal === 'AGREE' || responseVal === 'NEED_TIME')
-        ? p.participant_role === 'GURU'
-        : (responseVal === 'READY' ? p.participant_role === 'RATO' : false);
-
-      if (matchId || matchRole || matchInferred) {
-        p.response = responseVal;
-        p.responded_at = new Date().toISOString();
-        if (note) {
-          p.note = note;
-          p.response_note = note;
-        }
+    // 1. Prioritaskan pencocokan spesifik user_id tokoh
+    let matchedIndex = -1;
+    if (userId) {
+      matchedIndex = targetCase.participants.findIndex(p => String(p.user_id) === String(userId));
+    }
+    // 2. Jika tidak cocok via user_id, cocokkan via participant_role
+    if (matchedIndex === -1 && userRole) {
+      matchedIndex = targetCase.participants.findIndex(p => p.participant_role === userRole);
+    }
+    // 3. Fallback inferensi role dari nilai respon
+    if (matchedIndex === -1) {
+      const inferredRole = (responseVal === 'AGREE' || responseVal === 'NEED_TIME') ? 'GURU' : (responseVal === 'READY' ? 'RATO' : null);
+      if (inferredRole) {
+        matchedIndex = targetCase.participants.findIndex(p => p.participant_role === inferredRole);
       }
+    }
+
+    if (matchedIndex !== -1) {
+      const p = targetCase.participants[matchedIndex];
+      p.response = responseVal;
+      p.responded_at = new Date().toISOString();
+      if (userId && !p.user_id) p.user_id = userId;
+      if (note) {
+        p.note = note;
+        p.response_note = note;
+      }
+    }
+
+    // Hitung total tanggapan siap dan tanggapan aktif dari seluruh peserta kasus
+    targetCase.participants.forEach(p => {
       if (p.response && p.response !== "PENDING") {
         hasAnyResponse = true;
       }
