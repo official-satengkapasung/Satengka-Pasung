@@ -283,19 +283,6 @@ export async function executeEwsActivation() {
     }
   }
 }
-    }
-  } catch {
-    alert('Notifikasi Siaga Satengka Pasung Berhasil Diaktifkan (Mode Offline).');
-    if (activeSelectedCase) window.activeMonitoringCaseId = activeSelectedCase.id;
-    if (window.startMonitoringWatch) window.startMonitoringWatch(null);
-    if (window.switchNakesTab) window.switchNakesTab('monitoring');
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i><span>Kirim Notifikasi Siaga</span>';
-    }
-  }
-}
 
 export async function finishEvacuationProcess() {
   if (!confirm('Apakah pasien sudah berhasil dievakuasi ke Puskesmas/RSJ?')) return;
