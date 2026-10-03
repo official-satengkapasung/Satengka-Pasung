@@ -665,6 +665,75 @@ import {
     }
 
 
+    // =========================================================================
+    // RESOLVER KADER PENDAMPING KASUS ASLI (PRIORITAS PELAPOR & TIM KASUS ASLI)
+    // =========================================================================
+    export function resolveCaseKader(c) {
+      if (!c) return { name: "Bhuppa' Babhu'", phone: '081234567891' };
+
+      const currentUsersList = window.currentUsers || currentUsers || [];
+      const allReportsList = window.currentReports || window.reports || allReports || [];
+
+      let repName = c.reporter_name;
+      let repPhone = c.reporter_phone;
+
+      // 1. Cek dari laporan temuan awal terkait jika data pelapor pada kasus masih kosong/Siti
+      if ((!repName || repName === 'Siti' || !repPhone) && c.report_id) {
+        const matchedRep = allReportsList.find(r => String(r.id) === String(c.report_id));
+        if (matchedRep) {
+          if (matchedRep.reporter_name && (!repName || repName === 'Siti')) repName = matchedRep.reporter_name;
+          if (matchedRep.reporter_phone && !repPhone) repPhone = matchedRep.reporter_phone;
+        }
+      }
+
+      // 2. Cek dari tim koordinasi kasus (participant_role === 'BHUPA')
+      if (!repName || repName === 'Siti' || !repPhone) {
+        const parts = Array.isArray(c.coordination_team) ? c.coordination_team : [];
+        const bhupaP = parts.find(p => p.participant_role === 'BHUPA');
+        if (bhupaP) {
+          if (bhupaP.name && (!repName || repName === 'Siti')) repName = bhupaP.name;
+          if (bhupaP.phone && !repPhone) repPhone = bhupaP.phone;
+        }
+      }
+
+      // 3. Cocokkan dengan data akun kader di sistem jika ada reporter_id atau nama yang cocok
+      let matchedUserKader = null;
+      if (c.reporter_id) {
+        matchedUserKader = currentUsersList.find(u => u.role === 'KADER' && (String(u.id) === String(c.reporter_id) || (u.uid && String(u.uid) === String(c.reporter_id))));
+      }
+      if (!matchedUserKader && repName && repName !== 'Siti' && repName !== 'Kader Jiwa' && repName !== "Bhuppa' Babhu'") {
+        matchedUserKader = currentUsersList.find(u => u.role === 'KADER' && u.name && u.name.trim().toLowerCase() === repName.trim().toLowerCase());
+      }
+
+      if (matchedUserKader) {
+        if (!repName || repName === 'Siti' || repName === 'Kader Jiwa') repName = matchedUserKader.name;
+        if (!repPhone) repPhone = matchedUserKader.phone;
+      }
+
+      // 4. Jika masih belum ada nama kader pelapor yang spesifik, fallback ke kader sewilayah desa
+      if (!repName || repName === 'Siti' || repName === 'Kader Jiwa' || repName === "Bhuppa' Babhu'") {
+        const villageKader = currentUsersList.find(u => u.role === 'KADER' && String(u.village_id) === String(c.village_id));
+        if (villageKader) {
+          repName = villageKader.name;
+          if (!repPhone) repPhone = villageKader.phone;
+        }
+      }
+
+      // 5. Fallback akhir ke kader pertama yang terdaftar
+      if (!repName || repName === 'Siti') {
+        const anyKader = currentUsersList.find(u => u.role === 'KADER');
+        if (anyKader) {
+          repName = anyKader.name;
+          if (!repPhone) repPhone = anyKader.phone;
+        }
+      }
+
+      return {
+        name: repName || "Bhuppa' Babhu'",
+        phone: repPhone || '081234567891'
+      };
+    }
+
     // MODAL REMINDER WHATSAPP OTOMATIS
     // =========================================================================
     export function openReminderWaModal() {
@@ -682,8 +751,7 @@ import {
         `;
       } else {
         listContainer.innerHTML = activePatients.map(c => {
-          const kader = currentUsers.find(u => u.role === 'KADER' && String(u.village_id) === String(c.village_id)) || currentUsers.find(u => u.role === 'KADER');
-          const kaderPhone = kader ? (kader.phone || '081234567891') : (c.reporter_phone || '081234567891');
+          const kaderInfo = resolveCaseKader(c);
           const famPhone = c.family_phone || '081987654321';
           const history = Array.isArray(c.control_history) ? c.control_history : [];
           const lastVisit = history.length > 0 ? history[history.length - 1] : null;
@@ -719,7 +787,7 @@ import {
                 <button type="button" onclick="sendDirectWaReminder('kader', '${c.id}')"
                   class="w-full px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition shadow-xs">
                   <i class="fa-brands fa-whatsapp text-sm"></i>
-                  <span>WA Kader (${cleanRoleAccountName(kader ? kader.name : 'Bhuppa\' Babhu\'')})</span>
+                  <span>WA Kader (${cleanRoleAccountName(kaderInfo.name)})</span>
                 </button>
               </div>
             </div>
@@ -777,6 +845,7 @@ if (typeof window !== 'undefined') {
   window.openReminderWaModal = openReminderWaModal;
   window.closeReminderWaModal = closeReminderWaModal;
   window.sendDirectWaReminder = sendDirectWaReminder;
+  window.resolveCaseKader = resolveCaseKader;
   window.openAddPatientModal = openAddPatientModal;
 
   window.NakesView = {
@@ -791,6 +860,7 @@ if (typeof window !== 'undefined') {
     openReminderWaModal,
     closeReminderWaModal,
     sendDirectWaReminder,
+    resolveCaseKader,
     openAddPatientModal
   };
 }

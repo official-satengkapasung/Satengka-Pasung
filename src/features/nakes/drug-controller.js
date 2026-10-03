@@ -494,13 +494,17 @@ export function sendTargetedDrugReminder(targetRole) {
   const currentUsers = window.currentUsers || [];
 
   if (targetRole === 'kader') {
-    const kader = currentUsers.find(u => u.role === 'KADER' && String(u.village_id) === String(c.village_id)) || currentUsers.find(u => u.role === 'KADER');
-    let phone = kader && kader.phone ? kader.phone : (c.reporter_phone || '081234567890');
+    const resolver = window.resolveCaseKader || (cs => ({
+      name: cs.reporter_name || 'Bhuppa\' Babhu\'',
+      phone: cs.reporter_phone || '081234567891'
+    }));
+    const kaderInfo = resolver(c);
+    let phone = kaderInfo.phone || '081234567890';
     let cleanPhone = phone.replace(/[^0-9]/g, '');
     if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
 
     const cleanRole = window.cleanRoleAccountName || (n => n);
-    const waText = encodeURIComponent(`*PENGINGAT KONTROL & OBAT BERKALA (PUSKESMAS KOKOP)*\n\nKepada Yth. Kader Jiwa (${kader ? cleanRole(kader.name) : 'Pendamping'}),\nMohon lakukan kunjungan rumah untuk pemantauan kepatuhan minum obat pada warga binaan:\n\nNama Pasien: *${patientName}*\nWilayah: *${villageName}*\nStatus Kontrol: ${visitCount > 0 ? `Kunjungan Ke-${visitCount}` : 'Kunjungan Awal'}\nStatus Kepatuhan: *${complianceText}*\nCatatan Terakhir: ${lastVisit ? lastVisit.notes : (c.drug_notes || '-')}\n\nPastikan stok obat mencukupi dan keluarga terus mendampingi dengan tenang. Terima kasih atas dedikasi Anda!`);
+    const waText = encodeURIComponent(`*PENGINGAT KONTROL & OBAT BERKALA (PUSKESMAS KOKOP)*\n\nKepada Yth. Kader Jiwa (${cleanRole(kaderInfo.name)}),\nMohon lakukan kunjungan rumah untuk pemantauan kepatuhan minum obat pada warga binaan:\n\nNama Pasien: *${patientName}*\nWilayah: *${villageName}*\nStatus Kontrol: ${visitCount > 0 ? `Kunjungan Ke-${visitCount}` : 'Kunjungan Awal'}\nStatus Kepatuhan: *${complianceText}*\nCatatan Terakhir: ${lastVisit ? lastVisit.notes : (c.drug_notes || '-')}\n\nPastikan stok obat mencukupi dan keluarga terus mendampingi dengan tenang. Terima kasih atas dedikasi Anda!`);
     window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waText}`, '_blank');
   } else if (targetRole === 'keluarga') {
     let phone = c.family_phone || document.getElementById('mKontrolFamilyPhoneInput').value.trim() || '081987654321';
