@@ -3340,6 +3340,47 @@
     </div>
   </div>
 
+  <!-- MODAL: ANTREAN NOTIFIKASI WHATSAPP SIAGA TOKOH 4 PILAR (ANTI-SPAM & ANTI-RACE CONDITION) -->
+  <div id="modalEwsWaQueue" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg shrink-0">
+            <i class="fa-brands fa-whatsapp text-emerald-700"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Notifikasi Siaga WhatsApp Tokoh</h3>
+            <p class="text-xs text-slate-500">Kirim pesan siaga resmi ke tokoh satu per satu secara teratur</p>
+          </div>
+        </div>
+        <button onclick="closeEwsWaQueueModal()" class="text-slate-400 hover:text-slate-700 text-lg transition">&times;</button>
+      </div>
+
+      <!-- Ringkasan Pasien & Status -->
+      <div id="ewsWaQueueCaseBanner" class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl text-xs flex items-center justify-between">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-emerald-700 tracking-wider">Pasien Evakuasi</span>
+          <p id="ewsWaQueuePatientName" class="font-bold text-slate-900 text-sm">-</p>
+          <p id="ewsWaQueueVillageName" class="text-[11px] text-slate-500">-</p>
+        </div>
+        <span id="ewsWaQueueTotalBadge" class="px-2.5 py-1 rounded-full font-bold bg-emerald-200 text-emerald-900 text-[11px]">0 Tokoh</span>
+      </div>
+
+      <!-- Kontainer List Tokoh -->
+      <div class="overflow-y-auto flex-1 space-y-2.5 pr-1" id="ewsWaQueueContainer">
+        <!-- Diisi secara dinamis oleh JavaScript -->
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p class="text-[11px] text-slate-400 italic">Klik tombol WA pada tiap kontak di atas</p>
+        <button type="button" onclick="closeEwsWaQueueModal()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5">
+          <span>Lanjut ke Monitoring Kasus</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: TAMBAH / EDIT DATA PASIEN ODGJ -->
   <div id="modalPatientForm" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4 max-h-[92vh] flex flex-col">

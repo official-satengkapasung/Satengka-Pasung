@@ -394,28 +394,55 @@ export async function executeEwsActivation() {
     const patientName = activeSelectedCase ? activeSelectedCase.patient_name : 'Warga Kokop';
     const villageName = activeSelectedCase ? (activeSelectedCase.village_name || 'Kokop') : 'Kokop';
 
-    // WhatsApp Siaga Seluruh Guru yang dipilih
+    // Siapkan daftar antrean kontak WhatsApp secara terstruktur (mencegah tab race condition & browser spam blocking)
+    const waContactsQueue = [];
+
     if (dispatchGuru) {
       guruIds.forEach(gid => {
         const selectedGuru = currentUsers.find(u => String(u.id) === String(gid) || (u.uid && String(u.uid) === String(gid)));
         if (selectedGuru && selectedGuru.phone) {
           let cleanPhone = selectedGuru.phone.replace(/[^0-9]/g, '');
           if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
-          const waText = encodeURIComponent(`*NOTIFIKASI SIAGA SATENGKA PASUNG PUSKESMAS KOKOP*\n\nAssalamu’alaikum Wr. Wb. Kiai/Ustadz ${selectedGuru.name},\nMohon bantuan pendekatan keagamaan persuasif & rembuk santun keluarga untuk penanganan evakuasi medis warga di ${villageName} (Pasien: ${patientName}).\n\nCatatan Nakes: ${msg || 'Mohon kesediaan Kiai mendampingi penanganan medis pasien.'}\n\nTerima kasih atas keridhoan & bimbingan Kiai.`);
-          window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waText}`, '_blank');
+          const rawMsg = `*NOTIFIKASI SIAGA SATENGKA PASUNG PUSKESMAS KOKOP*\n\nAssalamu’alaikum Wr. Wb. Kiai/Ustadz ${selectedGuru.name},\nMohon bantuan pendekatan keagamaan persuasif & rembuk santun keluarga untuk penanganan evakuasi medis warga di ${villageName} (Pasien: ${patientName}).\n\nCatatan Nakes: ${msg || 'Mohon kesediaan Kiai mendampingi penanganan medis pasien.'}\n\nTerima kasih atas keridhoan & bimbingan Kiai.`;
+          const waText = encodeURIComponent(rawMsg);
+          waContactsQueue.push({
+            id: gid,
+            role: 'GURU',
+            roleLabel: "Bhu' Ghuru / Kiai",
+            roleIcon: './assets/icons/role_bhu-ghuru.png',
+            name: selectedGuru.name,
+            phone: selectedGuru.phone,
+            village: selectedGuru.village_name || villageName,
+            cleanPhone,
+            rawMessage: rawMsg,
+            waUrl: `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waText}`,
+            isSent: false
+          });
         }
       });
     }
 
-    // WhatsApp Siaga Seluruh Rato yang dipilih
     if (dispatchRato) {
       ratoIds.forEach(rid => {
         const selectedRato = currentUsers.find(u => String(u.id) === String(rid) || (u.uid && String(u.uid) === String(rid)));
         if (selectedRato && selectedRato.phone) {
           let cleanRatoPhone = selectedRato.phone.replace(/[^0-9]/g, '');
           if (cleanRatoPhone.startsWith('0')) cleanRatoPhone = '62' + cleanRatoPhone.slice(1);
-          const waRatoText = encodeURIComponent(`*PEMBERITAHUAN SIAGA KOORDINASI EVAKUASI DESA*\n\nKepada Yth. Aparatur Desa / Rato (${selectedRato.name} - Desa ${selectedRato.village_name || villageName}),\nPetugas Puskesmas Kokop meminta pendampingan pengawalan wilayah untuk penanganan evakuasi medis warga (Pasien: ${patientName}).\n\nCatatan Nakes: ${msg || 'Mohon koordinasi pengamanan kondusif saat penjemputan warga.'}\n\nTerima kasih atas kerja samanya.`);
-          window.open(`https://api.whatsapp.com/send?phone=${cleanRatoPhone}&text=${waRatoText}`, '_blank');
+          const rawMsg = `*PEMBERITAHUAN SIAGA KOORDINASI EVAKUASI DESA*\n\nKepada Yth. Aparatur Desa / Rato (${selectedRato.name} - Desa ${selectedRato.village_name || villageName}),\nPetugas Puskesmas Kokop meminta pendampingan pengawalan wilayah untuk penanganan evakuasi medis warga (Pasien: ${patientName}).\n\nCatatan Nakes: ${msg || 'Mohon koordinasi pengamanan kondusif saat penjemputan warga.'}\n\nTerima kasih atas kerja samanya.`;
+          const waRatoText = encodeURIComponent(rawMsg);
+          waContactsQueue.push({
+            id: rid,
+            role: 'RATO',
+            roleLabel: 'Rato / Aparat Desa',
+            roleIcon: './assets/icons/role_rato.png',
+            name: selectedRato.name,
+            phone: selectedRato.phone,
+            village: selectedRato.village_name || villageName,
+            cleanPhone: cleanRatoPhone,
+            rawMessage: rawMsg,
+            waUrl: `https://api.whatsapp.com/send?phone=${cleanRatoPhone}&text=${waRatoText}`,
+            isSent: false
+          });
         }
       });
     }
@@ -423,15 +450,26 @@ export async function executeEwsActivation() {
     if (window.firebaseAdapter && window.firebaseAdapter.activateSiagaEws) {
       const res = await window.firebaseAdapter.activateSiagaEws(payload, currentUser);
       if (res.success) {
-        alert(`✓ Notifikasi Siaga Berhasil Dikirimkan ke ${guruIds.length} Kiai/Guru dan ${ratoIds.length} Aparat Desa!\nSeluruh tokoh terpilih kini otomatis tergabung dalam ruang Live Chat kasus ini.`);
         const newCaseId = res.data ? res.data.case_id : (activeSelectedCase ? activeSelectedCase.id : null);
         if (newCaseId) window.activeMonitoringCaseId = newCaseId;
 
         if (window.fetchCases) await window.fetchCases();
         if (window.fetchReports) await window.fetchReports();
 
-        if (window.switchNakesTab) {
-          window.switchNakesTab('monitoring');
+        if (waContactsQueue.length > 0) {
+          // Buka modal antrean WA teratur agar tidak diblokir browser sebagai spam dan tidak bentrok antar tab
+          showEwsWaQueueModal(waContactsQueue, {
+            patientName,
+            villageName,
+            caseId: newCaseId,
+            totalGuru: guruIds.length,
+            totalRato: ratoIds.length
+          });
+        } else {
+          alert(`✓ Notifikasi Siaga Berhasil Diaktifkan!\nSeluruh tokoh terpilih kini otomatis tergabung dalam ruang Live Chat kasus ini.`);
+          if (window.switchNakesTab) {
+            window.switchNakesTab('monitoring');
+          }
         }
         return;
       } else {
@@ -446,6 +484,115 @@ export async function executeEwsActivation() {
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i><span>Kirim Notifikasi Siaga</span>';
     }
+  }
+}
+
+// =========================================================================
+// PENGELOLA MODAL ANTREAN WHATSAPP SIAGA (ANTI-RACE CONDITION & ANTI-SPAM)
+// =========================================================================
+let activeWaQueueItems = [];
+
+export function showEwsWaQueueModal(contacts, meta = {}) {
+  activeWaQueueItems = contacts || [];
+  
+  const modal = document.getElementById('modalEwsWaQueue');
+  const pName = document.getElementById('ewsWaQueuePatientName');
+  const vName = document.getElementById('ewsWaQueueVillageName');
+  const badge = document.getElementById('ewsWaQueueTotalBadge');
+  const container = document.getElementById('ewsWaQueueContainer');
+
+  if (pName) pName.innerText = meta.patientName || 'Pasien Kokop';
+  if (vName) vName.innerText = `Wilayah: ${meta.villageName || 'Kecamatan Kokop'}`;
+  if (badge) badge.innerText = `${activeWaQueueItems.length} Kontak Tokoh`;
+
+  renderWaQueueCards();
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+export function renderWaQueueCards() {
+  const container = document.getElementById('ewsWaQueueContainer');
+  if (!container) return;
+
+  if (activeWaQueueItems.length === 0) {
+    container.innerHTML = `
+      <div class="p-4 text-center text-xs text-slate-400 italic bg-slate-50 rounded-2xl">
+        Semua kontak telah dihubungi atau tidak ada nomor telepon yang valid.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = activeWaQueueItems.map((item, idx) => {
+    const isSent = item.isSent;
+    const roleBorder = item.role === 'GURU' ? 'border-teal-200 bg-teal-50/30' : 'border-indigo-200 bg-indigo-50/30';
+    const roleColor = item.role === 'GURU' ? 'text-teal-800' : 'text-indigo-800';
+
+    return `
+      <div class="p-3 rounded-2xl border ${roleBorder} flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition">
+        <div class="flex items-start space-x-2.5 min-w-0">
+          <img src="${item.roleIcon}" class="w-8 h-8 object-contain shrink-0 mt-0.5" alt="${item.roleLabel}">
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] font-bold uppercase ${roleColor} tracking-wide">${item.roleLabel}</span>
+              <span class="text-[10px] text-slate-400">• ${item.village}</span>
+            </div>
+            <p class="font-bold text-slate-900 text-xs truncate">${item.name}</p>
+            <p class="text-[10px] font-mono text-slate-500">${item.phone}</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-1.5 shrink-0 self-end sm:self-center">
+          <button type="button" onclick="copyWaQueueMessage(${idx})"
+            title="Salin Pesan Siaga"
+            class="px-2.5 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-semibold transition flex items-center gap-1">
+            <i class="fa-regular fa-copy text-xs"></i>
+            <span class="text-[10px]">Salin</span>
+          </button>
+          <button type="button" onclick="sendWaQueueItem(${idx})"
+            class="px-3 py-1.5 rounded-xl ${isSent ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'} text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-brands fa-whatsapp ${isSent ? 'text-emerald-700' : ''}"></i>
+            <span>${isSent ? 'Sudah Dibuka' : 'Buka WhatsApp'}</span>
+            ${isSent ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+export function sendWaQueueItem(index) {
+  const item = activeWaQueueItems[index];
+  if (!item) return;
+
+  item.isSent = true;
+  renderWaQueueCards();
+
+  // Buka WhatsApp tepat pada gesture klik pengguna (terhindar dari popup blocker browser)
+  window.open(item.waUrl, '_blank');
+}
+
+export function copyWaQueueMessage(index) {
+  const item = activeWaQueueItems[index];
+  if (!item || !item.rawMessage) return;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(item.rawMessage).then(() => {
+      alert(`✓ Teks pesan notifikasi untuk ${item.name} berhasil disalin ke clipboard!`);
+    }).catch(() => {
+      prompt('Salin teks pesan berikut:', item.rawMessage);
+    });
+  } else {
+    prompt('Salin teks pesan berikut:', item.rawMessage);
+  }
+}
+
+export function closeEwsWaQueueModal() {
+  const modal = document.getElementById('modalEwsWaQueue');
+  if (modal) modal.classList.add('hidden');
+
+  if (window.switchNakesTab) {
+    window.switchNakesTab('monitoring');
   }
 }
 
@@ -483,4 +630,8 @@ if (typeof window !== 'undefined') {
   window.toggleRatoSelection = toggleRatoSelection;
   window.changeGuruPage = changeGuruPage;
   window.changeRatoPage = changeRatoPage;
+  window.showEwsWaQueueModal = showEwsWaQueueModal;
+  window.sendWaQueueItem = sendWaQueueItem;
+  window.copyWaQueueMessage = copyWaQueueMessage;
+  window.closeEwsWaQueueModal = closeEwsWaQueueModal;
 }
