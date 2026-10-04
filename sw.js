@@ -1,5 +1,5 @@
 // Service Worker for SATENGKA PASUNG PWA
-const CACHE_NAME = 'satengka-pasung-pwa-v56';
+const CACHE_NAME = 'satengka-pasung-pwa-v57';
 const ASSETS_TO_CACHE = [
   './',
   './login.html',

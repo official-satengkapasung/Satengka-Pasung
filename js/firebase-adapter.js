@@ -1000,6 +1000,8 @@ function filterCasesForUser(cases, filterParams = {}) {
       if (c.participants && c.participants.some(p => {
         if (p.participant_role !== role) return false;
         if (p.user_id && String(p.user_id) === String(userId)) return true;
+        if (uPhone && p.phone && String(p.phone).replace(/\D/g, '') === uPhone) return true;
+        if (uName && p.name && String(p.name).trim().toLowerCase() === uName) return true;
         return false;
       })) return true;
 
@@ -1916,52 +1918,111 @@ export async function activateSiagaEws(payload, currentUser) {
   return { success: true, message: "Tombol Siaga EWS Berhasil Diaktifkan!", data: { case_id: caseId } };
 }
 
-export async function respondParticipant(caseId, userId, responseVal, note = "", userRole = "") {
-  const cases = getLocalStore("cases", DEFAULT_SEED.cases);
-  const targetCase = cases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
+export async function respondParticipant(caseId, userId, responseVal, note = "", userRole = "", extraData = {}) {
+  let cases = getLocalStore("cases", DEFAULT_SEED.cases);
+  let targetCase = cases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
+  
+  // Jika belum ditemukan di localStorage, cek di window.currentCases
+  if (!targetCase && typeof window !== "undefined" && window.currentCases && Array.isArray(window.currentCases)) {
+    targetCase = window.currentCases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
+    if (targetCase) {
+      cases.unshift(targetCase);
+    }
+  }
+
+  // Jika masih belum ditemukan dan Firestore aktif, coba ambil langsung dari Firestore
+  if (!targetCase && isFirebaseActive && db) {
+    try {
+      const docSnap = await getDoc(doc(db, "cases", String(caseId)));
+      if (docSnap.exists()) {
+        targetCase = mapDoc(docSnap);
+        cases.unshift(targetCase);
+      } else {
+        const qSnap = await getDocs(query(collection(db, "cases"), where("case_number", "==", String(caseId)), limit(1)));
+        if (!qSnap.empty) {
+          targetCase = mapDoc(qSnap.docs[0]);
+          cases.unshift(targetCase);
+        }
+      }
+    } catch (e) {
+      console.warn("⚠️ Gagal mengambil target kasus langsung dari Firestore:", e);
+    }
+  }
+
   if (!targetCase) return { success: false, message: "Kasus tidak ditemukan." };
+
+  const activeUser = (typeof localStorage !== "undefined" ? JSON.parse(localStorage.getItem("malekkas_user") || "null") : null);
+  const targetUserId = userId || (activeUser ? (activeUser.id || activeUser.uid) : null);
+  const targetPhone = (extraData.phone || activeUser?.phone || '').replace(/\D/g, '');
+  const targetName = (extraData.name || activeUser?.name || '').trim().toLowerCase();
+  const effectiveRole = userRole || (responseVal === 'READY' ? 'RATO' : 'GURU');
 
   let readyCount = 0;
   let hasAnyResponse = false;
-  if (targetCase.participants && Array.isArray(targetCase.participants)) {
-    // 1. Prioritaskan pencocokan spesifik user_id tokoh
-    let matchedIndex = -1;
-    if (userId) {
-      matchedIndex = targetCase.participants.findIndex(p => String(p.user_id) === String(userId));
-    }
-    // 2. Jika tidak cocok via user_id, cocokkan via participant_role
-    if (matchedIndex === -1 && userRole) {
-      matchedIndex = targetCase.participants.findIndex(p => p.participant_role === userRole);
-    }
-    // 3. Fallback inferensi role dari nilai respon
+  if (!targetCase.participants || !Array.isArray(targetCase.participants)) {
+    targetCase.participants = [];
+  }
+
+  // 1. Pencocokan spesifik user_id tokoh
+  let matchedIndex = -1;
+  if (targetUserId) {
+    matchedIndex = targetCase.participants.findIndex(p => p.participant_role === effectiveRole && String(p.user_id) === String(targetUserId));
     if (matchedIndex === -1) {
-      const inferredRole = (responseVal === 'AGREE' || responseVal === 'NEED_TIME') ? 'GURU' : (responseVal === 'READY' ? 'RATO' : null);
-      if (inferredRole) {
-        matchedIndex = targetCase.participants.findIndex(p => p.participant_role === inferredRole);
-      }
+      matchedIndex = targetCase.participants.findIndex(p => String(p.user_id) === String(targetUserId));
     }
-
-    if (matchedIndex !== -1) {
-      const p = targetCase.participants[matchedIndex];
-      p.response = responseVal;
-      p.responded_at = new Date().toISOString();
-      if (userId && !p.user_id) p.user_id = userId;
-      if (note) {
-        p.note = note;
-        p.response_note = note;
-      }
-    }
-
-    // Hitung total tanggapan siap dan tanggapan aktif dari seluruh peserta kasus
-    targetCase.participants.forEach(p => {
-      if (p.response && p.response !== "PENDING") {
-        hasAnyResponse = true;
-      }
-      if (p.response === "READY" || p.response === "SIAP" || p.response === "AGREE") {
-        readyCount++;
-      }
+  }
+  // 2. Pencocokan via Nomor Telepon / WA
+  if (matchedIndex === -1 && targetPhone) {
+    matchedIndex = targetCase.participants.findIndex(p => {
+      const pPhone = String(p.phone || '').replace(/\D/g, '');
+      return pPhone && (pPhone === targetPhone || pPhone.endsWith(targetPhone.slice(-8)) || targetPhone.endsWith(pPhone.slice(-8)));
     });
   }
+  // 3. Pencocokan via Nama Tokoh
+  if (matchedIndex === -1 && targetName) {
+    matchedIndex = targetCase.participants.findIndex(p => {
+      const pName = String(p.name || '').trim().toLowerCase();
+      return pName && (pName === targetName || pName.includes(targetName) || targetName.includes(pName));
+    });
+  }
+  // 4. Fallback via Role yang sama
+  if (matchedIndex === -1 && effectiveRole) {
+    matchedIndex = targetCase.participants.findIndex(p => p.participant_role === effectiveRole);
+  }
+
+  if (matchedIndex !== -1) {
+    const p = targetCase.participants[matchedIndex];
+    p.response = responseVal;
+    p.responded_at = new Date().toISOString();
+    if (targetUserId && !p.user_id) p.user_id = targetUserId;
+    if (note) {
+      p.note = note;
+      p.response_note = note;
+    }
+  } else {
+    // Jika tokoh belum tercatat di daftar partisipan, masukkan otomatis
+    targetCase.participants.push({
+      participant_role: effectiveRole,
+      name: extraData.name || activeUser?.name || (effectiveRole === 'RATO' ? 'Rato Setempat' : 'Ghuru Setempat'),
+      phone: extraData.phone || activeUser?.phone || '',
+      user_id: targetUserId,
+      village_name: targetCase.village_name || 'Kokop',
+      response: responseVal,
+      note: note,
+      response_note: note,
+      responded_at: new Date().toISOString()
+    });
+  }
+
+  // Hitung total tanggapan siap dan tanggapan aktif dari seluruh peserta kasus
+  targetCase.participants.forEach(p => {
+    if (p.response && p.response !== "PENDING") {
+      hasAnyResponse = true;
+    }
+    if (p.response === "READY" || p.response === "SIAP" || p.response === "AGREE") {
+      readyCount++;
+    }
+  });
 
   // Transisi Status Otomatis EWS Terpadu
   if (readyCount >= 2) {
@@ -1970,24 +2031,42 @@ export async function respondParticipant(caseId, userId, responseVal, note = "",
     targetCase.status = "COORDINATION";
   }
 
+  // Sinkronkan ke local storage dan memori global
   setLocalStore("cases", cases);
+  if (typeof window !== "undefined" && window.currentCases && Array.isArray(window.currentCases)) {
+    const memIdx = window.currentCases.findIndex(c => String(c.id) === String(targetCase.id) || (c.case_number && c.case_number === targetCase.case_number));
+    if (memIdx !== -1) {
+      window.currentCases[memIdx] = { ...window.currentCases[memIdx], ...targetCase };
+    } else {
+      window.currentCases.unshift(targetCase);
+    }
+  }
 
+  // Sinkronkan langsung ke Cloud Firestore
   if (isFirebaseActive && db) {
     try {
-      await setDoc(doc(db, "cases", String(targetCase.id)), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
+      const firestoreDocId = targetCase._docId || String(targetCase.id);
+      await setDoc(doc(db, "cases", firestoreDocId), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
+      if (targetCase.case_number && String(targetCase.id) !== String(targetCase.case_number)) {
+        // Update juga via case_number jika doc id menggunakan nomor kasus
+        const qSnap = await getDocs(query(collection(db, "cases"), where("case_number", "==", targetCase.case_number), limit(1)));
+        if (!qSnap.empty && qSnap.docs[0].id !== firestoreDocId) {
+          await setDoc(doc(db, "cases", qSnap.docs[0].id), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
+        }
+      }
     } catch (e) {
       console.warn("⚠️ Gagal update respon ke Firestore:", e);
     }
   }
 
   window.dispatchEvent(new Event("storage"));
-  return { success: true, message: "Tanggapan berhasil dicatat dan disinkronkan ke Puskesmas.", data: { ready_count: readyCount, status: targetCase.status } };
+  return { success: true, message: "Tanggapan berhasil dicatat dan disinkronkan ke Puskesmas.", data: { ready_count: readyCount, status: targetCase.status, case: targetCase } };
 }
 
 export async function respondCase(caseId, payload = {}) {
   const role = payload.participant_role || (payload.response === 'READY' ? 'RATO' : 'GURU');
   const note = payload.notes || payload.note || '';
-  return await respondParticipant(caseId, payload.user_id, payload.response, note, role);
+  return await respondParticipant(caseId, payload.user_id, payload.response, note, role, { phone: payload.phone, name: payload.name });
 }
 
 export async function updateCaseStatus(caseId, newStatus, note = "") {

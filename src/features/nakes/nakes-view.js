@@ -635,7 +635,7 @@ import {
             Didampingi oleh pilar <strong>Bhu' Ghuru</strong> dan <strong>Rato</strong> setempat. Ambulans siaga dari Puskesmas Kokop.
           </p>
           <div class="flex space-x-2 pt-1">
-            <button onclick="selectCaseDetail('${c.id}')" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+            <button type="button" onclick="openMonitoringFromEvac('${c.id}')" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
               <i class="fa-solid fa-truck-medical mr-1.5"></i> Buka Monitoring Evakuasi
             </button>
           </div>
@@ -839,16 +839,36 @@ import {
       if (modal) modal.classList.remove('hidden');
     }
 
-
+    export function openMonitoringFromEvac(caseId) {
+      const currentCases = window.currentCases || [];
+      const targetCase = currentCases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
+      if (!targetCase) {
+        if (window.selectCaseDetail) window.selectCaseDetail(caseId);
+        return;
+      }
+      window.activeMonitoringCaseId = targetCase.id;
+      window.activeSelectedCase = targetCase;
+      if (window.updateMonitoringStepper) {
+        window.updateMonitoringStepper(targetCase);
+      }
+      if (window.startMonitoringWatch) {
+        window.startMonitoringWatch(targetCase.activated_at || targetCase.siaga_activated_at || null);
+      }
+      const monCaseEl = document.getElementById('monCaseNumber');
+      if (monCaseEl) monCaseEl.innerText = targetCase.case_number || ('#' + targetCase.id);
+      if (window.switchNakesTab) {
+        window.switchNakesTab('monitoring');
+      }
+    }
 
 // 🛡️ Global Scope Preservation (Window Bridge)
 if (typeof window !== 'undefined') {
   window.updateNakesCounters = updateNakesCounters;
   window.updateRoleMetricCounters = updateRoleMetricCounters;
   window.renderNakesDashboardCases = renderNakesDashboardCases;
-    window.setNakesAksiStatusFilter = setNakesAksiStatusFilter;
-    window.onNakesAksiFilterChanged = onNakesAksiFilterChanged;
-    window.goToNakesAksiPage = goToNakesAksiPage;
+  window.setNakesAksiStatusFilter = setNakesAksiStatusFilter;
+  window.onNakesAksiFilterChanged = onNakesAksiFilterChanged;
+  window.goToNakesAksiPage = goToNakesAksiPage;
   window.setMapCategoryFilter = setMapCategoryFilter;
   window.switchNakesTab = switchNakesTab;
   window.renderEvacuationCards = renderEvacuationCards;
@@ -859,6 +879,7 @@ if (typeof window !== 'undefined') {
   window.sendDirectWaReminder = sendDirectWaReminder;
   window.resolveCaseKader = resolveCaseKader;
   window.openAddPatientModal = openAddPatientModal;
+  window.openMonitoringFromEvac = openMonitoringFromEvac;
 
   window.NakesView = {
     updateNakesCounters,
@@ -873,6 +894,7 @@ if (typeof window !== 'undefined') {
     closeReminderWaModal,
     sendDirectWaReminder,
     resolveCaseKader,
-    openAddPatientModal
+    openAddPatientModal,
+    openMonitoringFromEvac
   };
 }
