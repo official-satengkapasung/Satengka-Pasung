@@ -31,19 +31,66 @@ export function switchKaderPwaSub(sub) {
   }
 }
 
+export function getMergedKaderReports(baseReports = null) {
+  const currentReports = [...(baseReports || window.currentReports || [])];
+  const currentCases = window.currentCases || [];
+  const currentUser = window.currentUser;
+  const uId = currentUser ? (currentUser.id || currentUser.uid) : null;
+  const uName = (currentUser?.name || '').trim().toLowerCase();
+  const uPhone = (currentUser?.phone || '').replace(/\D/g, '');
+
+  currentCases.forEach(c => {
+    const isKaderCase = (
+      (uId && (String(c.reporter_id) === String(uId) || String(c.reporter_uid) === String(uId))) ||
+      (uPhone && c.reporter_phone && String(c.reporter_phone).replace(/\D/g, '') === uPhone) ||
+      (uName && c.reporter_name && String(c.reporter_name).trim().toLowerCase() === uName) ||
+      (c.participants && c.participants.some(p => p.participant_role === 'BHUPA' && (
+        (uId && String(p.user_id) === String(uId)) ||
+        (uPhone && p.phone && String(p.phone).replace(/\D/g, '') === uPhone) ||
+        (uName && p.name && String(p.name).trim().toLowerCase() === uName)
+      )))
+    );
+
+    if (isKaderCase) {
+      const alreadyInReports = currentReports.some(r => String(r.id) === String(c.report_id) || String(r.case_id) === String(c.id));
+      if (!alreadyInReports) {
+        currentReports.unshift({
+          id: c.report_id || `rep_case_${c.id}`,
+          case_id: c.id,
+          report_number: c.case_number || `LAP-${c.id}`,
+          patient_name_input: c.patient_name,
+          address_input: c.patient_address,
+          village_name: c.village_name,
+          village_id: c.village_id,
+          status: c.status,
+          reported_at: c.activated_at || c.created_at,
+          reporter_name: c.reporter_name,
+          reporter_phone: c.reporter_phone,
+          reporter_id: c.reporter_id,
+          matched_case: c
+        });
+      }
+    }
+  });
+
+  return currentReports;
+}
+
 export function renderKaderRecentReports(reports) {
   if (typeof document === 'undefined') return;
   const container = document.getElementById('kaderRecentReportsList');
   if (!container) return;
-  if (!reports || reports.length === 0) {
+  
+  const mergedReports = getMergedKaderReports(reports);
+  if (!mergedReports || mergedReports.length === 0) {
     container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-3xl border border-slate-200">Belum ada laporan yang Anda kirim. Klik tombol "Laporkan Kasus Baru" di atas untuk mengirim temuan.</div>`;
     return;
   }
 
   const currentCases = window.currentCases || [];
 
-  container.innerHTML = reports.slice(0, 6).map(r => {
-    const matchedCase = currentCases.find(c => String(c.report_id) === String(r.id) || String(c.id) === String(r.case_id));
+  container.innerHTML = mergedReports.slice(0, 6).map(r => {
+    const matchedCase = r.matched_case || currentCases.find(c => String(c.report_id) === String(r.id) || String(c.id) === String(r.case_id));
     const effectiveStatus = r.status === 'REJECTED' ? 'REJECTED' : (matchedCase ? matchedCase.status : (r.status || 'NEW'));
 
     let badgeText = 'Validasi Nakes';
@@ -169,7 +216,7 @@ export function handleKaderSearchFilter(resetPage = false) {
   const pState = window.paginationState?.kaderStatus || { page: 1, perPage: 6 };
   if (resetPage) pState.page = 1;
 
-  const currentReports = window.currentReports || [];
+  const currentReports = getMergedKaderReports();
   const currentCases = window.currentCases || [];
   const query = (document.getElementById('kaderSearchReportInput')?.value || '').toLowerCase().trim();
   let filtered = [...currentReports];
@@ -514,6 +561,7 @@ export async function submitMobileKaderReport() {
 
 // 🛡️ Global Scope Preservation (Window Bridge)
 if (typeof window !== 'undefined') {
+  window.getMergedKaderReports = getMergedKaderReports;
   window.switchKaderPwaSub = switchKaderPwaSub;
   window.renderKaderRecentReports = renderKaderRecentReports;
   window.toggleKaderOtherTypeInput = toggleKaderOtherTypeInput;

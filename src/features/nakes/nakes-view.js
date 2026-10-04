@@ -62,9 +62,10 @@ import {
       if (!currentUser) return;
 
       if (currentUser.role === 'KADER') {
-        const total = currentReports.length;
-        const inProcess = currentReports.filter(r => r.status === 'NEW' || (r.effective_status && r.effective_status !== 'CLOSED' && r.effective_status !== 'MONITORING')).length;
-        const closed = currentReports.filter(r => r.status === 'CLOSED' || r.effective_status === 'CLOSED' || r.effective_status === 'MONITORING').length;
+        const kReports = window.getMergedKaderReports ? window.getMergedKaderReports() : (window.currentReports || currentReports || []);
+        const total = kReports.length;
+        const inProcess = kReports.filter(r => r.status === 'NEW' || r.status === 'VALIDATED' || r.status === 'SIAGA' || (r.effective_status && r.effective_status !== 'CLOSED' && r.effective_status !== 'MONITORING')).length;
+        const closed = kReports.filter(r => r.status === 'CLOSED' || r.effective_status === 'CLOSED' || r.effective_status === 'MONITORING').length;
 
         const elTotal = document.getElementById('kaderStatTotalReports');
         if (elTotal) elTotal.innerText = total;

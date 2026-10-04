@@ -966,10 +966,29 @@ export async function getReports(reporterId = null, villageId = null, role = nul
 
 function filterCasesForUser(cases, filterParams = {}) {
   const { userId = '', role = '', villageId = null, villageName = null } = filterParams;
+  const activeUser = (typeof localStorage !== "undefined" ? JSON.parse(localStorage.getItem("malekkas_user") || "null") : null);
+  const uId = userId || (activeUser ? (activeUser.id || activeUser.uid) : '');
+  const uName = (activeUser?.name || '').trim().toLowerCase();
+  const uPhone = (activeUser?.phone || '').replace(/\D/g, '');
+
   let list = [...cases];
   if (role === "KADER") {
     list = list.filter(c => {
-      if (userId && String(c.reporter_id) === String(userId)) return true;
+      // 1. Laporan kasus yang dibuat sendiri oleh kader (cocok ID / UID)
+      if (uId && (String(c.reporter_id) === String(uId) || String(c.reporter_uid) === String(uId))) return true;
+      // 2. Cocok nomor telepon pelapor
+      if (uPhone && c.reporter_phone && String(c.reporter_phone).replace(/\D/g, '') === uPhone) return true;
+      // 3. Cocok nama pelapor kader
+      if (uName && c.reporter_name && String(c.reporter_name).trim().toLowerCase() === uName) return true;
+      // 4. Kader tercatat sebagai pilar BHUPA di partisipan kasus
+      if (c.participants && c.participants.some(p => {
+        if (p.participant_role !== 'BHUPA') return false;
+        if (uId && String(p.user_id) === String(uId)) return true;
+        if (uPhone && p.phone && String(p.phone).replace(/\D/g, '') === uPhone) return true;
+        if (uName && p.name && String(p.name).trim().toLowerCase() === uName) return true;
+        return false;
+      })) return true;
+      // 5. Kasus di desa binaan kader
       if (villageId && String(c.village_id) === String(villageId)) return true;
       if (villageName && (c.village_name || '').trim().toLowerCase() === (villageName || '').trim().toLowerCase()) return true;
       if (!villageId && !villageName) return true;
@@ -1005,16 +1024,27 @@ function filterCasesForUser(cases, filterParams = {}) {
 
 function filterReportsForUser(reports, filterParams = {}) {
   const { reporterId = null, villageId = null, role = null, villageName = null } = filterParams;
+  const activeUser = (typeof localStorage !== "undefined" ? JSON.parse(localStorage.getItem("malekkas_user") || "null") : null);
+  const uId = reporterId || (activeUser ? (activeUser.id || activeUser.uid) : null);
+  const uUid = filterParams.reporterUid || (activeUser ? activeUser.uid : null);
+  const uName = (filterParams.userName || activeUser?.name || '').trim().toLowerCase();
+  const uPhone = (activeUser?.phone || '').replace(/\D/g, '');
+
   let list = [...reports];
   if (role === "KADER") {
     list = list.filter(r => {
-      // 1. Laporan yang dibuat sendiri oleh kader WAJIB selalu tampil
-      if (reporterId && (String(r.reporter_id) === String(reporterId) || String(r.reporter_uid) === String(reporterId))) return true;
-      // 2. Laporan di desa binaan kader
+      // 1. Laporan yang dibuat sendiri oleh kader (cocok ID / UID)
+      if (uId && (String(r.reporter_id) === String(uId) || String(r.reporter_uid) === String(uId))) return true;
+      if (uUid && (String(r.reporter_uid) === String(uUid) || String(r.reporter_id) === String(uUid))) return true;
+      // 2. Cocok nomor telepon pelapor kader
+      if (uPhone && r.reporter_phone && String(r.reporter_phone).replace(/\D/g, '') === uPhone) return true;
+      // 3. Cocok nama pelapor kader (misal Munadi)
+      if (uName && r.reporter_name && String(r.reporter_name).trim().toLowerCase() === uName) return true;
+      // 4. Laporan di desa binaan kader
       if (villageId && String(r.village_id) === String(villageId)) return true;
       if (villageName && (r.village_name || '').trim().toLowerCase() === (villageName || '').trim().toLowerCase()) return true;
-      // 3. Jika kader belum memiliki asosiasi desa spesifik, tampilkan seluruh laporan wilayah
-      if (!villageId && !villageName) return true;
+      // 5. Jika kader belum memiliki asosiasi desa spesifik, tampilkan seluruh laporan wilayah
+      if (!villageId && !villageName && !uId && !uName) return true;
       return false;
     });
   } else if (reporterId) {
@@ -1801,7 +1831,12 @@ export async function activateSiagaEws(payload, currentUser) {
       try {
         await setDoc(doc(db, "cases", String(caseId)), { ...newCase, updated_at: serverTimestamp() }, { merge: true });
         if (rep) {
-          await setDoc(doc(db, "reports", String(rep.id)), { status: "VALIDATED", updated_at: serverTimestamp() }, { merge: true });
+          rep.case_id = caseId;
+          await setDoc(doc(db, "reports", String(rep.id)), { 
+            status: "VALIDATED", 
+            case_id: caseId, 
+            updated_at: serverTimestamp() 
+          }, { merge: true });
         }
       } catch (e) {
         console.warn("⚠️ Gagal simpan kasus baru ke Firestore:", e);
