@@ -54,6 +54,7 @@ export function initRealtimeSubscriptions() {
   const uid = currentUser ? currentUser.id : null;
   const urole = currentUser ? currentUser.role : null;
   const uvillageId = currentUser ? currentUser.village_id : null;
+  const uvillageName = currentUser ? currentUser.village_name : null;
   const reporterId = (currentUser && currentUser.role === 'KADER') ? (currentUser.id || currentUser.uid) : null;
   const reporterUid = (currentUser && currentUser.role === 'KADER') ? (currentUser.uid || currentUser.id) : null;
 
