@@ -903,14 +903,30 @@ export async function getCases(userId = null, role = null, villageId = null, vil
       const cloudCases = snap.docs.map(mapDoc);
       if (cloudCases.length > 0) {
         // Gabungkan cloud cases dengan memprioritaskan respon terbaru jika Firestore masih proses replikasi
+        const memCases = (typeof window !== 'undefined' && Array.isArray(window.currentCases)) ? window.currentCases : [];
         const mergedCases = cloudCases.map(cc => {
           const localMatch = cases.find(lc => String(lc.id) === String(cc.id) || (lc.case_number && lc.case_number === cc.case_number));
-          if (!localMatch) return cc;
-          if (Array.isArray(localMatch.participants) && Array.isArray(cc.participants)) {
-            const hasLocalResponse = localMatch.participants.some(lp => lp.response && lp.response !== 'PENDING');
+          const memMatch = memCases.find(mc => String(mc.id) === String(cc.id) || (mc.case_number && mc.case_number === cc.case_number));
+          const bestLocal = memMatch || localMatch;
+          if (!bestLocal) return cc;
+          if (Array.isArray(bestLocal.participants) && Array.isArray(cc.participants)) {
+            const hasLocalResponse = bestLocal.participants.some(lp => lp.response && lp.response !== 'PENDING');
             const cloudHasResponse = cc.participants.some(cp => cp.response && cp.response !== 'PENDING');
             if (hasLocalResponse && !cloudHasResponse) {
-              return { ...cc, status: localMatch.status, participants: localMatch.participants };
+              return { ...cc, status: bestLocal.status, participants: bestLocal.participants };
+            }
+            if (hasLocalResponse && cloudHasResponse) {
+              const mergedParts = cc.participants.map(cp => {
+                const lp = bestLocal.participants.find(p => p.participant_role === cp.participant_role && (
+                  (p.user_id && String(p.user_id) === String(cp.user_id)) ||
+                  p.participant_role === cp.participant_role
+                ));
+                if (lp && lp.response && lp.response !== 'PENDING' && (!cp.response || cp.response === 'PENDING')) {
+                  return { ...cp, response: lp.response, responded_at: lp.responded_at, note: lp.note, response_note: lp.response_note };
+                }
+                return cp;
+              });
+              return { ...cc, participants: mergedParts, status: bestLocal.status || cc.status };
             }
           }
           return cc;

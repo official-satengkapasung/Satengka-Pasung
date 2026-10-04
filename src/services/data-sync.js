@@ -62,6 +62,30 @@ export function initRealtimeSubscriptions() {
   if (window.firebaseAdapter.subscribeCases) {
     if (casesUnsubscribe) casesUnsubscribe();
     casesUnsubscribe = window.firebaseAdapter.subscribeCases((cases) => {
+      // Merge: proteksi respon partisipan lokal yang belum ter-replikasi ke cloud
+      const prevCases = window.currentCases || [];
+      if (prevCases.length > 0) {
+        cases = cases.map(cc => {
+          const prev = prevCases.find(pc => String(pc.id) === String(cc.id) || (pc.case_number && pc.case_number === cc.case_number));
+          if (!prev || !Array.isArray(prev.participants)) return cc;
+          const hasLocalResponse = prev.participants.some(p => p.response && p.response !== 'PENDING');
+          const cloudHasResponse = (cc.participants || []).some(p => p.response && p.response !== 'PENDING');
+          if (hasLocalResponse && !cloudHasResponse) {
+            return { ...cc, status: prev.status, participants: prev.participants };
+          }
+          if (hasLocalResponse && cloudHasResponse && Array.isArray(cc.participants)) {
+            const mergedParts = cc.participants.map(cp => {
+              const lp = prev.participants.find(p => p.participant_role === cp.participant_role);
+              if (lp && lp.response && lp.response !== 'PENDING' && (!cp.response || cp.response === 'PENDING')) {
+                return { ...cp, response: lp.response, responded_at: lp.responded_at, note: lp.note, response_note: lp.response_note };
+              }
+              return cp;
+            });
+            return { ...cc, participants: mergedParts, status: prev.status || cc.status };
+          }
+          return cc;
+        });
+      }
       window.currentCases = cases;
 
       // Re-konsiliasi kasus dengan laporan terkait
@@ -216,7 +240,22 @@ export async function fetchCases() {
     if (window.firebaseAdapter && window.firebaseAdapter.getCases) {
       const res = await window.firebaseAdapter.getCases(uid, urole, uvillageId, uvillageName);
       if (res.success) {
-        window.currentCases = res.data;
+        // Merge: proteksi respon partisipan yang sudah di-submit lokal
+        const prevCases = window.currentCases || [];
+        let mergedData = res.data;
+        if (prevCases.length > 0 && Array.isArray(mergedData)) {
+          mergedData = mergedData.map(cc => {
+            const prev = prevCases.find(pc => String(pc.id) === String(cc.id) || (pc.case_number && pc.case_number === cc.case_number));
+            if (!prev || !Array.isArray(prev.participants)) return cc;
+            const hasLocalResponse = prev.participants.some(p => p.response && p.response !== 'PENDING');
+            const cloudHasResponse = (cc.participants || []).some(p => p.response && p.response !== 'PENDING');
+            if (hasLocalResponse && !cloudHasResponse) {
+              return { ...cc, status: prev.status, participants: prev.participants };
+            }
+            return cc;
+          });
+        }
+        window.currentCases = mergedData;
 
         // Rekonsiliasi kasus dengan laporan terkait secara instan
         let cachedReports = window.currentReports;

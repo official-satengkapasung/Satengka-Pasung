@@ -511,7 +511,7 @@ export async function mobileGuruRespond(caseId, responseVal) {
     if (window.showToast) {
       window.showToast('Respon Ghuru berhasil dikirim ke Puskesmas Kokop!', 'success');
     }
-    if (window.fetchCases) await window.fetchCases();
+
     renderGuruMobileRequests(window.currentCases || []);
     if (window.renderNakesDashboardCases) window.renderNakesDashboardCases(window.currentCases || []);
     if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
@@ -574,7 +574,7 @@ export async function submitGuruNeedTime() {
       window.showToast('Status butuh waktu berhasil disampaikan ke Tim Puskesmas.', 'info');
     }
     closeGuruNeedTimeModal();
-    if (window.fetchCases) await window.fetchCases();
+
     renderGuruMobileRequests(window.currentCases || []);
     if (window.renderNakesDashboardCases) window.renderNakesDashboardCases(window.currentCases || []);
     if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
@@ -613,7 +613,7 @@ export async function mobileRatoRespond(caseId, responseVal) {
     if (window.showToast) {
       window.showToast('Konfirmasi pengawalan berhasil dikirim ke Puskesmas Kokop!', 'success');
     }
-    if (window.fetchCases) await window.fetchCases();
+
     renderRatoMobileRequests(window.currentCases || []);
     if (window.renderNakesDashboardCases) window.renderNakesDashboardCases(window.currentCases || []);
     if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
