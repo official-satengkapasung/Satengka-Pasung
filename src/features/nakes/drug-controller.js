@@ -108,7 +108,7 @@ export function handleKontrolFilterSort(resetPage = false) {
             <span class="px-2.5 py-1 rounded-full ${displayCompliance === 'PUTUS_OBAT' ? 'bg-red-100 text-red-700' : displayCompliance === 'PERLU_PERHATIAN' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} font-bold text-[10px]">
               ${displayCompliance === 'PUTUS_OBAT' ? 'Putus Obat' : displayCompliance === 'PERLU_PERHATIAN' ? 'Perlu Perhatian' : 'Rutin Minum Obat'}
             </span>
-            <button type="button" class="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs group-hover:bg-emerald-700 group-hover:text-white transition flex items-center space-x-1">
+            <button type="button" onclick="event.stopPropagation(); openKontrolObatModal('${c.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs group-hover:bg-emerald-700 group-hover:text-white transition flex items-center space-x-1 cursor-pointer">
               <i class="fa-solid fa-calendar-check text-[10px]"></i>
               <span>Riwayat & Kontrol</span>
             </button>
@@ -138,19 +138,42 @@ export function renderControlSchedules() {
 export function openKontrolObatModal(caseId) {
   const currentCases = window.currentCases || [];
   const currentUsers = window.currentUsers || [];
-  const c = currentCases.find(item => item.id === caseId);
-  if (!c) return;
+  const c = currentCases.find(item => String(item.id) === String(caseId) || (item.case_number && String(item.case_number) === String(caseId)));
+  if (!c) {
+    console.warn('⚠️ Kasus tidak ditemukan di jadwal kontrol:', caseId);
+    return;
+  }
   window.activeDrugMonitoringCase = c;
 
   const modal = document.getElementById('modalKontrolObatDetail');
   if (!modal) return;
+
+  // Format tanggal aman: mendukung ISO String, Firestore Timestamp, Date Object, dan Fallback
+  const parseSafeDate = (rawDate) => {
+    try {
+      if (!rawDate) return new Date().toISOString().split('T')[0];
+      if (typeof rawDate === 'string') {
+        return rawDate.includes('T') ? rawDate.split('T')[0] : rawDate;
+      }
+      if (typeof rawDate.toDate === 'function') {
+        return rawDate.toDate().toISOString().split('T')[0];
+      }
+      if (rawDate.seconds) {
+        return new Date(rawDate.seconds * 1000).toISOString().split('T')[0];
+      }
+      if (rawDate instanceof Date) {
+        return rawDate.toISOString().split('T')[0];
+      }
+    } catch { /* fallback */ }
+    return new Date().toISOString().split('T')[0];
+  };
 
   if (!Array.isArray(c.control_history)) {
     c.control_history = [];
     if (c.drug_notes || c.drug_compliance) {
       c.control_history.push({
         visit_number: 1,
-        date: c.updated_at ? c.updated_at.split('T')[0] : new Date().toISOString().split('T')[0],
+        date: parseSafeDate(c.updated_at),
         compliance: c.drug_compliance || 'RUTIN',
         notes: c.drug_notes || 'Pencatatan kontrol awal pasca evakuasi.',
         recorded_by: 'Petugas Puskesmas Kokop'
@@ -158,7 +181,7 @@ export function openKontrolObatModal(caseId) {
     }
   }
 
-  document.getElementById('mKontrolPatientTitle').innerText = `${c.patient_name} (${c.village_name || 'Desa Kokop'})`;
+  document.getElementById('mKontrolPatientTitle').innerText = `${c.patient_name || 'Pasien'} (${c.village_name || 'Desa Kokop'})`;
   document.getElementById('mKontrolSubtitle').innerText = `${c.case_number || 'Kasus ODGJ'} • Alamat: ${c.patient_address || c.village_name || 'Desa Kokop'}`;
   document.getElementById('mKontrolFamilyName').innerText = `Keluarga Bhuppa' Bhu' (${c.village_name || 'Desa Kokop'})`;
 
