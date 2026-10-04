@@ -1050,11 +1050,35 @@ function filterReportsForUser(reports, filterParams = {}) {
   } else if (reporterId) {
     list = list.filter(r => String(r.reporter_id) === String(reporterId) || String(r.reporter_uid) === String(reporterId));
   }
-  // Urutkan tanggal laporan / penolakan terbaru di atas
+  // Urutkan tanggal laporan / kasus terbaru di atas
   return list.sort((a, b) => {
-    const timeA = new Date(a.rejected_at || a.created_at || a.reported_at || a.report_date || 0).getTime();
-    const timeB = new Date(b.rejected_at || b.created_at || b.reported_at || b.report_date || 0).getTime();
-    return timeB - timeA || (Number(b.id) || 0) - (Number(a.id) || 0);
+    const parseTime = (item) => {
+      if (!item) return 0;
+      if (item.created_at && typeof item.created_at === 'object' && item.created_at.seconds) {
+        return Number(item.created_at.seconds) * 1000;
+      }
+      if (item.updated_at && typeof item.updated_at === 'object' && item.updated_at.seconds) {
+        return Number(item.updated_at.seconds) * 1000;
+      }
+      const cands = [item.reported_at, item.created_at, item.validated_at, item.rejected_at, item.report_date];
+      for (const d of cands) {
+        if (typeof d === 'string' && d.trim()) {
+          const p = Date.parse(d);
+          if (!isNaN(p) && p > 0) return p;
+        }
+      }
+      if (typeof item.id === 'string' && item.id.startsWith('rep_')) {
+        const parts = item.id.split('_');
+        if (parts[1]) {
+          const num = Number(parts[1]);
+          if (!isNaN(num) && num > 1000000000) return num;
+        }
+      }
+      const idNum = Number(item.id);
+      if (!isNaN(idNum) && idNum > 0) return idNum;
+      return 0;
+    };
+    return parseTime(b) - parseTime(a);
   });
 }
 

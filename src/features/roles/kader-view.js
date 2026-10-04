@@ -31,6 +31,48 @@ export function switchKaderPwaSub(sub) {
   }
 }
 
+export function extractReportTimestamp(r) {
+  if (!r) return 0;
+  // 1. Cek Firestore Timestamp { seconds, nanoseconds }
+  if (r.created_at && typeof r.created_at === 'object' && r.created_at.seconds) {
+    return Number(r.created_at.seconds) * 1000;
+  }
+  if (r.updated_at && typeof r.updated_at === 'object' && r.updated_at.seconds) {
+    return Number(r.updated_at.seconds) * 1000;
+  }
+  // 2. Cek string tanggal ISO
+  const dateCandidates = [r.reported_at, r.created_at, r.validated_at, r.rejected_at, r.report_date];
+  for (const d of dateCandidates) {
+    if (typeof d === 'string' && d.trim()) {
+      const parsed = Date.parse(d);
+      if (!isNaN(parsed) && parsed > 0) return parsed;
+    }
+  }
+  // 3. Ekstrak timestamp numerik dari ID format rep_1791095100000_...
+  if (typeof r.id === 'string' && r.id.startsWith('rep_')) {
+    const parts = r.id.split('_');
+    if (parts[1]) {
+      const num = Number(parts[1]);
+      if (!isNaN(num) && num > 1000000000) return num;
+    }
+  }
+  // 4. Ekstrak dari report_number format LAP-20261004-XXXX
+  if (typeof r.report_number === 'string') {
+    const match = r.report_number.match(/LAP-(\d{4})(\d{2})(\d{2})-(\d+)/);
+    if (match) {
+      const y = Number(match[1]);
+      const m = Number(match[2]) - 1;
+      const d = Number(match[3]);
+      const seq = Number(match[4]) || 0;
+      return new Date(y, m, d).getTime() + seq;
+    }
+  }
+  // 5. Fallback ke ID numerik murni
+  const idNum = Number(r.id);
+  if (!isNaN(idNum) && idNum > 0) return idNum;
+  return 0;
+}
+
 export function getMergedKaderReports(baseReports = null) {
   const currentReports = [...(baseReports || window.currentReports || [])];
   const currentCases = window.currentCases || [];
@@ -73,7 +115,12 @@ export function getMergedKaderReports(baseReports = null) {
     }
   });
 
-  return currentReports;
+  // Urutkan laporan dari yang paling baru dilaporkan ke yang terlama
+  return currentReports.sort((a, b) => {
+    const timeA = extractReportTimestamp(a);
+    const timeB = extractReportTimestamp(b);
+    return timeB - timeA;
+  });
 }
 
 export function renderKaderRecentReports(reports) {
@@ -245,6 +292,13 @@ export function handleKaderSearchFilter(resetPage = false) {
       return nameMatch || addrMatch || numMatch || caseNumMatch;
     });
   }
+
+  // Pastikan daftar laporan selalu tersortir dari yang terbaru ke terlama
+  filtered.sort((a, b) => {
+    const timeA = extractReportTimestamp(a);
+    const timeB = extractReportTimestamp(b);
+    return timeB - timeA;
+  });
 
   const totalItems = filtered.length;
   const totalPages = Math.ceil(totalItems / pState.perPage) || 1;
