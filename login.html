@@ -557,7 +557,7 @@
     window.firebaseReadyPromise = (async () => {
       if (window.location.protocol.startsWith('http')) {
         try {
-          const fbModule = await import('./js/firebase-adapter.js');
+          const fbModule = await import('./js/firebase-adapter.js?v=64');
           if (fbModule) {
             window.firebaseAdapter = { ...(window.firebaseAdapter || {}), ...fbModule, loginUser: fbModule.loginUser };
             console.log("🔥 [SATENGKA PASUNG] Firebase Cloud Auth & Adapter aktif di Halaman Login!");

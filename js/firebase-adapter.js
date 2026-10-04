@@ -4,7 +4,7 @@
  * TIDAK MEMERLUKAN PHP MAUPUN MARIADB!
  */
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
   getFirestore,
   initializeFirestore,
@@ -32,6 +32,7 @@ import {
   signInAnonymously,
   createUserWithEmailAndPassword,
   updateProfile,
+  updatePassword,
   sendPasswordResetEmail,
   signOut,
   onAuthStateChanged
@@ -242,6 +243,20 @@ export async function loginUser(identifier, password) {
       }
     } catch (authErr) {
       console.warn("Firebase Auth signIn:", authErr.code);
+      // Fallback 1: Jika email awal gagal, coba format default jika tadi memakai format lain atau sebaliknya
+      if (cleanId) {
+        const altEmail = emailToAuth === `${cleanId}@satengka-pasung.id` ? null : `${cleanId}@satengka-pasung.id`;
+        if (altEmail) {
+          try {
+            const altCred = await signInWithEmailAndPassword(auth, altEmail, password);
+            if (altCred && altCred.user) {
+              authUser = altCred.user;
+              fbUserToken = await altCred.user.getIdToken();
+              console.log("🔥 [LOGIN] Berhasil masuk via email alternatif:", altEmail);
+            }
+          } catch (altErr) {}
+        }
+      }
     }
   }
 
@@ -824,18 +839,124 @@ export async function resetUserPasswordByAdmin(userId, newPassword) {
     return { success: false, message: "Data pengguna tidak ditemukan." };
   }
 
+  const cleanPhone = (user.phone || '').replace(/\D/g, '');
+  const docId = user.uid || String(user.id);
+
   user.password = newPassword;
   user.auth_pin = newPassword;
   user.password_reset_at = new Date().toISOString();
 
-  // Simpan sandi baru ke Cloud Firestore koleksi terisolasi user_credentials (hanya isStaff)
+  // 1. Jika akun yang direset adalah akun yang sedang aktif di sesi browser (auth.currentUser)
+  let authUpdated = false;
+  if (isFirebaseActive && auth && auth.currentUser) {
+    const isCurrent = (auth.currentUser.uid === docId) ||
+                      (user.uid && auth.currentUser.uid === user.uid) ||
+                      (cleanPhone && (auth.currentUser.email || '').includes(cleanPhone)) ||
+                      (user.email && auth.currentUser.email === user.email);
+    if (isCurrent) {
+      try {
+        await updatePassword(auth.currentUser, newPassword);
+        console.log("🔥 [FIREBASE AUTH] Kata sandi akun aktif berhasil diperbarui di Firebase Auth:", auth.currentUser.email);
+        authUpdated = true;
+      } catch (curErr) {
+        console.warn("Update password auth.currentUser gagal:", curErr.code, curErr.message);
+      }
+    }
+  }
+
+  // 2. Jika bukan akun aktif atau updatePassword gagal, sinkronkan kredensial Firebase Auth via Secondary Auth
+  if (isFirebaseActive && !authUpdated && cleanPhone) {
+    try {
+      const secAppName = "SecondaryResetAuth";
+      const existingApp = getApps().find(a => a.name === secAppName);
+      const secApp = existingApp || initializeApp(firebaseConfig, secAppName);
+      const secAuth = getAuth(secApp);
+
+      let currentAuthEmail = user.email;
+      if (db) {
+        try {
+          const pSnap = await getDoc(doc(db, "phone_index", cleanPhone));
+          if (pSnap.exists() && pSnap.data()?.email) {
+            currentAuthEmail = pSnap.data().email;
+          }
+        } catch (pe) {}
+      }
+      if (!currentAuthEmail) {
+        currentAuthEmail = `${cleanPhone}@satengka-pasung.id`;
+      }
+
+      // Coba A: Ambil password lama dari user_credentials atau memory untuk sign-in lalu updatePassword
+      let oldCredPass = user.password || user.auth_pin;
+      if (db && !oldCredPass) {
+        try {
+          const credSnap = await getDoc(doc(db, "user_credentials", docId));
+          if (credSnap.exists() && credSnap.data()?.password) {
+            oldCredPass = credSnap.data().password;
+          }
+        } catch (ce) {}
+      }
+
+      if (oldCredPass && oldCredPass !== newPassword) {
+        try {
+          const oldCred = await signInWithEmailAndPassword(secAuth, currentAuthEmail, oldCredPass);
+          if (oldCred && oldCred.user) {
+            await updatePassword(oldCred.user, newPassword);
+            await signOut(secAuth);
+            authUpdated = true;
+            console.log("🔥 [FIREBASE AUTH] Berhasil update kata sandi akun via secondary sign-in:", currentAuthEmail);
+          }
+        } catch (oldSignErr) {
+          console.warn("Secondary signIn dengan sandi lama gagal:", oldSignErr.code);
+        }
+      }
+
+      // Coba B: Jika login sandi lama tidak tembus, buat kredensial auth baru bertimestamp dan hubungkan via phone_index
+      if (!authUpdated) {
+        try {
+          const newAuthEmail = `${cleanPhone}_v${Date.now()}@satengka-pasung.id`;
+          const newCred = await createUserWithEmailAndPassword(secAuth, newAuthEmail, newPassword);
+          if (newCred && newCred.user) {
+            await updateProfile(newCred.user, { displayName: user.name });
+            await signOut(secAuth);
+            authUpdated = true;
+            console.log("🔥 [FIREBASE AUTH] Berhasil membuat auth credential baru:", newAuthEmail);
+
+            if (db) {
+              await setDoc(doc(db, "phone_index", cleanPhone), {
+                phone: cleanPhone,
+                email: newAuthEmail,
+                uid: docId,
+                auth_uid: newCred.user.uid,
+                updated_at: serverTimestamp()
+              }, { merge: true });
+
+              const copyData = { ...user, email: newAuthEmail, uid: newCred.user.uid, id: docId };
+              delete copyData.password;
+              delete copyData.auth_pin;
+              await setDoc(doc(db, "users", newCred.user.uid), {
+                ...copyData,
+                updated_at: serverTimestamp()
+              }, { merge: true });
+            }
+            user.email = newAuthEmail;
+          }
+        } catch (createErr) {
+          console.warn("Secondary createUser failed:", createErr);
+        }
+      }
+    } catch (secErr) {
+      console.warn("Secondary Auth handling error:", secErr);
+    }
+  }
+
+  // 3. Simpan sandi baru ke Cloud Firestore koleksi terisolasi user_credentials (hanya isStaff)
   if (isFirebaseActive && db) {
     try {
-      const docId = user.uid || String(user.id);
       await setDoc(doc(db, "user_credentials", docId), {
         user_id: docId,
         password: newPassword,
         auth_pin: newPassword,
+        phone: cleanPhone,
         updated_at: serverTimestamp()
       }, { merge: true });
 
@@ -852,13 +973,13 @@ export async function resetUserPasswordByAdmin(userId, newPassword) {
     }
   }
 
-  // Jika akun memiliki email di Firebase Auth, picu juga email reset resmi sebagai redundansi
-  if (isFirebaseActive && auth && user.email) {
+  // 4. Jika akun memiliki email resmi di Firebase Auth, picu juga email reset resmi sebagai redundansi
+  if (isFirebaseActive && auth && user.email && user.email.includes('@') && !user.email.endsWith('@satengka-pasung.id')) {
     try {
       await sendPasswordResetEmail(auth, user.email);
       console.log("📧 Tautan reset sandi otomatis dikirim ke email akun:", user.email);
     } catch (errEmail) {
-      // Abaikan jika akun tidak menggunakan email nyata
+      // Abaikan jika akun tidak menggunakan email publik nyata
     }
   }
 

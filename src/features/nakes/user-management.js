@@ -563,7 +563,15 @@ export async function handleAdminResetPasswordSubmit(e) {
     return;
   }
 
+  const submitBtn = document.getElementById('btnApplyResetPassword');
+  const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+
   try {
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Menyimpan...</span>';
+    }
+
     if (window.firebaseAdapter && window.firebaseAdapter.resetUserPasswordByAdmin) {
       const res = await window.firebaseAdapter.resetUserPasswordByAdmin(userId, newPassword);
       if (res.success) {
@@ -596,6 +604,11 @@ export async function handleAdminResetPasswordSubmit(e) {
   } catch (err) {
     console.error('Error admin reset password:', err);
     alert('Terjadi kesalahan saat memproses reset kata sandi.');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHtml;
+    }
   }
 }
 
