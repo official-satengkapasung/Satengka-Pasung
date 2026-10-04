@@ -13,10 +13,21 @@ import {
 } from '../../utils/formatters.js';
 
     export function updateNakesCounters(cases) {
-      const newReportsCount = currentReports.filter(r => r.status === 'NEW').length;
-      const siagaCount = cases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED').length + newReportsCount;
-      const koordinasiCount = cases.filter(c => c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION').length;
-      const selesaiCount = cases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED').length;
+      const safeCases = Array.isArray(cases) ? cases : [];
+      const safeReports = Array.isArray(window.currentReports) ? window.currentReports : [];
+      const newReportsCount = safeReports.filter(r => r.status === 'NEW').length;
+
+      // 1. Butuh Evakuasi (Kasus Siaga, Laporan Baru, atau Sedang Evakuasi)
+      const siagaCount = safeCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED' || c.status === 'EVACUATION').length + newReportsCount;
+
+      // 2. Sedang Koordinasi (Rembuk Tokoh & Siap Evakuasi)
+      const koordinasiCount = safeCases.filter(c => c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION').length;
+
+      // 3. Terkontrol (Monitoring Obat & Selesai Bebas Pasung)
+      const selesaiCount = safeCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED').length;
+
+      // 4. Total Kasus: Konsisten hasil penjumlahan 3 kartu status
+      const totalCount = siagaCount + koordinasiCount + selesaiCount;
 
       const statEvak = document.getElementById('statButuhEvakuasi');
       if (statEvak) statEvak.innerText = siagaCount;
@@ -25,7 +36,7 @@ import {
       const statDone = document.getElementById('statSelesai');
       if (statDone) statDone.innerText = selesaiCount;
       const statTotal = document.getElementById('statTotalKasus');
-      if (statTotal) statTotal.innerText = cases.length + newReportsCount;
+      if (statTotal) statTotal.innerText = totalCount;
 
       // Update Badge Laporan Baru di Sidebar & Topbar Bell
       const sideBadge = document.getElementById('nakesSidebarLaporanBadge');
