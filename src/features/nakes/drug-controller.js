@@ -373,7 +373,7 @@ export async function deleteControlVisitAction(visitNumber) {
   }
 }
 
-export function updateFamilyPhoneFromModal() {
+export async function updateFamilyPhoneFromModal() {
   const c = window.activeDrugMonitoringCase;
   if (!c) return;
   const newPhone = document.getElementById('mKontrolFamilyPhoneInput').value.trim();
@@ -382,13 +382,19 @@ export function updateFamilyPhoneFromModal() {
     return;
   }
   c.family_phone = newPhone;
-  document.getElementById('mKontrolBtnFamilyPhone').innerText = `Kirim WA ke ${newPhone} (Keluarga ${c.patient_name})`;
+  const btnFam = document.getElementById('mKontrolBtnFamilyPhone');
+  if (btnFam) btnFam.innerText = `Kirim WA ke ${newPhone} (Keluarga ${c.patient_name || 'Pasien'})`;
 
   if (window.firebaseAdapter && window.firebaseAdapter.updatePatient) {
-    window.firebaseAdapter.updatePatient(c.id, { family_phone: newPhone });
+    await window.firebaseAdapter.updatePatient(c.id, { family_phone: newPhone });
   }
-  if (window.showToast) window.showToast('Nomor WhatsApp keluarga berhasil diperbarui!');
+  if (window.showToast) {
+    window.showToast('Nomor WhatsApp keluarga berhasil diperbarui!');
+  } else {
+    alert('Nomor WhatsApp keluarga berhasil diperbarui!');
+  }
 }
+export const saveFamilyPhoneOnly = updateFamilyPhoneFromModal;
 
 export function closeKontrolObatModal() {
   cancelEditControlVisit();
@@ -476,15 +482,15 @@ export async function saveKontrolObatStatus() {
   c.drug_notes = notes;
 
   try {
+    if (window.firebaseAdapter && window.firebaseAdapter.updateControlVisit) {
+      await window.firebaseAdapter.updateControlVisit(c.id, nextVisitNum, newVisitRecord);
+    }
     if (window.firebaseAdapter && window.firebaseAdapter.updateCaseStatus) {
       await window.firebaseAdapter.updateCaseStatus(
         c.id,
         c.status,
         `[Kontrol Ke-${nextVisitNum}] ${comp}: ${notes}`
       );
-    }
-    if (window.firebaseAdapter && window.firebaseAdapter.updateControlVisit) {
-      await window.firebaseAdapter.updateControlVisit(c.id, nextVisitNum, newVisitRecord);
     }
     if (window.malekkasEngine && window.malekkasEngine.saveAllData) {
       window.malekkasEngine.saveAllData();
@@ -551,6 +557,7 @@ if (typeof window !== 'undefined') {
   window.cancelEditControlVisit = cancelEditControlVisit;
   window.deleteControlVisitAction = deleteControlVisitAction;
   window.updateFamilyPhoneFromModal = updateFamilyPhoneFromModal;
+  window.saveFamilyPhoneOnly = updateFamilyPhoneFromModal;
   window.closeKontrolObatModal = closeKontrolObatModal;
   window.saveKontrolObatStatus = saveKontrolObatStatus;
   window.sendTargetedDrugReminder = sendTargetedDrugReminder;

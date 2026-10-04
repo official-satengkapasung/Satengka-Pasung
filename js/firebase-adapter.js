@@ -1238,27 +1238,63 @@ export function subscribeReports(onUpdate, filterParams = {}) {
 
 export async function updateControlVisit(caseId, visitNumber, updatedData) {
   const cases = getLocalStore("cases", DEFAULT_SEED.cases);
-  const targetCase = cases.find(c => c.id === caseId);
+  const targetCase = cases.find(c => String(c.id) === String(caseId) || (c.case_number && String(c.case_number) === String(caseId)));
   if (!targetCase) return { success: false, message: "Kasus tidak ditemukan." };
   if (!Array.isArray(targetCase.control_history)) targetCase.control_history = [];
   
   const idx = targetCase.control_history.findIndex(v => Number(v.visit_number) === Number(visitNumber));
-  if (idx === -1) return { success: false, message: "Kunjungan kontrol tidak ditemukan." };
+  if (idx === -1) {
+    // Tambah kunjungan kontrol baru jika belum ada
+    targetCase.control_history.push({
+      ...updatedData,
+      visit_number: Number(visitNumber),
+      updated_at: new Date().toISOString()
+    });
+  } else {
+    // Update kunjungan kontrol yang ada
+    targetCase.control_history[idx] = {
+      ...targetCase.control_history[idx],
+      ...updatedData,
+      visit_number: Number(visitNumber),
+      updated_at: new Date().toISOString()
+    };
+  }
 
-  targetCase.control_history[idx] = {
-    ...targetCase.control_history[idx],
-    ...updatedData,
-    visit_number: Number(visitNumber),
-    updated_at: new Date().toISOString()
-  };
-
-  if (idx === targetCase.control_history.length - 1) {
-    if (updatedData.compliance) targetCase.drug_compliance = updatedData.compliance;
-    if (updatedData.notes) targetCase.drug_notes = updatedData.notes;
+  // Update metrik kepatuhan terkini pada kasus
+  const lastVisit = targetCase.control_history[targetCase.control_history.length - 1];
+  if (lastVisit) {
+    if (lastVisit.compliance) targetCase.drug_compliance = lastVisit.compliance;
+    if (lastVisit.notes) targetCase.drug_notes = lastVisit.notes;
   }
 
   setLocalStore("cases", cases);
-  return { success: true, message: `Kunjungan Ke-${visitNumber} berhasil diperbarui.`, data: targetCase };
+
+  // Sinkronkan in-memory data
+  if (typeof window !== 'undefined' && Array.isArray(window.currentCases)) {
+    const memCase = window.currentCases.find(c => String(c.id) === String(caseId) || (c.case_number && String(c.case_number) === String(caseId)));
+    if (memCase) {
+      memCase.control_history = targetCase.control_history;
+      memCase.drug_compliance = targetCase.drug_compliance;
+      memCase.drug_notes = targetCase.drug_notes;
+    }
+  }
+
+  // Simpan permanen ke Cloud Firestore
+  if (isFirebaseActive && db) {
+    try {
+      const docId = targetCase.id ? String(targetCase.id) : String(caseId);
+      await setDoc(doc(db, "cases", docId), {
+        control_history: targetCase.control_history,
+        drug_compliance: targetCase.drug_compliance || 'RUTIN',
+        drug_notes: targetCase.drug_notes || '',
+        updated_at: serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.warn("⚠️ Gagal sinkron riwayat kontrol ke Firestore:", e);
+    }
+  }
+
+  return { success: true, message: `Kunjungan Ke-${visitNumber} berhasil disimpan.`, data: targetCase };
 }
 
 export async function deleteControlVisit(caseId, visitNumber) {
@@ -1324,7 +1360,7 @@ export async function createPatient(patientData) {
 
 export async function updatePatient(caseId, patientData) {
   const cases = getLocalStore("cases", DEFAULT_SEED.cases);
-  const targetCase = cases.find(c => c.id === caseId);
+  const targetCase = cases.find(c => String(c.id) === String(caseId) || (c.case_number && String(c.case_number) === String(caseId)));
   if (!targetCase) return { success: false, message: "Pasien tidak ditemukan." };
 
   if (patientData.patient_name) targetCase.patient_name = patientData.patient_name;
@@ -1339,6 +1375,23 @@ export async function updatePatient(caseId, patientData) {
   if (patientData.drug_compliance) targetCase.drug_compliance = patientData.drug_compliance;
 
   setLocalStore("cases", cases);
+
+  if (typeof window !== 'undefined' && Array.isArray(window.currentCases)) {
+    const memCase = window.currentCases.find(c => String(c.id) === String(caseId) || (c.case_number && String(c.case_number) === String(caseId)));
+    if (memCase) {
+      Object.assign(memCase, patientData);
+    }
+  }
+
+  if (isFirebaseActive && db) {
+    try {
+      const docId = targetCase.id ? String(targetCase.id) : String(caseId);
+      await setDoc(doc(db, "cases", docId), { ...patientData, updated_at: serverTimestamp() }, { merge: true });
+    } catch (e) {
+      console.warn("⚠️ Gagal update data pasien ke Firestore:", e);
+    }
+  }
+
   return { success: true, message: `Data pasien ${targetCase.patient_name} berhasil diperbarui.`, data: targetCase };
 }
 

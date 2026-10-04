@@ -126,7 +126,8 @@ export function setupStorageSync() {
               const refreshed = window.currentCases.find(c => String(c.id) === String(window.activeSelectedCase.id));
               if (refreshed) {
                 window.activeSelectedCase = refreshed;
-                if (window.selectCaseDetail) window.selectCaseDetail(window.activeSelectedCase.id);
+                const isDetailActive = document.getElementById('nakesSubDetail') && !document.getElementById('nakesSubDetail').classList.contains('hidden');
+                if (isDetailActive && window.selectCaseDetail) window.selectCaseDetail(window.activeSelectedCase.id);
               }
             }
           }
