@@ -48,7 +48,7 @@ export function updateMapFilterCounters() {
   const cMon = document.getElementById('mapCount_MONITORING');
 
   const evacCount = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED').length;
-  const coordCount = currentCases.filter(c => c.status === 'COORDINATION').length;
+  const coordCount = currentCases.filter(c => c.status === 'COORDINATION' || c.status === 'VALIDATED').length;
   const readyCount = currentCases.filter(c => c.status === 'READY_FOR_EVACUATION').length;
   const monCount = currentCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED').length;
 
@@ -143,7 +143,7 @@ export function initOrUpdateLeafletMap() {
       if (activeMapCategoryFilter === 'EVAC_NEEDED') {
         casesToDisplay = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED');
       } else if (activeMapCategoryFilter === 'COORDINATION') {
-        casesToDisplay = currentCases.filter(c => c.status === 'COORDINATION');
+        casesToDisplay = currentCases.filter(c => c.status === 'COORDINATION' || c.status === 'VALIDATED');
       } else if (activeMapCategoryFilter === 'READY_EVAC') {
         casesToDisplay = currentCases.filter(c => c.status === 'READY_FOR_EVACUATION');
       } else if (activeMapCategoryFilter === 'MONITORING') {

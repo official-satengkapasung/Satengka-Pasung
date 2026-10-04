@@ -26,7 +26,7 @@ export function switchKaderPwaSub(sub) {
   }
   if (sub === 'status') {
     document.getElementById('kaderPwaStatus')?.classList.remove('hidden');
-    renderKaderStatusList(currentReports);
+    handleKaderSearchFilter(true);
     syncNav('riwayat');
   }
 }
@@ -44,7 +44,7 @@ export function renderKaderRecentReports(reports) {
 
   container.innerHTML = reports.slice(0, 6).map(r => {
     const matchedCase = currentCases.find(c => String(c.report_id) === String(r.id) || String(c.id) === String(r.case_id));
-    const effectiveStatus = matchedCase ? matchedCase.status : (r.status || 'NEW');
+    const effectiveStatus = r.status === 'REJECTED' ? 'REJECTED' : (matchedCase ? matchedCase.status : (r.status || 'NEW'));
 
     let badgeText = 'Validasi Nakes';
     let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
@@ -176,7 +176,7 @@ export function handleKaderSearchFilter(resetPage = false) {
 
   filtered = filtered.map(r => {
     const matchedCase = currentCases.find(c => String(c.report_id) === String(r.id) || String(c.id) === String(r.case_id));
-    const resolvedStatus = matchedCase ? matchedCase.status : r.status;
+    const resolvedStatus = r.status === 'REJECTED' ? 'REJECTED' : (matchedCase ? matchedCase.status : r.status);
     const resolvedCaseNumber = matchedCase ? matchedCase.case_number : r.case_number;
     return { ...r, effective_status: resolvedStatus, matched_case: matchedCase, resolved_case_number: resolvedCaseNumber };
   });
@@ -240,7 +240,7 @@ export function renderKaderStatusList(reports, totalCount = null) {
 
   container.innerHTML = reports.map(r => {
     const matchedCase = r.matched_case || currentCases.find(c => String(c.report_id) === String(r.id) || String(c.id) === String(r.case_id));
-    const caseStatus = matchedCase ? matchedCase.status : (r.effective_status || r.case_status || r.status);
+    const caseStatus = r.status === 'REJECTED' ? 'REJECTED' : (matchedCase ? matchedCase.status : (r.effective_status || r.case_status || r.status));
     const caseInfo = statusSteps[caseStatus] || statusSteps['NEW'];
     const currentStep = caseInfo.step;
     const isRejected = caseStatus === 'REJECTED';

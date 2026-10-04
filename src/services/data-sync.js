@@ -54,8 +54,8 @@ export function initRealtimeSubscriptions() {
   const uid = currentUser ? currentUser.id : null;
   const urole = currentUser ? currentUser.role : null;
   const uvillageId = currentUser ? currentUser.village_id : null;
-  const uvillageName = currentUser ? currentUser.village_name : null;
-  const reporterId = (currentUser && currentUser.role === 'KADER') ? currentUser.id : null;
+  const reporterId = (currentUser && currentUser.role === 'KADER') ? (currentUser.id || currentUser.uid) : null;
+  const reporterUid = (currentUser && currentUser.role === 'KADER') ? (currentUser.uid || currentUser.id) : null;
 
   // 1. Sinkronisasi Real-time Kasus
   if (window.firebaseAdapter.subscribeCases) {
@@ -118,6 +118,11 @@ export function initRealtimeSubscriptions() {
     reportsUnsubscribe = window.firebaseAdapter.subscribeReports((reports) => {
       window.currentReports = reports;
       if (window.renderKaderRecentReports) window.renderKaderRecentReports(window.currentReports);
+      if (window.handleKaderSearchFilter) {
+        window.handleKaderSearchFilter(false);
+      } else if (window.renderKaderStatusList) {
+        window.renderKaderStatusList(window.currentReports);
+      }
       if (window.renderAllReportsTable) window.renderAllReportsTable();
       if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
 
@@ -126,7 +131,7 @@ export function initRealtimeSubscriptions() {
         if (window.renderNakesDashboardCases) window.renderNakesDashboardCases(window.currentCases);
         if (window.updateNakesCounters) window.updateNakesCounters(window.currentCases);
       }
-    }, { reporterId, villageId: uvillageId, role: urole, villageName: uvillageName });
+    }, { reporterId, reporterUid, villageId: uvillageId, role: urole, villageName: uvillageName, userName: currentUser?.name });
   }
 
   // 3. Real-time Session Watcher: Otomatis kick/logout jika akun dihapus oleh Nakes di faskes

@@ -887,8 +887,8 @@ function scopedQuery(name, filterParams = {}) {
   const role = filterParams.role;
   const villageId = filterParams.villageId;
   const constraints = [limit(50)];
-  // Jangan batasi cases dengan village_id di level query agar penugasan siaga lintas desa tetap terambil
-  if (name !== "cases" && villageId && role !== "NAKES" && role !== "ADMIN") {
+  // Jangan batasi cases dan reports dengan village_id di level query agar laporan pelapor & penugasan siaga lintas desa tetap terambil
+  if (name !== "cases" && name !== "reports" && villageId && role !== "NAKES" && role !== "ADMIN") {
     constraints.unshift(where("village_id", "in", [Number(villageId), String(villageId)]));
   }
   return query(collection(db, name), ...constraints);
@@ -1009,7 +1009,7 @@ function filterReportsForUser(reports, filterParams = {}) {
   if (role === "KADER") {
     list = list.filter(r => {
       // 1. Laporan yang dibuat sendiri oleh kader WAJIB selalu tampil
-      if (reporterId && String(r.reporter_id) === String(reporterId)) return true;
+      if (reporterId && (String(r.reporter_id) === String(reporterId) || String(r.reporter_uid) === String(reporterId))) return true;
       // 2. Laporan di desa binaan kader
       if (villageId && String(r.village_id) === String(villageId)) return true;
       if (villageName && (r.village_name || '').trim().toLowerCase() === (villageName || '').trim().toLowerCase()) return true;
@@ -1018,12 +1018,12 @@ function filterReportsForUser(reports, filterParams = {}) {
       return false;
     });
   } else if (reporterId) {
-    list = list.filter(r => String(r.reporter_id) === String(reporterId));
+    list = list.filter(r => String(r.reporter_id) === String(reporterId) || String(r.reporter_uid) === String(reporterId));
   }
-  // Urutkan tanggal laporan terbaru di atas
+  // Urutkan tanggal laporan / penolakan terbaru di atas
   return list.sort((a, b) => {
-    const timeA = new Date(a.created_at || a.report_date || 0).getTime();
-    const timeB = new Date(b.created_at || b.report_date || 0).getTime();
+    const timeA = new Date(a.rejected_at || a.created_at || a.reported_at || a.report_date || 0).getTime();
+    const timeB = new Date(b.rejected_at || b.created_at || b.reported_at || b.report_date || 0).getTime();
     return timeB - timeA || (Number(b.id) || 0) - (Number(a.id) || 0);
   });
 }

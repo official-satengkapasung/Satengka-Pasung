@@ -20,14 +20,14 @@ import {
       // 1. Butuh Evakuasi (Kasus Siaga, Laporan Baru, atau Sedang Evakuasi)
       const siagaCount = safeCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED' || c.status === 'EVACUATION').length + newReportsCount;
 
-      // 2. Sedang Koordinasi (Rembuk Tokoh & Siap Evakuasi)
-      const koordinasiCount = safeCases.filter(c => c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION').length;
+      // 2. Sedang Koordinasi (Rembuk Tokoh, Validasi Faskes, & Siap Evakuasi)
+      const koordinasiCount = safeCases.filter(c => c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION' || c.status === 'VALIDATED').length;
 
       // 3. Terkontrol (Monitoring Obat & Selesai Bebas Pasung)
       const selesaiCount = safeCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED').length;
 
-      // 4. Total Kasus: Konsisten hasil penjumlahan 3 kartu status
-      const totalCount = siagaCount + koordinasiCount + selesaiCount;
+      // 4. Total Kasus: Konsisten hasil penjumlahan kartu status dan seluruh rekam kasus aktif
+      const totalCount = Math.max(safeCases.length + newReportsCount, siagaCount + koordinasiCount + selesaiCount);
 
       const statEvak = document.getElementById('statButuhEvakuasi');
       if (statEvak) statEvak.innerText = siagaCount;
