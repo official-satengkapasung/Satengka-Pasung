@@ -66,7 +66,8 @@ try {
     const app = initializeApp(effectiveConfig);
     try {
       db = initializeFirestore(app, {
-        localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+        localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+        experimentalAutoDetectLongPolling: true
       });
     } catch (cacheErr) {
       db = getFirestore(app);
