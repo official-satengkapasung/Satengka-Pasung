@@ -263,17 +263,62 @@ export async function loginUser(identifier, password) {
   // 2. Ambil profil pengguna setelah resmi terautentikasi (signedIn())
   let matchedUser = null;
   if (authUser && db) {
+    // 2a. Coba ambil langsung lewat authUser.uid
     try {
       const docSnap = await getDoc(doc(db, "users", authUser.uid));
       if (docSnap.exists()) {
         matchedUser = { id: docSnap.id, ...docSnap.data() };
       }
     } catch (dbErr) {
-      console.warn("Gagal mengambil profil user Firestore setelah login:", dbErr);
+      console.warn("Gagal mengambil profil user Firestore lewat UID:", dbErr);
+    }
+
+    // 2b. Coba ambil lewat pemetaan phone_index jika UID berbeda
+    if (!matchedUser && cleanId) {
+      try {
+        const pSnap = await getDoc(doc(db, "phone_index", cleanId));
+        if (pSnap.exists() && pSnap.data()?.uid) {
+          const pDocSnap = await getDoc(doc(db, "users", pSnap.data().uid));
+          if (pDocSnap.exists()) {
+            matchedUser = { id: pDocSnap.id, ...pDocSnap.data() };
+            console.log("🔥 [LOGIN] Profil pengguna ditemukan via phone_index mapping:", pSnap.data().uid);
+          }
+        }
+      } catch (pe) {}
+    }
+
+    // 2c. Coba ambil lewat query phone pada koleksi users
+    if (!matchedUser && cleanId) {
+      try {
+        const uSnap = await getDocs(query(collection(db, "users"), where("phone", "==", cleanId), limit(1)));
+        if (!uSnap.empty) {
+          const d = uSnap.docs[0];
+          matchedUser = { id: d.id, ...d.data() };
+          console.log("🔥 [LOGIN] Profil pengguna ditemukan via query phone:", d.id);
+        }
+      } catch (qe) {}
+    }
+
+    // 2d. Sinkronisasi data cloud jika belum ditemukan lewat cara di atas
+    if (!matchedUser) {
+      try {
+        const freshRes = await getUsers();
+        if (freshRes && freshRes.success && Array.isArray(freshRes.data)) {
+          matchedUser = freshRes.data.find(u => {
+            const uPhone = (u.phone || '').replace(/\D/g, '');
+            const uEmail = (u.email || '').toLowerCase().trim();
+            return (cleanId && uPhone === cleanId) || (uEmail && uEmail === idLower) || String(u.id) === String(authUser.uid);
+          });
+        }
+      } catch (syncErr) {
+        if (syncErr && syncErr.code !== 'permission-denied') {
+          console.warn("Gagal sinkron data cloud:", syncErr);
+        }
+      }
     }
   }
 
-  // Jika akun berhasil sign-in di Auth namun dokumen profil di Firestore sudah tidak ada (telah dihapus Nakes):
+  // Jika akun berhasil sign-in di Auth namun dokumen profil di Firestore benar-benar tidak ada di database:
   if (authUser && !matchedUser && isFirebaseActive && db) {
     try { await signOut(auth); } catch (e) {}
 
@@ -292,24 +337,6 @@ export async function loginUser(identifier, password) {
       success: false,
       message: "Akun Anda telah dinonaktifkan atau dihapus oleh Petugas Puskesmas Kokop. Akses tidak lagi tersedia."
     };
-  }
-
-  // Sinkronisasi data cloud jika belum ditemukan lewat UID langsung
-  if (authUser && !matchedUser) {
-    try {
-      const freshRes = await getUsers();
-      if (freshRes && freshRes.success && Array.isArray(freshRes.data)) {
-        matchedUser = freshRes.data.find(u => {
-          const uPhone = (u.phone || '').replace(/\D/g, '');
-          const uEmail = (u.email || '').toLowerCase().trim();
-          return (cleanId && uPhone === cleanId) || (uEmail && uEmail === idLower) || String(u.id) === String(authUser.uid);
-        });
-      }
-    } catch (syncErr) {
-      if (syncErr && syncErr.code !== 'permission-denied') {
-        console.warn("Gagal sinkron data cloud:", syncErr);
-      }
-    }
   }
 
   // Fallback lokal/seed hanya jika offline tanpa koneksi cloud
@@ -943,13 +970,15 @@ export async function resetUserPasswordByAdmin(userId, newPassword) {
                 updated_at: serverTimestamp()
               }, { merge: true });
 
-              const copyData = { ...user, email: newAuthEmail, uid: newCred.user.uid, id: docId };
-              delete copyData.password;
-              delete copyData.auth_pin;
-              await setDoc(doc(db, "users", newCred.user.uid), {
-                ...copyData,
-                updated_at: serverTimestamp()
-              }, { merge: true });
+              try {
+                await updateDoc(doc(db, "users", docId), {
+                  email: newAuthEmail,
+                  auth_uid: newCred.user.uid,
+                  updated_at: serverTimestamp()
+                });
+              } catch (uErr) {
+                console.warn("Update existing user email/auth_uid warning:", uErr);
+              }
             }
             user.email = newAuthEmail;
           }
