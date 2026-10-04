@@ -627,54 +627,119 @@ export async function validateOnlyNoDispatch() {
   if (window.switchNakesTab) window.switchNakesTab('dashboard');
 }
 
-export async function rejectReportAction() {
+export function openRejectReportModal(reportId = null) {
   if (typeof document === 'undefined') return;
-  const activeReportId = window.activeReportId;
-  if (!activeReportId) {
+  const targetId = reportId || window.activeReportId || window.activeDetailReportId;
+  if (!targetId) {
     if (window.switchNakesTab) window.switchNakesTab('dashboard');
     return;
   }
 
-  const reason = prompt('Masukkan alasan penolakan laporan ini (misal: Data tidak akurat / bukan kasus pasung / laporan duplikat):', 'Laporan tidak memenuhi kriteria temuan pasung.');
-  if (reason === null) return; // Batal klik cancel
+  window.activeReportId = targetId;
 
-  const adapter = window.firebaseAdapter || window.malekkasEngine;
+  const modal = document.getElementById('modalRejectReport');
+  const reasonInput = document.getElementById('rejectReportReasonInput');
+  const errorText = document.getElementById('rejectModalError');
+
+  if (errorText) errorText.classList.add('hidden');
+  if (reasonInput) {
+    reasonInput.value = '';
+    reasonInput.classList.remove('border-rose-500', 'bg-rose-50/30');
+  }
+
+  if (modal) {
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      if (reasonInput) reasonInput.focus();
+    }, 50);
+  }
+}
+
+export function closeRejectReportModal() {
+  if (typeof document === 'undefined') return;
+  const modal = document.getElementById('modalRejectReport');
+  if (modal) modal.classList.add('hidden');
+}
+
+export function setRejectQuickReason(text) {
+  if (typeof document === 'undefined') return;
+  const reasonInput = document.getElementById('rejectReportReasonInput');
+  const errorText = document.getElementById('rejectModalError');
+  if (reasonInput) {
+    reasonInput.value = text;
+    reasonInput.focus();
+    reasonInput.classList.remove('border-rose-500', 'bg-rose-50/30');
+  }
+  if (errorText) errorText.classList.add('hidden');
+}
+
+export async function confirmRejectReportAction() {
+  if (typeof document === 'undefined') return;
+  const targetId = window.activeReportId;
+  const reasonInput = document.getElementById('rejectReportReasonInput');
+  const errorText = document.getElementById('rejectModalError');
+  const submitBtn = document.getElementById('btnConfirmRejectReport');
+
+  const reason = (reasonInput?.value || '').trim();
+  if (!reason) {
+    if (errorText) errorText.classList.remove('hidden');
+    if (reasonInput) {
+      reasonInput.classList.add('border-rose-500', 'bg-rose-50/30');
+      reasonInput.focus();
+    }
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Memproses...</span>`;
+  }
+
   try {
+    const adapter = window.firebaseAdapter || window.malekkasEngine;
     if (adapter && adapter.rejectReport) {
-      const res = await adapter.rejectReport(activeReportId, reason);
-      if (res && res.success) {
-        alert('✓ Laporan berhasil ditolak dan status diperbarui.');
-        window.activeReportId = null;
-        if (window.fetchReports) await window.fetchReports();
-        if (window.fetchCases) await window.fetchCases();
-        if (window.switchNakesTab) window.switchNakesTab('dashboard');
-        return;
+      await adapter.rejectReport(targetId, reason);
+    } else {
+      const reports = JSON.parse(localStorage.getItem('malekkas_reports') || '[]');
+      const match = reports.find(r => String(r.id) === String(targetId));
+      if (match) {
+        match.status = 'REJECTED';
+        match.nakes_notes = reason;
+        match.rejected_at = new Date().toISOString();
+        localStorage.setItem('malekkas_reports', JSON.stringify(reports));
       }
     }
   } catch (err) {
     console.error('Error saat menolak laporan:', err);
-  }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<i class="fa-solid fa-ban"></i><span>Konfirmasi Tolak Laporan</span>`;
+    }
+    closeRejectReportModal();
+    window.activeReportId = null;
+    window.activeDetailReportId = null;
+    if (window.closeReportDetail) window.closeReportDetail();
 
-  // Fallback lokal
-  const reports = JSON.parse(localStorage.getItem('malekkas_reports') || '[]');
-  const match = reports.find(r => String(r.id) === String(activeReportId));
-  if (match) {
-    match.status = 'REJECTED';
-    match.nakes_notes = reason;
-    localStorage.setItem('malekkas_reports', JSON.stringify(reports));
+    if (window.fetchReports) await window.fetchReports();
+    if (window.fetchCases) await window.fetchCases();
+    if (window.renderAllReportsTable) window.renderAllReportsTable();
+    if (window.renderKaderStatusList && window.currentReports) {
+      window.renderKaderStatusList(window.currentReports);
+    }
+    if (window.switchNakesTab) window.switchNakesTab('dashboard');
   }
-  alert('✓ Laporan berhasil ditolak.');
-  window.activeReportId = null;
-  if (window.fetchReports) await window.fetchReports();
-  if (window.switchNakesTab) window.switchNakesTab('dashboard');
+}
+
+export function rejectReportAction() {
+  openRejectReportModal();
 }
 
 export function rejectReportFromDetail() {
   if (typeof window === 'undefined') return;
   if (window.activeDetailReportId) {
     window.activeReportId = window.activeDetailReportId;
-    if (window.closeReportDetail) window.closeReportDetail();
-    rejectReportAction();
+    openRejectReportModal(window.activeDetailReportId);
   }
 }
 
@@ -690,6 +755,19 @@ if (typeof window !== 'undefined') {
   window.goToValidasiScreen = goToValidasiScreen;
   window.goToAktivasiEwsScreen = goToAktivasiEwsScreen;
   window.validateOnlyNoDispatch = validateOnlyNoDispatch;
+  window.openRejectReportModal = openRejectReportModal;
+  window.closeRejectReportModal = closeRejectReportModal;
+  window.setRejectQuickReason = setRejectQuickReason;
+  window.confirmRejectReportAction = confirmRejectReportAction;
   window.rejectReportAction = rejectReportAction;
   window.rejectReportFromDetail = rejectReportFromDetail;
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('modalRejectReport');
+      if (modal && !modal.classList.contains('hidden')) {
+        closeRejectReportModal();
+      }
+    }
+  });
 }

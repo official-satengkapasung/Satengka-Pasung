@@ -48,7 +48,10 @@ export function renderKaderRecentReports(reports) {
 
     let badgeText = 'Validasi Nakes';
     let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
-    if (effectiveStatus === 'SIAGA') {
+    if (effectiveStatus === 'REJECTED') {
+      badgeText = 'Ditolak';
+      badgeClass = 'bg-rose-100 text-rose-700 border-rose-200';
+    } else if (effectiveStatus === 'SIAGA') {
       badgeText = 'Siaga Tokoh';
       badgeClass = 'bg-red-100 text-red-700 border-red-200 animate-pulse';
     } else if (effectiveStatus === 'COORDINATION') {
@@ -171,9 +174,9 @@ export function handleKaderSearchFilter(resetPage = false) {
   });
 
   if (kaderActiveStatusFilter === 'PROCESS') {
-    filtered = filtered.filter(r => r.effective_status !== 'CLOSED' && r.effective_status !== 'MONITORING');
+    filtered = filtered.filter(r => r.effective_status !== 'CLOSED' && r.effective_status !== 'MONITORING' && r.effective_status !== 'REJECTED');
   } else if (kaderActiveStatusFilter === 'DONE') {
-    filtered = filtered.filter(r => r.effective_status === 'CLOSED' || r.effective_status === 'MONITORING');
+    filtered = filtered.filter(r => r.effective_status === 'CLOSED' || r.effective_status === 'MONITORING' || r.effective_status === 'REJECTED');
   }
 
   if (query) {
@@ -214,6 +217,7 @@ export function renderKaderStatusList(reports, totalCount = null) {
   const currentCases = window.currentCases || [];
 
   const statusSteps = {
+    'REJECTED': { label: 'Laporan Ditolak Faskes (Lihat Catatan Alasan Puskesmas)', color: 'rose', step: 0 },
     'NEW': { label: 'Diterima Puskesmas, Sedang Divalidasi Nakes', color: 'amber', step: 1 },
     'VALIDATED': { label: 'Laporan Valid, Koordinasi Mitra Dimulai', color: 'blue', step: 2 },
     'SIAGA': { label: 'Siaga Satengka Pasung Aktif, Tim Menghubungi Tokoh', color: 'red', step: 3 },
@@ -229,6 +233,7 @@ export function renderKaderStatusList(reports, totalCount = null) {
     const caseStatus = matchedCase ? matchedCase.status : (r.effective_status || r.case_status || r.status);
     const caseInfo = statusSteps[caseStatus] || statusSteps['NEW'];
     const currentStep = caseInfo.step;
+    const isRejected = caseStatus === 'REJECTED';
 
     const steps = [
       { label: 'Laporan', done: currentStep >= 1, active: currentStep === 1 },
@@ -238,6 +243,15 @@ export function renderKaderStatusList(reports, totalCount = null) {
       { label: 'Selesai', done: currentStep >= 5, active: currentStep === 5 },
     ];
 
+    let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+    if (caseInfo.color === 'rose') {
+      badgeClass = 'bg-rose-100 text-rose-700 border-rose-200';
+    } else if (caseInfo.color === 'red') {
+      badgeClass = 'bg-red-100 text-red-700 border-red-200';
+    } else if (caseInfo.color === 'emerald') {
+      badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+    }
+
     return `
       <div onclick="openReportDetail('${r.id}')" class="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/90 p-5 space-y-3.5 shadow-sm hover:shadow-md hover:border-emerald-400 cursor-pointer transition">
         <div class="flex justify-between items-start">
@@ -245,25 +259,38 @@ export function renderKaderStatusList(reports, totalCount = null) {
             <h4 class="font-black text-sm sm:text-base text-slate-900 hover:text-emerald-800 transition">${escapeHtml(r.patient_name_input)}</h4>
             <p class="text-[11px] text-slate-400 font-medium">${escapeHtml(r.report_number || '')} • ${escapeHtml(r.address_input || 'Desa Kokop')}</p>
           </div>
-          <span class="bg-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-100 text-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-800 border border-${caseInfo.color === 'red' ? 'red' : caseInfo.color === 'amber' ? 'amber' : 'emerald'}-200 text-[10px] font-black px-2.5 py-1 rounded-full shrink-0 ml-2">
+          <span class="${badgeClass} border text-[10px] font-black px-2.5 py-1 rounded-full shrink-0 ml-2">
             ${formatStatusIndo(caseStatus)}
           </span>
         </div>
-        <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/80 p-3 rounded-2xl border border-slate-100 font-medium">
-          <i class="fa-solid fa-circle-notch text-emerald-600 mr-1.5"></i>
+        <p class="text-xs ${isRejected ? 'text-rose-800 bg-rose-50/70 border-rose-200' : 'text-slate-600 bg-slate-50/80 border-slate-100'} leading-relaxed p-3 rounded-2xl border font-medium">
+          <i class="fa-solid ${isRejected ? 'fa-ban text-rose-600' : 'fa-circle-notch text-emerald-600'} mr-1.5"></i>
           ${caseInfo.label}
         </p>
-        <div class="flex items-center space-x-1 text-[10px] pt-1">
-          ${steps.map((s, i) => `
-            <div class="flex items-center ${i < steps.length - 1 ? 'flex-1' : ''}">
-              <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-black shadow-xs
-                ${s.done ? 'bg-emerald-600 text-white' : s.active ? 'bg-amber-500 text-white animate-pulse' : 'bg-slate-100 border border-slate-200 text-slate-400'}">
-                ${s.done ? '<i class="fa-solid fa-check text-[10px]"></i>' : (i + 1)}
-              </div>
-              ${i < steps.length - 1 ? `<div class="flex-1 h-1 mx-1 rounded-full ${s.done ? 'bg-emerald-500' : 'bg-slate-200'}"></div>` : ''}
+        ${isRejected ? `
+          <div class="bg-rose-50/90 rounded-2xl border border-rose-200/80 p-3 space-y-1 text-xs">
+            <div class="flex items-center gap-1.5 font-bold text-rose-700 text-[11px]">
+              <i class="fa-solid fa-file-circle-xmark"></i>
+              <span>Alasan Penolakan dari Puskesmas:</span>
             </div>
-          `).join('')}
-        </div>
+            <p class="text-slate-800 font-medium leading-relaxed">
+              ${escapeHtml(r.nakes_notes || r.rejection_notes || 'Laporan tidak memenuhi kriteria temuan pasung atau data belum valid.')}
+            </p>
+            ${r.rejected_at ? `<p class="text-[10px] text-rose-600 font-mono pt-0.5">Ditinjau pada: ${escapeHtml(r.rejected_at)}</p>` : ''}
+          </div>
+        ` : `
+          <div class="flex items-center space-x-1 text-[10px] pt-1">
+            ${steps.map((s, i) => `
+              <div class="flex items-center ${i < steps.length - 1 ? 'flex-1' : ''}">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-black shadow-xs
+                  ${s.done ? 'bg-emerald-600 text-white' : s.active ? 'bg-amber-500 text-white animate-pulse' : 'bg-slate-100 border border-slate-200 text-slate-400'}">
+                  ${s.done ? '<i class="fa-solid fa-check text-[10px]"></i>' : (i + 1)}
+                </div>
+                ${i < steps.length - 1 ? `<div class="flex-1 h-1 mx-1 rounded-full ${s.done ? 'bg-emerald-500' : 'bg-slate-200'}"></div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `}
         <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
           <div class="flex items-center gap-2">
             <span class="text-slate-400 font-mono text-[11px]">No: ${escapeHtml(r.report_number || '')}</span>

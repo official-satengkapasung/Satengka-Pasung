@@ -431,16 +431,30 @@ export function handleReportsFilterSort(resetPage = false) {
             </div>
           </td>
           <td class="p-3.5">
-            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${r.status === 'NEW' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">
-              ${r.status === 'NEW' ? 'Laporan Baru' : 'Tervalidasi'}
-            </span>
+            ${r.status === 'REJECTED' ? `
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
+                Ditolak
+              </span>
+            ` : r.status === 'NEW' ? `
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                Laporan Baru
+              </span>
+            ` : `
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                Tervalidasi
+              </span>
+            `}
           </td>
           <td class="p-3.5 text-center">
             <div class="flex items-center justify-center space-x-1.5">
               <button type="button" onclick="openReportDetail('${r.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 transition">
                 <i class="fa-solid fa-eye text-slate-400 mr-1"></i> Detail
               </button>
-              ${r.status === 'NEW' ? `
+              ${r.status === 'REJECTED' ? `
+                <span class="text-rose-600 text-xs font-bold bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                  <i class="fa-solid fa-xmark mr-1"></i>Ditolak
+                </span>
+              ` : r.status === 'NEW' ? `
                 <button onclick="openSiagaFromReport('${r.id}')" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow transition">
                   Validasi Satengka
                 </button>
@@ -490,11 +504,34 @@ export function openReportDetail(reportId) {
 
   const elBadge = document.getElementById('repDetailBadgeStatus');
   if (elBadge) {
-    const isNew = rep.status === 'NEW';
-    elBadge.innerText = isNew ? 'Laporan Baru' : 'Tervalidasi';
-    elBadge.className = isNew
-      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200'
-      : 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+    if (rep.status === 'REJECTED') {
+      elBadge.innerText = 'Ditolak Faskes';
+      elBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200';
+    } else if (rep.status === 'NEW') {
+      elBadge.innerText = 'Laporan Baru';
+      elBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200';
+    } else {
+      elBadge.innerText = 'Tervalidasi';
+      elBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+    }
+  }
+
+  // Tampilkan atau Sembunyikan Kotak Alasan Penolakan
+  const rejectedBox = document.getElementById('repDetailRejectedBox');
+  const rejectedReason = document.getElementById('repDetailRejectedReason');
+  const rejectedDate = document.getElementById('repDetailRejectedDate');
+  if (rejectedBox) {
+    if (rep.status === 'REJECTED') {
+      rejectedBox.classList.remove('hidden');
+      if (rejectedReason) {
+        rejectedReason.innerText = rep.nakes_notes || rep.rejection_notes || 'Laporan tidak memenuhi kriteria temuan pasung atau data tidak sesuai.';
+      }
+      if (rejectedDate) {
+        rejectedDate.innerText = rep.rejected_at ? `Waktu Penolakan: ${rep.rejected_at}` : '';
+      }
+    } else {
+      rejectedBox.classList.add('hidden');
+    }
   }
 
   const elRepNo = document.getElementById('repDetailReportNumber');

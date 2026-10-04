@@ -17,6 +17,7 @@ export function formatStatusIndo(status) {
     'NEW': 'Laporan Baru',
     'VALIDATED': 'Tervalidasi',
     'REPORTED': 'Dilaporkan',
+    'REJECTED': 'Ditolak Faskes',
     'PROCESS': 'Sedang Diproses',
     'DONE': 'Selesai'
   };

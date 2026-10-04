@@ -1546,6 +1546,7 @@
                 <option value="">Semua Status Laporan</option>
                 <option value="NEW">Laporan Baru (Belum Divalidasi)</option>
                 <option value="VALIDATED">Tervalidasi / Siaga</option>
+                <option value="REJECTED">Ditolak Faskes</option>
               </select>
               <select id="sortReports" onchange="handleReportsFilterSort(false)"
                 class="px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-slate-700 font-semibold outline-none focus:border-emerald-600 transition">
@@ -3544,6 +3545,16 @@
         <p class="text-slate-700 font-medium leading-relaxed pt-1" id="repDetailDesc">Tidak ada catatan tambahan.</p>
       </div>
 
+      <!-- Kotak Catatan Penolakan Faskes (Jika Status REJECTED) -->
+      <div id="repDetailRejectedBox" class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs space-y-1.5 hidden">
+        <div class="flex items-center gap-1.5 text-rose-700 font-bold uppercase tracking-wider text-[10px]">
+          <i class="fa-solid fa-file-circle-xmark"></i>
+          <span>Laporan Ditolak oleh Puskesmas</span>
+        </div>
+        <p class="text-slate-800 font-medium leading-relaxed" id="repDetailRejectedReason">-</p>
+        <p class="text-[11px] text-rose-600 font-medium" id="repDetailRejectedDate"></p>
+      </div>
+
       <!-- Action Footer -->
       <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2">
         <button type="button" aria-label="Tutup detail laporan" onclick="closeReportDetail()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
@@ -3559,6 +3570,79 @@
             <span>Validasi EWS & Pemetaan</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CUSTOM: PENOLAKAN LAPORAN (ANTI-SLOP & AKSESIBEL) -->
+  <div id="modalRejectReport" role="dialog" aria-modal="true" aria-labelledby="rejectModalTitle" class="fixed inset-0 z-[60] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-rose-200/80 space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in duration-200">
+      <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
+            <i class="fa-solid fa-file-circle-xmark"></i>
+          </div>
+          <div>
+            <h3 id="rejectModalTitle" class="text-base font-black text-slate-900 leading-tight">Tolak Laporan Temuan</h3>
+            <p class="text-xs text-slate-500 font-medium">Rekam alasan resmi penolakan untuk audit & pelapor</p>
+          </div>
+        </div>
+        <button type="button" aria-label="Tutup modal penolakan" onclick="closeRejectReportModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Info Banner: Riwayat Tetap Ada -->
+      <div class="p-3.5 bg-rose-50/70 rounded-2xl border border-rose-200/60 flex items-start space-x-2.5 text-xs text-rose-900">
+        <i class="fa-solid fa-circle-info text-rose-600 mt-0.5 shrink-0 text-sm"></i>
+        <div class="leading-relaxed">
+          <strong>Laporan tidak akan dihapus.</strong> Status akan diubah menjadi <span class="font-bold underline decoration-rose-300">Ditolak</span> dan catatan ini akan terbaca di riwayat akun Nakes serta akun Pelapor.
+        </div>
+      </div>
+
+      <!-- Quick Reason Tags -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Pilih Cepat Alasan Penolakan</label>
+        <div class="flex flex-wrap gap-1.5">
+          <button type="button" onclick="setRejectQuickReason('Bukan kasus pasung / indikasi medis lain')" class="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 text-slate-600 rounded-lg border border-slate-200 transition">
+            Bukan Kasus Pasung
+          </button>
+          <button type="button" onclick="setRejectQuickReason('Laporan ganda / data pasien sudah terdaftar')" class="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 text-slate-600 rounded-lg border border-slate-200 transition">
+            Laporan Duplikat
+          </button>
+          <button type="button" onclick="setRejectQuickReason('Alamat atau identitas pasien tidak valid setelah dicek')" class="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 text-slate-600 rounded-lg border border-slate-200 transition">
+            Alamat Tidak Sesuai
+          </button>
+          <button type="button" onclick="setRejectQuickReason('Sudah ditangani faskes / dalam rawat jalan')" class="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 text-slate-600 rounded-lg border border-slate-200 transition">
+            Sudah Ditangani Faskes
+          </button>
+        </div>
+      </div>
+
+      <!-- Textarea Alasan Spesifik -->
+      <div class="space-y-1.5">
+        <label for="rejectReportReasonInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wide">
+          Catatan / Alasan Petugas <span class="text-rose-600">*</span>
+        </label>
+        <textarea id="rejectReportReasonInput" rows="3" required
+          class="w-full border border-slate-300 rounded-2xl p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition leading-relaxed"
+          placeholder="Tuliskan alasan penolakan secara jelas dan objektif..."></textarea>
+        <p id="rejectModalError" class="text-[11px] text-rose-600 font-semibold hidden">
+          <i class="fa-solid fa-triangle-exclamation mr-1"></i> Mohon isi alasan penolakan terlebih dahulu.
+        </p>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-2">
+        <button type="button" onclick="closeRejectReportModal()"
+          class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold text-xs transition">
+          Batal
+        </button>
+        <button type="button" id="btnConfirmRejectReport" onclick="confirmRejectReportAction()"
+          class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 transition flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-ban"></i>
+          <span>Konfirmasi Tolak Laporan</span>
+        </button>
       </div>
     </div>
   </div>
