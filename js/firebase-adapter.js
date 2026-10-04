@@ -1681,12 +1681,12 @@ export async function rejectReport(reportId, rejectionNotes = "Laporan ditolak o
 
   if (isFirebaseActive && db) {
     try {
-      await updateDoc(doc(db, "reports", String(rep.id)), {
+      await setDoc(doc(db, "reports", String(rep.id)), {
         status: "REJECTED",
         nakes_notes: rejectionNotes,
         rejected_at: serverTimestamp(),
         updated_at: serverTimestamp()
-      });
+      }, { merge: true });
       console.log("🔥 [FIRESTORE] Laporan berhasil ditolak:", rep.id);
     } catch (e) {
       console.warn("⚠️ Gagal update status penolakan laporan di Firestore:", e);

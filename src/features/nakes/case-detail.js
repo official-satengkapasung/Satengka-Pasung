@@ -631,11 +631,16 @@ export function openRejectReportModal(reportId = null) {
   if (typeof document === 'undefined') return;
   const targetId = reportId || window.activeReportId || window.activeDetailReportId;
   if (!targetId) {
-    if (window.switchNakesTab) window.switchNakesTab('dashboard');
+    console.warn('[RejectReport] Tidak ada target ID laporan.');
+    if (window.showToast) window.showToast('Gagal memproses: ID laporan tidak terdeteksi.', 'warning');
     return;
   }
 
   window.activeReportId = targetId;
+
+  // Sembunyikan modal detail laporan sementara agar tidak menumpuk
+  const detailModal = document.getElementById('modalReportDetail');
+  if (detailModal) detailModal.classList.add('hidden');
 
   const modal = document.getElementById('modalRejectReport');
   const reasonInput = document.getElementById('rejectReportReasonInput');
@@ -649,9 +654,10 @@ export function openRejectReportModal(reportId = null) {
 
   if (modal) {
     modal.classList.remove('hidden');
+    modal.style.zIndex = '99999';
     setTimeout(() => {
       if (reasonInput) reasonInput.focus();
-    }, 50);
+    }, 60);
   }
 }
 
@@ -659,6 +665,12 @@ export function closeRejectReportModal() {
   if (typeof document === 'undefined') return;
   const modal = document.getElementById('modalRejectReport');
   if (modal) modal.classList.add('hidden');
+
+  // Jika membatalkan dan masih ada detail report aktif, tampilkan kembali detail modalnya
+  if (window.activeDetailReportId) {
+    const detailModal = document.getElementById('modalReportDetail');
+    if (detailModal) detailModal.classList.remove('hidden');
+  }
 }
 
 export function setRejectQuickReason(text) {
