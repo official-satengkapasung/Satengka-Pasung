@@ -7,6 +7,47 @@
 let mGuruMapInstance = null;
 let mRatoMapInstance = null;
 
+/**
+ * Mencari partisipan yang relevan untuk user aktif berdasarkan user_id, telepon, nama, atau respon aktif.
+ */
+export function findUserParticipant(caseObj, role, user) {
+  if (!caseObj || !Array.isArray(caseObj.participants)) return null;
+  const parts = caseObj.participants.filter(p => p.participant_role === role);
+  if (parts.length === 0) return null;
+
+  const uId = user ? String(user.id || user.uid || '') : '';
+  const uPhone = user?.phone ? String(user.phone).replace(/\D/g, '') : '';
+  const uName = user?.name ? String(user.name).trim().toLowerCase() : '';
+
+  // 1. Cocokkan ID spesifik
+  if (uId) {
+    const byId = parts.find(p => p.user_id && String(p.user_id) === uId);
+    if (byId) return byId;
+  }
+  // 2. Cocokkan nomor telepon / WhatsApp
+  if (uPhone) {
+    const byPhone = parts.find(p => {
+      const pPhone = String(p.phone || '').replace(/\D/g, '');
+      return pPhone && (pPhone === uPhone || pPhone.endsWith(uPhone.slice(-8)) || uPhone.endsWith(pPhone.slice(-8)));
+    });
+    if (byPhone) return byPhone;
+  }
+  // 3. Cocokkan nama
+  if (uName) {
+    const byName = parts.find(p => {
+      const pName = String(p.name || '').trim().toLowerCase();
+      return pName && (pName === uName || pName.includes(uName) || uName.includes(pName));
+    });
+    if (byName) return byName;
+  }
+  // 4. Cari yang sudah merespon aktif (bukan PENDING)
+  const activeResponded = parts.find(p => p.response && p.response !== 'PENDING');
+  if (activeResponded) return activeResponded;
+
+  // 5. Fallback ke partisipan pertama
+  return parts[0];
+}
+
 // Search & Pagination Ghuru & Rato
 export function handleGuruSearchFilter() {
   if (typeof document === 'undefined') return;
@@ -104,8 +145,7 @@ export function renderGuruMobileRequests(cases) {
   const paged = filtered.slice(start, start + perPage);
 
   container.innerHTML = paged.map(c => {
-    const curUid = window.currentUser ? window.currentUser.id : null;
-    const myPart = c.participants ? (c.participants.find(p => p.participant_role === 'GURU' && (String(p.user_id) === String(curUid) || !curUid || !p.user_id)) || c.participants.find(p => p.participant_role === 'GURU')) : null;
+    const myPart = findUserParticipant(c, 'GURU', window.currentUser);
     const isAgreed = myPart && (myPart.response === 'AGREE' || myPart.response === 'SIAP' || myPart.response === 'READY');
     const isNeedTime = myPart && myPart.response === 'NEED_TIME';
 
@@ -208,8 +248,7 @@ export function renderRatoMobileRequests(cases) {
   const paged = filtered.slice(start, start + perPage);
 
   container.innerHTML = paged.map(c => {
-    const curUid = window.currentUser ? window.currentUser.id : null;
-    const myPart = c.participants ? (c.participants.find(p => p.participant_role === 'RATO' && (String(p.user_id) === String(curUid) || !curUid || !p.user_id)) || c.participants.find(p => p.participant_role === 'RATO')) : null;
+    const myPart = findUserParticipant(c, 'RATO', window.currentUser);
     const isReady = myPart && (myPart.response === 'READY' || myPart.response === 'AGREE' || myPart.response === 'SIAP');
 
     return `
@@ -278,8 +317,7 @@ export function openGuruDetailScreen(caseId) {
   const formatStatus = window.formatStatusIndo || (s => s);
   document.getElementById('mGuruDetailBadge').innerText = formatStatus(targetCase.status);
 
-  const curUid = window.currentUser ? window.currentUser.id : null;
-  const myPart = targetCase.participants ? (targetCase.participants.find(p => p.participant_role === 'GURU' && (String(p.user_id) === String(curUid) || !curUid || !p.user_id)) || targetCase.participants.find(p => p.participant_role === 'GURU')) : null;
+  const myPart = findUserParticipant(targetCase, 'GURU', window.currentUser);
   const isAgreed = myPart && (myPart.response === 'AGREE' || myPart.response === 'SIAP' || myPart.response === 'READY');
   const isNeedTime = myPart && myPart.response === 'NEED_TIME';
 
@@ -340,8 +378,7 @@ export function openRatoDetailScreen(caseId) {
   const formatStatus = window.formatStatusIndo || (s => s);
   document.getElementById('mRatoDetailBadge').innerText = formatStatus(targetCase.status);
 
-  const curUid = window.currentUser ? window.currentUser.id : null;
-  const myPart = targetCase.participants ? (targetCase.participants.find(p => p.participant_role === 'RATO' && (String(p.user_id) === String(curUid) || !curUid || !p.user_id)) || targetCase.participants.find(p => p.participant_role === 'RATO')) : null;
+  const myPart = findUserParticipant(targetCase, 'RATO', window.currentUser);
   const isReady = myPart && (myPart.response === 'READY' || myPart.response === 'AGREE' || myPart.response === 'SIAP');
 
   const actionContainer = document.getElementById('mRatoDetailActionBtns');
@@ -390,28 +427,8 @@ function updateMemoryCaseParticipant(caseId, role, responseVal, note = '') {
   }
   const currentUser = window.currentUser;
   const currentUserId = currentUser ? (currentUser.id || currentUser.uid) : null;
-  const currentPhone = (currentUser?.phone || '').replace(/\D/g, '');
-  const currentName = (currentUser?.name || '').trim().toLowerCase();
 
-  let existingPart = null;
-  if (currentUserId) {
-    existingPart = target.participants.find(p => p.participant_role === role && String(p.user_id) === String(currentUserId));
-  }
-  if (!existingPart && currentPhone) {
-    existingPart = target.participants.find(p => {
-      const pPhone = String(p.phone || '').replace(/\D/g, '');
-      return pPhone && (pPhone === currentPhone || pPhone.endsWith(currentPhone.slice(-8)) || currentPhone.endsWith(pPhone.slice(-8)));
-    });
-  }
-  if (!existingPart && currentName) {
-    existingPart = target.participants.find(p => {
-      const pName = String(p.name || '').trim().toLowerCase();
-      return pName && (pName === currentName || pName.includes(currentName) || currentName.includes(pName));
-    });
-  }
-  if (!existingPart) {
-    existingPart = target.participants.find(p => p.participant_role === role);
-  }
+  let existingPart = findUserParticipant(target, role, currentUser);
 
   if (existingPart) {
     existingPart.response = responseVal;
@@ -438,14 +455,29 @@ function updateMemoryCaseParticipant(caseId, role, responseVal, note = '') {
 
   // Hitung status kasus
   let readyCount = 0;
+  let hasAnyResponse = false;
   target.participants.forEach(p => {
+    if (p.response && p.response !== 'PENDING') hasAnyResponse = true;
     if (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE') readyCount++;
   });
   if (readyCount >= 2) {
     target.status = 'READY_FOR_EVACUATION';
-  } else if (target.status === 'SIAGA') {
+  } else if (hasAnyResponse && target.status === 'SIAGA') {
     target.status = 'COORDINATION';
   }
+
+  // Sinkronkan ke local storage
+  try {
+    const raw = localStorage.getItem('malekkas_cases');
+    if (raw) {
+      const stored = JSON.parse(raw);
+      const sIdx = stored.findIndex(c => String(c.id) === String(target.id) || (c.case_number && c.case_number === target.case_number));
+      if (sIdx !== -1) {
+        stored[sIdx] = { ...stored[sIdx], ...target };
+        localStorage.setItem('malekkas_cases', JSON.stringify(stored));
+      }
+    }
+  } catch (e) {}
 }
 
 export async function mobileGuruRespond(caseId, responseVal) {

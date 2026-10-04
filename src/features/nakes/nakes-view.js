@@ -245,8 +245,16 @@ import {
           }
 
           const parts = c.participants || [];
-          const guruP = parts.find(p => p.participant_role === 'GURU');
-          const ratoP = parts.find(p => p.participant_role === 'RATO');
+          const guruParts = parts.filter(p => p.participant_role === 'GURU');
+          const ratoParts = parts.filter(p => p.participant_role === 'RATO');
+
+          // Prioritaskan partisipan yang sudah merespon agar status konfirmasi langsung terlihat di Dashboard Nakes
+          const guruP = guruParts.find(p => p.response === 'AGREE' || p.response === 'SIAP' || p.response === 'READY')
+                     || guruParts.find(p => p.response === 'NEED_TIME')
+                     || guruParts[0];
+
+          const ratoP = ratoParts.find(p => p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE')
+                     || ratoParts[0];
 
           let partnerPills = '';
           if (guruP && (guruP.response === 'AGREE' || guruP.response === 'SIAP' || guruP.response === 'READY')) {

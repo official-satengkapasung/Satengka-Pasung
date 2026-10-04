@@ -880,7 +880,7 @@ export async function selfResetPassword() {
 
 function mapDoc(d) {
   const data = d.data();
-  return { ...data, id: data.id !== undefined ? data.id : d.id };
+  return { ...data, _docId: d.id, id: data.id !== undefined ? data.id : d.id };
 }
 
 function scopedQuery(name, filterParams = {}) {
@@ -902,7 +902,20 @@ export async function getCases(userId = null, role = null, villageId = null, vil
       const snap = await getDocs(scopedQuery("cases", { role, villageId }));
       const cloudCases = snap.docs.map(mapDoc);
       if (cloudCases.length > 0) {
-        cases = cloudCases;
+        // Gabungkan cloud cases dengan memprioritaskan respon terbaru jika Firestore masih proses replikasi
+        const mergedCases = cloudCases.map(cc => {
+          const localMatch = cases.find(lc => String(lc.id) === String(cc.id) || (lc.case_number && lc.case_number === cc.case_number));
+          if (!localMatch) return cc;
+          if (Array.isArray(localMatch.participants) && Array.isArray(cc.participants)) {
+            const hasLocalResponse = localMatch.participants.some(lp => lp.response && lp.response !== 'PENDING');
+            const cloudHasResponse = cc.participants.some(cp => cp.response && cp.response !== 'PENDING');
+            if (hasLocalResponse && !cloudHasResponse) {
+              return { ...cc, status: localMatch.status, participants: localMatch.participants };
+            }
+          }
+          return cc;
+        });
+        cases = mergedCases;
         setLocalStore("cases", cases);
       }
     } catch (e) {
@@ -2045,13 +2058,14 @@ export async function respondParticipant(caseId, userId, responseVal, note = "",
   // Sinkronkan langsung ke Cloud Firestore
   if (isFirebaseActive && db) {
     try {
+      const cleanCase = JSON.parse(JSON.stringify(targetCase));
       const firestoreDocId = targetCase._docId || String(targetCase.id);
-      await setDoc(doc(db, "cases", firestoreDocId), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
-      if (targetCase.case_number && String(targetCase.id) !== String(targetCase.case_number)) {
+      await setDoc(doc(db, "cases", firestoreDocId), { ...cleanCase, updated_at: serverTimestamp() }, { merge: true });
+      if (targetCase.case_number && String(firestoreDocId) !== String(targetCase.case_number)) {
         // Update juga via case_number jika doc id menggunakan nomor kasus
         const qSnap = await getDocs(query(collection(db, "cases"), where("case_number", "==", targetCase.case_number), limit(1)));
         if (!qSnap.empty && qSnap.docs[0].id !== firestoreDocId) {
-          await setDoc(doc(db, "cases", qSnap.docs[0].id), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
+          await setDoc(doc(db, "cases", qSnap.docs[0].id), { ...cleanCase, updated_at: serverTimestamp() }, { merge: true });
         }
       }
     } catch (e) {
