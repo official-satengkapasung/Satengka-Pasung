@@ -887,7 +887,8 @@ function scopedQuery(name, filterParams = {}) {
   const role = filterParams.role;
   const villageId = filterParams.villageId;
   const constraints = [limit(50)];
-  if (villageId && role !== "NAKES" && role !== "ADMIN") {
+  // Jangan batasi cases dengan village_id di level query agar penugasan siaga lintas desa tetap terambil
+  if (name !== "cases" && villageId && role !== "NAKES" && role !== "ADMIN") {
     constraints.unshift(where("village_id", "in", [Number(villageId), String(villageId)]));
   }
   return query(collection(db, name), ...constraints);
@@ -976,11 +977,21 @@ function filterCasesForUser(cases, filterParams = {}) {
     });
   } else if (userId && (role === "GURU" || role === "RATO")) {
     list = list.filter(c => {
-      // 1. Kasus di desa domisili tokoh
+      // 1. Kasus di mana tokoh tercatat dalam daftar penugasan participants (lokal maupun lintas desa)
+      if (c.participants && c.participants.some(p => {
+        if (p.participant_role !== role) return false;
+        if (p.user_id && String(p.user_id) === String(userId)) return true;
+        return false;
+      })) return true;
+
+      // 2. Kasus di desa domisili tokoh
       if (villageId && String(c.village_id) === String(villageId)) return true;
       if (villageName && (c.village_name || '').trim().toLowerCase() === (villageName || '').trim().toLowerCase()) return true;
-      // 2. Kasus lintas desa di mana tokoh tercatat dalam daftar penugasan participants
-      if (c.participants && c.participants.some(p => String(p.user_id) === String(userId) || (p.participant_role === role && (!villageId && !villageName)))) return true;
+
+      // 3. Fallback jika tokoh belum memiliki filter desa khusus, tampilkan seluruh kasus siaga aktif
+      if (!villageId && !villageName && (c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION')) {
+        return true;
+      }
       return false;
     });
   }

@@ -76,7 +76,8 @@ service cloud.firestore {
 
     match /cases/{caseId} {
       allow read: if isActive();
-      allow create, update: if isStaff() && noSecretFields();
+      allow create: if isStaff() && noSecretFields();
+      allow update: if (isStaff() || isActive()) && noSecretFields();
       allow delete: if isAdmin();
 
       match /messages/{messageId} {

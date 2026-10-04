@@ -408,7 +408,7 @@ export async function executeEwsActivation() {
           waContactsQueue.push({
             id: gid,
             role: 'GURU',
-            roleLabel: "Bhu' Ghuru / Kiai",
+            roleLabel: "Ghuru",
             roleIcon: './assets/icons/role_bhu-ghuru.png',
             name: selectedGuru.name,
             phone: selectedGuru.phone,
@@ -428,12 +428,12 @@ export async function executeEwsActivation() {
         if (selectedRato && selectedRato.phone) {
           let cleanRatoPhone = selectedRato.phone.replace(/[^0-9]/g, '');
           if (cleanRatoPhone.startsWith('0')) cleanRatoPhone = '62' + cleanRatoPhone.slice(1);
-          const rawMsg = `*PEMBERITAHUAN SIAGA KOORDINASI EVAKUASI DESA*\n\nKepada Yth. Aparatur Desa / Rato (${selectedRato.name} - Desa ${selectedRato.village_name || villageName}),\nPetugas Puskesmas Kokop meminta pendampingan pengawalan wilayah untuk penanganan evakuasi medis warga (Pasien: ${patientName}).\n\nCatatan Nakes: ${msg || 'Mohon koordinasi pengamanan kondusif saat penjemputan warga.'}\n\nTerima kasih atas kerja samanya.`;
+          const rawMsg = `*PEMBERITAHUAN SIAGA KOORDINASI EVAKUASI DESA*\n\nKepada Yth. Rato (${selectedRato.name} - Desa ${selectedRato.village_name || villageName}),\nPetugas Puskesmas Kokop meminta pendampingan pengawalan wilayah untuk penanganan evakuasi medis warga (Pasien: ${patientName}).\n\nCatatan Nakes: ${msg || 'Mohon koordinasi pengamanan kondusif saat penjemputan warga.'}\n\nTerima kasih atas kerja samanya.`;
           const waRatoText = encodeURIComponent(rawMsg);
           waContactsQueue.push({
             id: rid,
             role: 'RATO',
-            roleLabel: 'Rato / Aparat Desa',
+            roleLabel: 'Rato',
             roleIcon: './assets/icons/role_rato.png',
             name: selectedRato.name,
             phone: selectedRato.phone,

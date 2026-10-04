@@ -263,6 +263,7 @@ export async function fetchReports() {
       if (res.success) {
         window.currentReports = res.data;
         if (window.renderKaderRecentReports) window.renderKaderRecentReports(window.currentReports);
+        if (window.handleKaderSearchFilter) window.handleKaderSearchFilter();
         if (window.renderAllReportsTable) window.renderAllReportsTable();
         if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
 

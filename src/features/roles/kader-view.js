@@ -40,32 +40,55 @@ export function renderKaderRecentReports(reports) {
     return;
   }
 
-  container.innerHTML = reports.slice(0, 6).map(r => `
-    <div onclick="openReportDetail('${r.id}')" class="bg-white p-4 rounded-3xl border border-slate-200/90 hover:border-emerald-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between space-y-3 group">
-      <div class="flex items-start justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-2xl bg-emerald-100/80 text-emerald-800 flex items-center justify-center text-sm font-bold group-hover:scale-105 transition">
-            <i class="fa-solid fa-hospital-user"></i>
-          </div>
-          <div>
-            <h5 class="font-black text-slate-900 text-sm leading-tight group-hover:text-emerald-800 transition">${escapeHtml(r.patient_name_input)}</h5>
-            <p class="text-[11px] text-slate-400 font-medium">${escapeHtml(r.report_number || '')}</p>
-          </div>
-        </div>
-        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${r.status === 'NEW' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}">
-          ${r.status === 'NEW' ? '▲ Diproses' : '✓ Selesai'}
-        </span>
-      </div>
+  const currentCases = window.currentCases || [];
 
-      <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-        <span class="truncate max-w-[180px]"><i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> ${escapeHtml(r.address_input || 'Desa Kokop')}</span>
-        <span class="text-emerald-700 font-bold group-hover:translate-x-0.5 transition flex items-center space-x-1">
-          <span>Lihat Detail</span>
-          <i class="fa-solid fa-angle-right text-[9px]"></i>
-        </span>
+  container.innerHTML = reports.slice(0, 6).map(r => {
+    const matchedCase = currentCases.find(c => String(c.report_id) === String(r.id) || String(c.id) === String(r.case_id));
+    const effectiveStatus = matchedCase ? matchedCase.status : (r.status || 'NEW');
+
+    let badgeText = 'Validasi Nakes';
+    let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+    if (effectiveStatus === 'SIAGA') {
+      badgeText = 'Siaga Tokoh';
+      badgeClass = 'bg-red-100 text-red-700 border-red-200 animate-pulse';
+    } else if (effectiveStatus === 'COORDINATION') {
+      badgeText = 'Rembuk Tokoh';
+      badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+    } else if (effectiveStatus === 'READY_FOR_EVACUATION') {
+      badgeText = 'Siap Evakuasi';
+      badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+    } else if (effectiveStatus === 'MONITORING' || effectiveStatus === 'CLOSED') {
+      badgeText = 'Bebas Pasung';
+      badgeClass = 'bg-teal-100 text-teal-800 border-teal-200';
+    }
+
+    return `
+      <div onclick="openReportDetail('${r.id}')" class="bg-white p-4 rounded-3xl border border-slate-200/90 hover:border-emerald-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between space-y-3 group">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-100/80 text-emerald-800 flex items-center justify-center text-sm font-bold group-hover:scale-105 transition">
+              <i class="fa-solid fa-hospital-user"></i>
+            </div>
+            <div>
+              <h5 class="font-black text-slate-900 text-sm leading-tight group-hover:text-emerald-800 transition">${escapeHtml(r.patient_name_input)}</h5>
+              <p class="text-[11px] text-slate-400 font-medium">${escapeHtml(r.report_number || '')}</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border ${badgeClass}">
+            ${badgeText}
+          </span>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+          <span class="truncate max-w-[180px]"><i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> ${escapeHtml(r.address_input || 'Desa Kokop')}</span>
+          <span class="text-emerald-700 font-bold group-hover:translate-x-0.5 transition flex items-center space-x-1">
+            <span>Lihat Detail</span>
+            <i class="fa-solid fa-angle-right text-[9px]"></i>
+          </span>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 export function toggleKaderOtherTypeInput() {
@@ -141,7 +164,7 @@ export function handleKaderSearchFilter(resetPage = false) {
   let filtered = [...currentReports];
 
   filtered = filtered.map(r => {
-    const matchedCase = currentCases.find(c => c.report_id === r.id || c.id === r.case_id);
+    const matchedCase = currentCases.find(c => String(c.report_id) === String(r.id) || String(c.id) === String(r.case_id));
     const resolvedStatus = matchedCase ? matchedCase.status : r.status;
     const resolvedCaseNumber = matchedCase ? matchedCase.case_number : r.case_number;
     return { ...r, effective_status: resolvedStatus, matched_case: matchedCase, resolved_case_number: resolvedCaseNumber };
@@ -202,7 +225,7 @@ export function renderKaderStatusList(reports, totalCount = null) {
   };
 
   container.innerHTML = reports.map(r => {
-    const matchedCase = r.matched_case || currentCases.find(c => c.report_id === r.id || c.id === r.case_id);
+    const matchedCase = r.matched_case || currentCases.find(c => String(c.report_id) === String(r.id) || String(c.id) === String(r.case_id));
     const caseStatus = matchedCase ? matchedCase.status : (r.effective_status || r.case_status || r.status);
     const caseInfo = statusSteps[caseStatus] || statusSteps['NEW'];
     const currentStep = caseInfo.step;

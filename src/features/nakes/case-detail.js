@@ -422,7 +422,7 @@ export function selectCaseDetail(caseId) {
 
   let guruPills = '';
   if (guruParts.length === 0) {
-    guruPills = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain opacity-60" alt="Ghuru"> Bhu' Ghuru: Menunggu</span>`;
+    guruPills = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1"><img src="./assets/icons/role_bhu-ghuru.png" class="w-3 h-3 object-contain opacity-60" alt="Ghuru"> Ghuru: Menunggu</span>`;
   } else {
     guruPills = guruParts.map((gp, idx) => {
       const gLabel = cleanRole(gp.name || `Ghuru ${idx + 1}`);
@@ -529,7 +529,7 @@ export function selectCaseDetail(caseId) {
               <span class="w-3 h-3 rounded-full ${isAgree ? 'bg-emerald-600' : (isNeedTime ? 'bg-amber-500' : 'bg-slate-300')} mt-1 shrink-0"></span>
               <div>
                 <p class="font-bold text-slate-800">Ghuru: ${gName} ${isAgree ? '— Siap Membantu' : (isNeedTime ? '— Butuh Waktu (Mediasi)' : '— Menunggu Tanggapan')}</p>
-                <p class="text-slate-500 text-[11px]">${gp.response_note || gp.note || (isAgree ? 'Terkonfirmasi siap mendampingi evakuasi secara santun.' : 'Notifikasi siaga rembuk santun terkirim.')}</p>
+                <p class="${isNeedTime ? 'text-amber-900 font-semibold bg-amber-50 p-2 rounded-lg border border-amber-200 mt-1' : 'text-slate-500'} text-[11px]">${gp.response_note || gp.note || (isAgree ? 'Terkonfirmasi siap mendampingi evakuasi secara santun.' : (isNeedTime ? 'Sedang proses pendekatan dan mediasi santun dengan keluarga pasien.' : 'Notifikasi siaga rembuk santun terkirim.'))}</p>
               </div>
             </div>
           `;
@@ -537,8 +537,8 @@ export function selectCaseDetail(caseId) {
           <div class="flex items-start space-x-3 text-xs">
             <span class="w-3 h-3 rounded-full bg-slate-300 mt-1 shrink-0"></span>
             <div>
-              <p class="font-bold text-slate-800">Pilar Bhu' Ghuru: Menunggu Penugasan</p>
-              <p class="text-slate-500 text-[11px]">Belum ada tokoh agama/kiai yang ditugaskan pada kasus ini.</p>
+              <p class="font-bold text-slate-800">Ghuru: Menunggu Penugasan</p>
+              <p class="text-slate-500 text-[11px]">Belum ada Ghuru yang ditugaskan pada kasus ini.</p>
             </div>
           </div>
         `}
