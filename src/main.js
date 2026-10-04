@@ -52,7 +52,7 @@ if (typeof window !== 'undefined') {
     window.firebaseReadyPromise = (async () => {
       if (window.location.protocol.startsWith('http')) {
         try {
-          const fbModule = await import('../js/firebase-adapter.js');
+          const fbModule = await import('../js/firebase-adapter.js?v=65');
           if (fbModule) {
             window.firebaseAdapter = Object.assign(window.firebaseAdapter || {}, fbModule);
             console.log("🔥 [SATENGKA PASUNG] Cloud Firestore aktif di Dashboard!");

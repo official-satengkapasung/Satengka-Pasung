@@ -315,6 +315,19 @@ export async function loginUser(identifier, password) {
   // Fallback lokal/seed hanya jika offline tanpa koneksi cloud
   if (!matchedUser) {
     if (isFirebaseActive && typeof navigator !== 'undefined' && navigator.onLine) {
+      let isRegisteredPhone = false;
+      if (cleanId && db) {
+        try {
+          const pCheck = await getDoc(doc(db, "phone_index", cleanId));
+          if (pCheck.exists()) isRegisteredPhone = true;
+        } catch (e) {}
+      }
+      if (isRegisteredPhone) {
+        return {
+          success: false,
+          message: "Kata sandi yang Anda masukkan salah. Silakan periksa kembali kata sandi Anda."
+        };
+      }
       return {
         success: false,
         message: "Nomor WhatsApp atau akun tidak ditemukan. Akun mungkin telah dihapus oleh Petugas Puskesmas Kokop."
