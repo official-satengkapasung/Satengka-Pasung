@@ -9,6 +9,8 @@ import { cleanRoleAccountName } from '../utils/formatters.js';
 let casesUnsubscribe = null;
 let reportsUnsubscribe = null;
 let usersUnsubscribe = null;
+let heartbeatInterval = null;
+let lifecycleListenersAttached = false;
 
 /**
  * Load Master Data Villages (Zero-Cost Engine / Firebase)
@@ -45,9 +47,71 @@ export async function loadVillages() {
 }
 
 /**
+ * Setup Event Listener Lifecycle (Anti-Delay & Instant Tab Resume)
+ * Memicu sinkronisasi data instan saat user kembali ke tab/aplikasi atau jaringan pulih.
+ */
+export function setupLifecycleSync() {
+  if (lifecycleListenersAttached) return;
+  lifecycleListenersAttached = true;
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && window.currentUser) {
+        if (typeof fetchCases === 'function') fetchCases();
+        if (typeof fetchReports === 'function') fetchReports();
+      }
+    });
+  }
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('focus', () => {
+      if (window.currentUser) {
+        if (typeof fetchCases === 'function') fetchCases();
+        if (typeof fetchReports === 'function') fetchReports();
+      }
+    });
+
+    window.addEventListener('online', () => {
+      if (window.currentUser) {
+        if (typeof fetchCases === 'function') fetchCases();
+        if (typeof fetchReports === 'function') fetchReports();
+        if (typeof fetchUsers === 'function' && (window.currentUser.role === 'NAKES' || window.currentUser.role === 'ADMIN')) {
+          fetchUsers();
+        }
+      }
+    });
+  }
+}
+
+/**
+ * Background Heartbeat Poller (Anti-Delay & Anti-Hit-Limit Safety Net)
+ * Polling berkala 60 detik khusus Nakes/Admin saat tab aktif sebagai pengaman jika WebSocket onSnapshot dormant di HP
+ */
+export function startSyncHeartbeat() {
+  if (heartbeatInterval) clearInterval(heartbeatInterval);
+  heartbeatInterval = setInterval(async () => {
+    if (typeof document !== 'undefined' && document.hidden) return;
+    const user = window.currentUser;
+    if (!user) return;
+    // Dibatasi khusus peran Nakes & Admin untuk melindungi kuota 50k reads Firestore
+    if (user.role !== 'NAKES' && user.role !== 'ADMIN') return;
+    try {
+      if (typeof fetchCases === 'function') {
+        await fetchCases();
+      }
+    } catch (e) {
+      // Abaikan jika ada blip jaringan sementara
+    }
+  }, 60000);
+}
+
+/**
  * Inisialisasi subscription Firestore Real-Time
  */
 export function initRealtimeSubscriptions() {
+  setupLifecycleSync();
+  startSyncHeartbeat();
+
   if (!window.firebaseAdapter) return;
   const currentUser = window.currentUser;
 
@@ -226,17 +290,15 @@ export async function loadData() {
     }
   }
 
-  // Inisialisasi subscription real-time Firestore untuk Kasus & Laporan
+  // Inisialisasi subscription real-time Firestore untuk Kasus & Laporan + Lifecycle Sync
   initRealtimeSubscriptions();
 
-  if (window.firebaseAdapter && window.firebaseAdapter.isFirebaseActive) {
-    if (currentUser && (currentUser.role === 'NAKES' || currentUser.role === 'ADMIN')) {
-      await fetchUsers();
-    }
-    return;
+  // Selalu muat data mutakhir langsung dari Cloud/Adapter (menghilangkan delay onSnapshot)
+  const syncPromises = [fetchCases(), fetchReports()];
+  if (currentUser && (currentUser.role === 'NAKES' || currentUser.role === 'ADMIN')) {
+    syncPromises.push(fetchUsers());
   }
-
-  await Promise.all([fetchCases(), fetchReports(), fetchUsers()]);
+  await Promise.allSettled(syncPromises);
 }
 
 export async function fetchCases() {
@@ -309,6 +371,7 @@ export async function fetchCases() {
         if (window.renderRatoMobileRequests) window.renderRatoMobileRequests(window.currentCases);
         if (window.updateNakesCounters) window.updateNakesCounters(window.currentCases);
         if (window.updateRoleMetricCounters) window.updateRoleMetricCounters();
+        if (window.initOrUpdateLeafletMap) window.initOrUpdateLeafletMap();
 
         // Jika ada kasus monitoring yang aktif, sinkronkan stepper
         if (window.activeMonitoringCaseId && window.updateMonitoringStepper) {
@@ -388,6 +451,8 @@ export async function fetchUsers() {
 if (typeof window !== 'undefined') {
   window.loadVillages = loadVillages;
   window.initRealtimeSubscriptions = initRealtimeSubscriptions;
+  window.setupLifecycleSync = setupLifecycleSync;
+  window.startSyncHeartbeat = startSyncHeartbeat;
   window.loadData = loadData;
   window.fetchCases = fetchCases;
   window.fetchReports = fetchReports;
@@ -396,6 +461,8 @@ if (typeof window !== 'undefined') {
   window.DataSync = {
     loadVillages,
     initRealtimeSubscriptions,
+    setupLifecycleSync,
+    startSyncHeartbeat,
     loadData,
     fetchCases,
     fetchReports,
