@@ -144,13 +144,21 @@ export function renderKaderPaginationControls(totalItems, currentPage, perPage) 
 
 export function setKaderStatusFilter(filter) {
   kaderActiveStatusFilter = filter;
-  ['ALL', 'PROCESS', 'DONE'].forEach(f => {
+  ['ALL', 'PROCESS', 'DONE', 'REJECTED'].forEach(f => {
     const btn = document.getElementById(`filterKaderBtn_${f}`);
     if (!btn) return;
     if (f === filter) {
-      btn.className = 'px-3 py-1 rounded-full font-bold bg-emerald-700 text-white shadow-sm transition shrink-0';
+      if (f === 'REJECTED') {
+        btn.className = 'px-3.5 py-2 rounded-xl font-bold bg-rose-700 text-white shadow-sm transition shrink-0';
+      } else {
+        btn.className = 'px-3.5 py-2 rounded-xl font-bold bg-emerald-700 text-white shadow-sm transition shrink-0';
+      }
     } else {
-      btn.className = 'px-3 py-1 rounded-full font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition shrink-0';
+      if (f === 'REJECTED') {
+        btn.className = 'px-3.5 py-2 rounded-xl font-semibold bg-white border border-slate-200 text-rose-700 hover:bg-rose-50 hover:border-rose-300 transition shrink-0';
+      } else {
+        btn.className = 'px-3.5 py-2 rounded-xl font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shrink-0';
+      }
     }
   });
   handleKaderSearchFilter(true);
@@ -176,7 +184,9 @@ export function handleKaderSearchFilter(resetPage = false) {
   if (kaderActiveStatusFilter === 'PROCESS') {
     filtered = filtered.filter(r => r.effective_status !== 'CLOSED' && r.effective_status !== 'MONITORING' && r.effective_status !== 'REJECTED');
   } else if (kaderActiveStatusFilter === 'DONE') {
-    filtered = filtered.filter(r => r.effective_status === 'CLOSED' || r.effective_status === 'MONITORING' || r.effective_status === 'REJECTED');
+    filtered = filtered.filter(r => r.effective_status === 'CLOSED' || r.effective_status === 'MONITORING');
+  } else if (kaderActiveStatusFilter === 'REJECTED') {
+    filtered = filtered.filter(r => r.effective_status === 'REJECTED');
   }
 
   if (query) {

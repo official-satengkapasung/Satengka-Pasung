@@ -727,6 +727,15 @@ export async function confirmRejectReportAction() {
     if (window.renderKaderStatusList && window.currentReports) {
       window.renderKaderStatusList(window.currentReports);
     }
+    if (window.renderKaderRecentReports && window.currentReports) {
+      window.renderKaderRecentReports(window.currentReports);
+    }
+    if (window.handleKaderSearchFilter) {
+      window.handleKaderSearchFilter(false);
+    }
+    if (window.showToast) {
+      window.showToast('Laporan berhasil ditolak dan status riwayat faskes & pelapor diperbarui.', 'info');
+    }
     if (window.switchNakesTab) window.switchNakesTab('dashboard');
   }
 }

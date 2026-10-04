@@ -879,7 +879,7 @@
             </div>
 
             <div class="pt-3 flex flex-col sm:flex-row gap-2">
-              <button aria-label="Tolak laporan temuan" onclick="rejectReportAction()"
+              <button aria-label="Tolak laporan temuan" onclick="openRejectReportModal()"
                 class="w-full sm:w-1/4 py-3 rounded-xl border border-red-300 text-red-600 font-bold text-xs hover:bg-red-50 flex items-center justify-center space-x-1 cursor-pointer transition">
                 <i class="fa-solid fa-ban mr-1"></i>
                 <span>Tolak</span>
@@ -2019,6 +2019,9 @@
                 <button type="button" onclick="setKaderStatusFilter('DONE')" id="filterKaderBtn_DONE"
                   class="px-3.5 py-2 rounded-xl font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shrink-0">Selesai
                   Bebas Pasung</button>
+                <button type="button" onclick="setKaderStatusFilter('REJECTED')" id="filterKaderBtn_REJECTED"
+                  class="px-3.5 py-2 rounded-xl font-semibold bg-white border border-slate-200 text-rose-700 hover:bg-rose-50 hover:border-rose-300 transition shrink-0">Ditolak
+                  Faskes</button>
               </div>
             </div>
 
@@ -3561,7 +3564,7 @@
           Tutup
         </button>
         <div id="repDetailNakesActions" class="w-full sm:w-auto flex items-center gap-2">
-          <button type="button" onclick="rejectReportFromDetail()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-red-300 text-red-600 hover:bg-red-50 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+          <button type="button" onclick="openRejectReportModal()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-red-300 text-red-600 hover:bg-red-50 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
             <i class="fa-solid fa-ban"></i>
             <span>Tolak Laporan</span>
           </button>
@@ -3738,7 +3741,7 @@
   </div>
 
   <!-- VITE CENTRAL APPLICATION ENTRY POINT (ES6 NATIVE MODULE) -->
-  <script type="module" src="./src/main.js"></script>
+  <script type="module" src="./src/main.js?v=49"></script>
 
 </body>
 
