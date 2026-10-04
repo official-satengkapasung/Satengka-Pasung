@@ -64,26 +64,36 @@ export function initRealtimeSubscriptions() {
     casesUnsubscribe = window.firebaseAdapter.subscribeCases((cases) => {
       // Merge: proteksi respon partisipan lokal yang belum ter-replikasi ke cloud
       const prevCases = window.currentCases || [];
-      if (prevCases.length > 0) {
+      if (prevCases.length > 0 && Array.isArray(cases)) {
         cases = cases.map(cc => {
           const prev = prevCases.find(pc => String(pc.id) === String(cc.id) || (pc.case_number && pc.case_number === cc.case_number));
           if (!prev || !Array.isArray(prev.participants)) return cc;
           const hasLocalResponse = prev.participants.some(p => p.response && p.response !== 'PENDING');
-          const cloudHasResponse = (cc.participants || []).some(p => p.response && p.response !== 'PENDING');
-          if (hasLocalResponse && !cloudHasResponse) {
-            return { ...cc, status: prev.status, participants: prev.participants };
-          }
-          if (hasLocalResponse && cloudHasResponse && Array.isArray(cc.participants)) {
-            const mergedParts = cc.participants.map(cp => {
-              const lp = prev.participants.find(p => p.participant_role === cp.participant_role);
-              if (lp && lp.response && lp.response !== 'PENDING' && (!cp.response || cp.response === 'PENDING')) {
-                return { ...cp, response: lp.response, responded_at: lp.responded_at, note: lp.note, response_note: lp.response_note };
-              }
-              return cp;
-            });
-            return { ...cc, participants: mergedParts, status: prev.status || cc.status };
-          }
-          return cc;
+          if (!hasLocalResponse) return cc;
+
+          // Merge per pilar peran: jangan pernah timpakan respon lokal yang aktif dengan PENDING dari cloud
+          const mergedParts = (cc.participants || []).map(cp => {
+            const lp = prev.participants.find(p => p.participant_role === cp.participant_role);
+            if (lp && lp.response && lp.response !== 'PENDING' && (!cp.response || cp.response === 'PENDING')) {
+              return { ...cp, response: lp.response, responded_at: lp.responded_at, note: lp.note || cp.note, response_note: lp.response_note || cp.response_note, user_id: lp.user_id || cp.user_id, phone: lp.phone || cp.phone, name: lp.name || cp.name };
+            }
+            return cp;
+          });
+          prev.participants.forEach(lp => {
+            if (lp.response && lp.response !== 'PENDING' && !mergedParts.some(mp => mp.participant_role === lp.participant_role)) {
+              mergedParts.push(lp);
+            }
+          });
+
+          let readyCount = 0;
+          let hasAny = false;
+          mergedParts.forEach(p => {
+            if (p.response && p.response !== 'PENDING') hasAny = true;
+            if (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE') readyCount++;
+          });
+          const effectiveStatus = (readyCount >= 2) ? 'READY_FOR_EVACUATION' : (hasAny && (cc.status === 'SIAGA' || prev.status === 'COORDINATION') ? 'COORDINATION' : (prev.status || cc.status));
+
+          return { ...cc, participants: mergedParts, status: effectiveStatus };
         });
       }
       window.currentCases = cases;
@@ -248,11 +258,31 @@ export async function fetchCases() {
             const prev = prevCases.find(pc => String(pc.id) === String(cc.id) || (pc.case_number && pc.case_number === cc.case_number));
             if (!prev || !Array.isArray(prev.participants)) return cc;
             const hasLocalResponse = prev.participants.some(p => p.response && p.response !== 'PENDING');
-            const cloudHasResponse = (cc.participants || []).some(p => p.response && p.response !== 'PENDING');
-            if (hasLocalResponse && !cloudHasResponse) {
-              return { ...cc, status: prev.status, participants: prev.participants };
-            }
-            return cc;
+            if (!hasLocalResponse) return cc;
+
+            // Merge per pilar peran: jangan pernah timpakan respon lokal yang aktif dengan PENDING dari cloud
+            const mergedParts = (cc.participants || []).map(cp => {
+              const lp = prev.participants.find(p => p.participant_role === cp.participant_role);
+              if (lp && lp.response && lp.response !== 'PENDING' && (!cp.response || cp.response === 'PENDING')) {
+                return { ...cp, response: lp.response, responded_at: lp.responded_at, note: lp.note || cp.note, response_note: lp.response_note || cp.response_note, user_id: lp.user_id || cp.user_id, phone: lp.phone || cp.phone, name: lp.name || cp.name };
+              }
+              return cp;
+            });
+            prev.participants.forEach(lp => {
+              if (lp.response && lp.response !== 'PENDING' && !mergedParts.some(mp => mp.participant_role === lp.participant_role)) {
+                mergedParts.push(lp);
+              }
+            });
+
+            let readyCount = 0;
+            let hasAny = false;
+            mergedParts.forEach(p => {
+              if (p.response && p.response !== 'PENDING') hasAny = true;
+              if (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE') readyCount++;
+            });
+            const effectiveStatus = (readyCount >= 2) ? 'READY_FOR_EVACUATION' : (hasAny && (cc.status === 'SIAGA' || prev.status === 'COORDINATION') ? 'COORDINATION' : (prev.status || cc.status));
+
+            return { ...cc, participants: mergedParts, status: effectiveStatus };
           });
         }
         window.currentCases = mergedData;

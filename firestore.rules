@@ -75,21 +75,21 @@ service cloud.firestore {
     }
 
     match /cases/{caseId} {
-      allow read: if isActive();
+      allow read: if signedIn();
       allow create: if isStaff() && noSecretFields();
-      allow update: if (isStaff() || isActive()) && noSecretFields();
+      allow update: if (signedIn() || isStaff() || isActive()) && noSecretFields();
       allow delete: if isAdmin();
 
       match /messages/{messageId} {
-        allow read: if isActive();
-        allow create: if isActive() && noSecretFields();
+        allow read: if signedIn();
+        allow create: if signedIn() && noSecretFields();
         allow update, delete: if isStaff();
       }
     }
 
     match /chats/{chatId} {
-      allow read: if isActive();
-      allow create: if isActive()
+      allow read: if signedIn();
+      allow create: if signedIn()
         && noSecretFields()
         && request.resource.data.sender_id == request.auth.uid;
       allow update, delete: if isStaff();

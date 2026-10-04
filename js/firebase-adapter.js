@@ -911,22 +911,29 @@ export async function getCases(userId = null, role = null, villageId = null, vil
           if (!bestLocal) return cc;
           if (Array.isArray(bestLocal.participants) && Array.isArray(cc.participants)) {
             const hasLocalResponse = bestLocal.participants.some(lp => lp.response && lp.response !== 'PENDING');
-            const cloudHasResponse = cc.participants.some(cp => cp.response && cp.response !== 'PENDING');
-            if (hasLocalResponse && !cloudHasResponse) {
-              return { ...cc, status: bestLocal.status, participants: bestLocal.participants };
-            }
-            if (hasLocalResponse && cloudHasResponse) {
+            if (hasLocalResponse) {
               const mergedParts = cc.participants.map(cp => {
-                const lp = bestLocal.participants.find(p => p.participant_role === cp.participant_role && (
-                  (p.user_id && String(p.user_id) === String(cp.user_id)) ||
-                  p.participant_role === cp.participant_role
-                ));
+                const lp = bestLocal.participants.find(p => p.participant_role === cp.participant_role);
                 if (lp && lp.response && lp.response !== 'PENDING' && (!cp.response || cp.response === 'PENDING')) {
-                  return { ...cp, response: lp.response, responded_at: lp.responded_at, note: lp.note, response_note: lp.response_note };
+                  return { ...cp, response: lp.response, responded_at: lp.responded_at, note: lp.note || cp.note, response_note: lp.response_note || cp.response_note, user_id: lp.user_id || cp.user_id, phone: lp.phone || cp.phone, name: lp.name || cp.name };
                 }
                 return cp;
               });
-              return { ...cc, participants: mergedParts, status: bestLocal.status || cc.status };
+              bestLocal.participants.forEach(lp => {
+                if (lp.response && lp.response !== 'PENDING' && !mergedParts.some(mp => mp.participant_role === lp.participant_role)) {
+                  mergedParts.push(lp);
+                }
+              });
+
+              let readyCount = 0;
+              let hasAny = false;
+              mergedParts.forEach(p => {
+                if (p.response && p.response !== 'PENDING') hasAny = true;
+                if (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE') readyCount++;
+              });
+              const effectiveStatus = (readyCount >= 2) ? 'READY_FOR_EVACUATION' : (hasAny && (cc.status === 'SIAGA' || bestLocal.status === 'COORDINATION') ? 'COORDINATION' : (bestLocal.status || cc.status));
+
+              return { ...cc, participants: mergedParts, status: effectiveStatus };
             }
           }
           return cc;
@@ -1122,7 +1129,40 @@ export function subscribeCases(onUpdate, filterParams = {}) {
   if (isFirebaseActive && db) {
     try {
       unsubscribeFirestore = onSnapshot(scopedQuery("cases", filterParams), (snapshot) => {
-        const cloudCases = snapshot.docs.map(mapDoc);
+        let cloudCases = snapshot.docs.map(mapDoc);
+        const prevLocal = getLocalStore("cases", DEFAULT_SEED.cases);
+        const memCases = (typeof window !== 'undefined' && Array.isArray(window.currentCases)) ? window.currentCases : [];
+        const bestLocalPool = memCases.length > 0 ? memCases : prevLocal;
+        if (bestLocalPool.length > 0) {
+          cloudCases = cloudCases.map(cc => {
+            const lpCase = bestLocalPool.find(p => String(p.id) === String(cc.id) || (p.case_number && p.case_number === cc.case_number));
+            if (!lpCase || !Array.isArray(lpCase.participants)) return cc;
+            const hasLocalResponse = lpCase.participants.some(lp => lp.response && lp.response !== 'PENDING');
+            if (!hasLocalResponse) return cc;
+
+            const mergedParts = (cc.participants || []).map(cp => {
+              const lp = lpCase.participants.find(p => p.participant_role === cp.participant_role);
+              if (lp && lp.response && lp.response !== 'PENDING' && (!cp.response || cp.response === 'PENDING')) {
+                return { ...cp, response: lp.response, responded_at: lp.responded_at, note: lp.note || cp.note, response_note: lp.response_note || cp.response_note, user_id: lp.user_id || cp.user_id, phone: lp.phone || cp.phone, name: lp.name || cp.name };
+              }
+              return cp;
+            });
+            lpCase.participants.forEach(lp => {
+              if (lp.response && lp.response !== 'PENDING' && !mergedParts.some(mp => mp.participant_role === lp.participant_role)) {
+                mergedParts.push(lp);
+              }
+            });
+
+            let readyCount = 0;
+            let hasAny = false;
+            mergedParts.forEach(p => {
+              if (p.response && p.response !== 'PENDING') hasAny = true;
+              if (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE') readyCount++;
+            });
+            const effectiveStatus = (readyCount >= 2) ? 'READY_FOR_EVACUATION' : (hasAny && (cc.status === 'SIAGA' || lpCase.status === 'COORDINATION') ? 'COORDINATION' : (lpCase.status || cc.status));
+            return { ...cc, participants: mergedParts, status: effectiveStatus };
+          });
+        }
         setLocalStore("cases", cloudCases);
         onUpdate(filterCasesForUser(cloudCases, filterParams));
       }, (err) => {
@@ -2074,6 +2114,9 @@ export async function respondParticipant(caseId, userId, responseVal, note = "",
   // Sinkronkan langsung ke Cloud Firestore
   if (isFirebaseActive && db) {
     try {
+      if (auth && !auth.currentUser) {
+        try { await signInAnonymously(auth); } catch (anonErr) {}
+      }
       const cleanCase = JSON.parse(JSON.stringify(targetCase));
       const firestoreDocId = targetCase._docId || String(targetCase.id);
       await setDoc(doc(db, "cases", firestoreDocId), { ...cleanCase, updated_at: serverTimestamp() }, { merge: true });
