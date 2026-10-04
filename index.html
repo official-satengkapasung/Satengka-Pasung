@@ -560,7 +560,7 @@
                 <button type="button" id="mapFilter_READY_EVAC" onclick="setMapCategoryFilter('READY_EVAC')"
                   class="px-3 py-1.5 rounded-xl font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition shrink-0 flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                  <span>Terkontrol</span>
+                  <span>Siap Evakuasi</span>
                   <span id="mapCount_READY_EVAC" class="px-1.5 py-0.2 rounded-full bg-slate-200 text-[10px]">0</span>
                 </button>
                 <button type="button" id="mapFilter_MONITORING" onclick="setMapCategoryFilter('MONITORING')"
@@ -593,7 +593,7 @@
                   </div>
                   <div class="flex items-center space-x-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                    <span>Terkontrol</span>
+                    <span>Siap Evakuasi</span>
                   </div>
                 </div>
                 <p class="text-[10px] text-slate-400 pt-1 text-center">
@@ -1165,16 +1165,16 @@
 
               <!-- Step 5: Evakuasi Selesai -->
               <div class="flex items-start space-x-3">
-                <div
+                <div id="monIconDone"
                   class="w-7 h-7 rounded-full bg-slate-300 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                   <i class="fa-solid fa-arrow-right"></i>
                 </div>
                 <div class="flex-1 flex justify-between items-center text-xs">
                   <div>
-                    <p class="font-bold text-slate-400">Evakuasi Selesai</p>
-                    <p class="text-slate-400">Menuju faskes</p>
+                    <p id="monTextDoneTitle" class="font-bold text-slate-400">Evakuasi Selesai</p>
+                    <p id="monTextDoneSubtitle" class="text-slate-400">Menuju faskes</p>
                   </div>
-                  <span class="text-slate-400 font-mono">-</span>
+                  <span id="monTextDoneTime" class="text-slate-400 font-mono">-</span>
                 </div>
               </div>
             </div>
@@ -1200,11 +1200,11 @@
               </div>
             </div>
 
-            <!-- Tombol Finalisasi Evakuasi -->
-            <div class="pt-2 flex space-x-3">
+            <!-- Tombol Finalisasi Evakuasi Dinamis -->
+            <div id="monActionContainer" class="pt-2 flex space-x-3">
               <button onclick="finishEvacuationProcess()"
                 class="w-full py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-lg flex items-center justify-center cursor-pointer">
-                <i class="fa-solid fa-circle-check mr-2"></i> Konfirmasi Evakuasi Selesai & Masuk Rawat Inap / Faskes
+                <i class="fa-solid fa-circle-check mr-2"></i> Konfirmasi Evakuasi Selesai
               </button>
             </div>
           </div>

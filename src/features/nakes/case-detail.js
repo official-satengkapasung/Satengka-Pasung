@@ -455,10 +455,19 @@ export function selectCaseDetail(caseId) {
     bannerPilarEl.innerHTML = guruPills + ratoPills;
   }
 
+  const isMonitoringOrClosed = activeSelectedCase.status === 'MONITORING' || activeSelectedCase.status === 'CLOSED';
   const isActivated = activeSelectedCase.status === 'SIAGA' || activeSelectedCase.status === 'COORDINATION' || activeSelectedCase.status === 'READY_FOR_EVACUATION' || activeSelectedCase.status === 'EVACUATION';
 
   if (bannerStatusEl && bannerTitleEl && bannerSubtitleEl) {
-    if (activeSelectedCase.status === 'READY_FOR_EVACUATION') {
+    if (isMonitoringOrClosed) {
+      bannerStatusEl.className = 'bg-teal-50 border border-teal-200 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-xs';
+      bannerIconEl.className = 'w-7 h-7 rounded-lg bg-teal-600 text-white font-bold flex items-center justify-center text-xs shrink-0';
+      bannerIconEl.innerHTML = '<i class="fa-solid fa-pills"></i>';
+      bannerTitleEl.className = 'font-bold text-teal-800 text-sm';
+      bannerTitleEl.innerText = activeSelectedCase.status === 'CLOSED' ? 'Pasien Bebas Pasung (Tuntas)' : 'Evakuasi Selesai (Pemantauan Minum Obat)';
+      bannerSubtitleEl.className = 'text-[11px] text-teal-700/80';
+      bannerSubtitleEl.innerText = 'Pasien telah berada di faskes/rawat jalan dan masuk program kontrol berkala';
+    } else if (activeSelectedCase.status === 'READY_FOR_EVACUATION') {
       bannerStatusEl.className = 'bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-xs';
       bannerIconEl.className = 'w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shrink-0';
       bannerIconEl.innerHTML = '<i class="fa-solid fa-check-double"></i>';
@@ -486,7 +495,14 @@ export function selectCaseDetail(caseId) {
   }
 
   if (btnMainAction) {
-    if (isActivated) {
+    if (isMonitoringOrClosed) {
+      btnMainAction.className = 'w-1/2 py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs shadow-lg flex items-center justify-center cursor-pointer';
+      btnMainAction.innerHTML = '<i class="fa-solid fa-calendar-check mr-1.5"></i> <span>Buka Jadwal Kontrol Obat</span>';
+      btnMainAction.onclick = () => {
+        if (window.switchNakesTab) window.switchNakesTab('kontrol');
+        if (window.openKontrolObatModal) window.openKontrolObatModal(activeSelectedCase.id);
+      };
+    } else if (isActivated) {
       btnMainAction.className = 'w-1/2 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-lg flex items-center justify-center';
       btnMainAction.innerHTML = '<i class="fa-solid fa-truck-medical mr-1.5"></i> <span>Buka Monitoring Satengka</span>';
       btnMainAction.onclick = () => {

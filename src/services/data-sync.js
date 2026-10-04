@@ -155,9 +155,16 @@ export function initRealtimeSubscriptions() {
             if (p.response && p.response !== 'PENDING') hasAny = true;
             if (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE') readyCount++;
           });
-          const effectiveStatus = (readyCount >= 2) ? 'READY_FOR_EVACUATION' : (hasAny && (cc.status === 'SIAGA' || prev.status === 'COORDINATION') ? 'COORDINATION' : (prev.status || cc.status));
+            let effectiveStatus = prev.status || cc.status;
+            if (cc.status === 'MONITORING' || cc.status === 'CLOSED' || prev.status === 'MONITORING' || prev.status === 'CLOSED') {
+              effectiveStatus = (cc.status === 'CLOSED' || prev.status === 'CLOSED') ? 'CLOSED' : 'MONITORING';
+            } else if (readyCount >= 2) {
+              effectiveStatus = 'READY_FOR_EVACUATION';
+            } else if (hasAny && (cc.status === 'SIAGA' || prev.status === 'COORDINATION')) {
+              effectiveStatus = 'COORDINATION';
+            }
 
-          return { ...cc, participants: mergedParts, status: effectiveStatus };
+            return { ...cc, participants: mergedParts, status: effectiveStatus };
         });
       }
       window.currentCases = cases;
@@ -342,7 +349,14 @@ export async function fetchCases() {
               if (p.response && p.response !== 'PENDING') hasAny = true;
               if (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE') readyCount++;
             });
-            const effectiveStatus = (readyCount >= 2) ? 'READY_FOR_EVACUATION' : (hasAny && (cc.status === 'SIAGA' || prev.status === 'COORDINATION') ? 'COORDINATION' : (prev.status || cc.status));
+            let effectiveStatus = prev.status || cc.status;
+            if (cc.status === 'MONITORING' || cc.status === 'CLOSED' || prev.status === 'MONITORING' || prev.status === 'CLOSED') {
+              effectiveStatus = (cc.status === 'CLOSED' || prev.status === 'CLOSED') ? 'CLOSED' : 'MONITORING';
+            } else if (readyCount >= 2) {
+              effectiveStatus = 'READY_FOR_EVACUATION';
+            } else if (hasAny && (cc.status === 'SIAGA' || prev.status === 'COORDINATION')) {
+              effectiveStatus = 'COORDINATION';
+            }
 
             return { ...cc, participants: mergedParts, status: effectiveStatus };
           });

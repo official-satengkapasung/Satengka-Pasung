@@ -144,6 +144,78 @@ export function updateMonitoringStepper(currentCase) {
     }
   }
 
+  // Stepper Evakuasi Selesai (Step 5) & Tombol Aksi Finalisasi
+  const isFinished = currentCase.status === 'MONITORING' || currentCase.status === 'CLOSED';
+  const doneIcon = document.getElementById('monIconDone');
+  const doneTitle = document.getElementById('monTextDoneTitle');
+  const doneSubtitle = document.getElementById('monTextDoneSubtitle');
+  const doneTime = document.getElementById('monTextDoneTime');
+  const actionContainer = document.getElementById('monActionContainer');
+
+  if (isFinished) {
+    if (doneIcon) {
+      doneIcon.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5';
+      doneIcon.innerHTML = '<i class="fa-solid fa-check-double"></i>';
+    }
+    if (doneTitle) {
+      doneTitle.className = 'font-bold text-emerald-800';
+      doneTitle.innerText = 'Evakuasi Selesai';
+    }
+    if (doneSubtitle) {
+      doneSubtitle.className = 'text-emerald-700 font-medium';
+      doneSubtitle.innerText = 'Pasien di Faskes / Rawat Inap & Pemantauan Obat';
+    }
+    if (doneTime) {
+      doneTime.className = 'text-emerald-700 font-mono font-bold';
+      doneTime.innerText = 'Tuntas';
+    }
+    if (actionContainer) {
+      actionContainer.innerHTML = `
+        <div class="w-full p-3.5 rounded-2xl bg-teal-50 border border-teal-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-sm">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold shrink-0">
+              <i class="fa-solid fa-pills"></i>
+            </div>
+            <div>
+              <p class="font-bold text-teal-900">Evakuasi Pasien Telah Selesai</p>
+              <p class="text-[11px] text-teal-700">Pasien kini masuk dalam daftar pemantauan minum obat berkala.</p>
+            </div>
+          </div>
+          <button type="button" onclick="if (window.switchNakesTab) window.switchNakesTab('kontrol'); if (window.openKontrolObatModal) window.openKontrolObatModal('${currentCase.id}');"
+            class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs shadow-md flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer">
+            <i class="fa-solid fa-calendar-check mr-1"></i>
+            <span>Buka Jadwal Kontrol Obat</span>
+          </button>
+        </div>
+      `;
+    }
+  } else {
+    if (doneIcon) {
+      doneIcon.className = 'w-7 h-7 rounded-full bg-slate-300 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5';
+      doneIcon.innerHTML = '<i class="fa-solid fa-arrow-right"></i>';
+    }
+    if (doneTitle) {
+      doneTitle.className = 'font-bold text-slate-400';
+      doneTitle.innerText = 'Evakuasi Selesai';
+    }
+    if (doneSubtitle) {
+      doneSubtitle.className = 'text-slate-400';
+      doneSubtitle.innerText = 'Menuju faskes';
+    }
+    if (doneTime) {
+      doneTime.className = 'text-slate-400 font-mono';
+      doneTime.innerText = '-';
+    }
+    if (actionContainer) {
+      actionContainer.innerHTML = `
+        <button onclick="finishEvacuationProcess()"
+          class="w-full py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-lg flex items-center justify-center cursor-pointer">
+          <i class="fa-solid fa-circle-check mr-2"></i> Konfirmasi Evakuasi Selesai
+        </button>
+      `;
+    }
+  }
+
   // RENDER RINCIAN KESIAPAN SELURUH PARTICIPANT YANG DIPILIH OLEH NAKES
   const detailedListContainer = document.getElementById('monParticipantsDetailedList');
   if (detailedListContainer) {

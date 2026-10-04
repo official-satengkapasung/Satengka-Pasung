@@ -607,14 +607,35 @@ export async function finishEvacuationProcess() {
     } catch { /* continue */ }
   }
 
+  if (window.activeSelectedCase && (String(window.activeSelectedCase.id) === String(caseId) || window.activeSelectedCase.case_number === caseId)) {
+    window.activeSelectedCase.status = 'MONITORING';
+    window.activeSelectedCase.drug_compliance = window.activeSelectedCase.drug_compliance || 'RUTIN';
+    if (!Array.isArray(window.activeSelectedCase.control_history)) {
+      window.activeSelectedCase.control_history = [];
+    }
+  }
+
   if (window.monitoringTimer) {
     clearInterval(window.monitoringTimer);
     window.monitoringTimer = null;
   }
+
   alert('Evakuasi Berhasil Selesai! Pasien kini masuk ke tahap Monitoring & Pemantauan Minum Obat.');
   window.activeMonitoringCaseId = null;
-  if (window.switchNakesTab) window.switchNakesTab('dashboard');
-  if (window.fetchCases) window.fetchCases();
+
+  if (window.fetchCases) {
+    await window.fetchCases();
+  }
+  if (window.fetchReports) {
+    await window.fetchReports();
+  }
+
+  // Arahkan nakes langsung ke modul Jadwal Kontrol Obat agar pasien yang baru selesai dievakuasi langsung terlihat
+  if (window.switchNakesTab) {
+    window.switchNakesTab('kontrol');
+  } else if (window.renderControlSchedules) {
+    window.renderControlSchedules();
+  }
 }
 
 // 🛡️ Global Scope Preservation (Window Bridge)

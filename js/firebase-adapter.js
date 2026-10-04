@@ -932,7 +932,14 @@ export async function getCases(userId = null, role = null, villageId = null, vil
                 if (p.response && p.response !== 'PENDING') hasAny = true;
                 if (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE') readyCount++;
               });
-              const effectiveStatus = (readyCount >= 2) ? 'READY_FOR_EVACUATION' : (hasAny && (cc.status === 'SIAGA' || bestLocal.status === 'COORDINATION') ? 'COORDINATION' : (bestLocal.status || cc.status));
+              let effectiveStatus = bestLocal.status || cc.status;
+              if (cc.status === 'MONITORING' || cc.status === 'CLOSED' || bestLocal.status === 'MONITORING' || bestLocal.status === 'CLOSED') {
+                effectiveStatus = (cc.status === 'CLOSED' || bestLocal.status === 'CLOSED') ? 'CLOSED' : 'MONITORING';
+              } else if (readyCount >= 2) {
+                effectiveStatus = 'READY_FOR_EVACUATION';
+              } else if (hasAny && (cc.status === 'SIAGA' || bestLocal.status === 'COORDINATION')) {
+                effectiveStatus = 'COORDINATION';
+              }
 
               return { ...cc, participants: mergedParts, status: effectiveStatus };
             }
@@ -1160,7 +1167,14 @@ export function subscribeCases(onUpdate, filterParams = {}) {
               if (p.response && p.response !== 'PENDING') hasAny = true;
               if (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE') readyCount++;
             });
-            const effectiveStatus = (readyCount >= 2) ? 'READY_FOR_EVACUATION' : (hasAny && (cc.status === 'SIAGA' || lpCase.status === 'COORDINATION') ? 'COORDINATION' : (lpCase.status || cc.status));
+            let effectiveStatus = lpCase.status || cc.status;
+            if (cc.status === 'MONITORING' || cc.status === 'CLOSED' || lpCase.status === 'MONITORING' || lpCase.status === 'CLOSED') {
+              effectiveStatus = (cc.status === 'CLOSED' || lpCase.status === 'CLOSED') ? 'CLOSED' : 'MONITORING';
+            } else if (readyCount >= 2) {
+              effectiveStatus = 'READY_FOR_EVACUATION';
+            } else if (hasAny && (cc.status === 'SIAGA' || lpCase.status === 'COORDINATION')) {
+              effectiveStatus = 'COORDINATION';
+            }
             return { ...cc, participants: mergedParts, status: effectiveStatus };
           });
         }
@@ -2145,14 +2159,30 @@ export async function respondCase(caseId, payload = {}) {
 
 export async function updateCaseStatus(caseId, newStatus, note = "") {
   const cases = getLocalStore("cases", DEFAULT_SEED.cases);
-  const targetCase = cases.find(c => c.id === caseId);
+  const targetCase = cases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
   if (targetCase) {
     targetCase.status = newStatus;
+    if (newStatus === 'MONITORING') {
+      targetCase.drug_compliance = targetCase.drug_compliance || 'RUTIN';
+      if (!Array.isArray(targetCase.control_history)) targetCase.control_history = [];
+    }
     setLocalStore("cases", cases);
+
+    if (typeof window !== 'undefined' && Array.isArray(window.currentCases)) {
+      const memCase = window.currentCases.find(c => String(c.id) === String(caseId) || (c.case_number && c.case_number === caseId));
+      if (memCase) {
+        memCase.status = newStatus;
+        if (newStatus === 'MONITORING') {
+          memCase.drug_compliance = memCase.drug_compliance || 'RUTIN';
+          if (!Array.isArray(memCase.control_history)) memCase.control_history = [];
+        }
+      }
+    }
 
     if (isFirebaseActive && db) {
       try {
-        await setDoc(doc(db, "cases", String(caseId)), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
+        const firestoreDocId = targetCase.id ? String(targetCase.id) : String(caseId);
+        await setDoc(doc(db, "cases", firestoreDocId), { ...targetCase, updated_at: serverTimestamp() }, { merge: true });
       } catch (e) {
         console.warn("⚠️ Gagal update status kasus ke Firestore:", e);
       }
