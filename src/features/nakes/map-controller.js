@@ -3,7 +3,26 @@
  * Mengelola peta spasial wilayah kerja Puskesmas Kokop, marker sebaran kasus, dan popup navigasi faskes.
  */
 
-import { PUSKESMAS_KOKOP } from '../ews/geo-kokop.js';
+import { PUSKESMAS_KOKOP, KOKOP_VILLAGES } from '../ews/geo-kokop.js';
+
+function getVillageCoordinates(villageNameOrAddress, villageId) {
+  if (villageId) {
+    const v = KOKOP_VILLAGES.find(item => String(item.id) === String(villageId));
+    if (v) return { lat: v.latitude, lng: v.longitude };
+  }
+  if (!villageNameOrAddress) return null;
+  const raw = String(villageNameOrAddress).toLowerCase();
+  if (raw.includes('daya') && raw.includes('timur')) {
+    const kt = KOKOP_VILLAGES.find(item => item.name === 'Katol Timur');
+    if (kt) return { lat: kt.latitude, lng: kt.longitude };
+  }
+  const clean = raw.replace(/desa|dusun|kampung|rt[\s\.\d]+|rw[\s\.\d]+/gi, '').trim();
+  const v = KOKOP_VILLAGES.find(item => {
+    const vName = item.name.toLowerCase();
+    return clean === vName || raw.includes(vName) || vName.includes(clean);
+  });
+  return v ? { lat: v.latitude, lng: v.longitude } : null;
+}
 
 export let leafletMapInstance = null;
 export let leafletMarkerGroup = null;
@@ -150,9 +169,43 @@ export function initOrUpdateLeafletMap() {
         casesToDisplay = currentCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED');
       }
 
-      casesToDisplay.forEach(c => {
-        const lat = parseFloat(c.latitude) || (kokopCenter[0] + (Math.random() - 0.5) * 0.03);
-        const lng = parseFloat(c.longitude) || (kokopCenter[1] + (Math.random() - 0.5) * 0.03);
+      // Melacak koordinat terpakai agar semua pin tidak bertumpuk di piksel yang sama
+      const usedCoords = {};
+
+      casesToDisplay.forEach((c, idx) => {
+        let lat = parseFloat(c.latitude);
+        let lng = parseFloat(c.longitude);
+
+        // Jika koordinat kosong, NaN, atau default titik tengah Puskesmas Kokop (-7.0145, 113.0234)
+        const isDefaultOrInvalid = !lat || !lng || isNaN(lat) || isNaN(lng) || 
+          (Math.abs(lat - kokopCenter[0]) < 0.0008 && Math.abs(lng - kokopCenter[1]) < 0.0008);
+
+        if (isDefaultOrInvalid) {
+          const vCoords = getVillageCoordinates(c.village_name || c.patient_address, c.village_id);
+          if (vCoords) {
+            lat = vCoords.lat;
+            lng = vCoords.lng;
+          } else {
+            // Sebar mengitari wilayah Kokop secara proporsional
+            const angle = (idx / Math.max(casesToDisplay.length, 1)) * 2 * Math.PI;
+            const radius = 0.015 + ((idx % 3) * 0.007);
+            lat = kokopCenter[0] + Math.sin(angle) * radius;
+            lng = kokopCenter[1] + Math.cos(angle) * radius;
+          }
+        }
+
+        // Spiderfier offset jika ada beberapa kasus di desa / titik koordinat yang sama persis
+        const coordKey = `${lat.toFixed(4)}_${lng.toFixed(4)}`;
+        if (usedCoords[coordKey]) {
+          const count = usedCoords[coordKey];
+          usedCoords[coordKey] = count + 1;
+          const offsetAngle = count * (2 * Math.PI / 6);
+          const offsetRadius = 0.0028 * Math.ceil(count / 2);
+          lat += Math.sin(offsetAngle) * offsetRadius;
+          lng += Math.cos(offsetAngle) * offsetRadius;
+        } else {
+          usedCoords[coordKey] = 1;
+        }
 
         let pinColor = 'bg-amber-500';
         let statusLabel = 'Sedang Koordinasi';
