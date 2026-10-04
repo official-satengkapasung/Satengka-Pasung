@@ -59,10 +59,12 @@ import {
 
     // Fungsi Pembaharuan Metrik KPI untuk Kader (Bhupa'), Guru (Kiai), dan Rato (Kades)
     export function updateRoleMetricCounters() {
+      const currentUser = window.currentUser;
       if (!currentUser) return;
+      const currentCases = window.currentCases || [];
 
       if (currentUser.role === 'KADER') {
-        const kReports = window.getMergedKaderReports ? window.getMergedKaderReports() : (window.currentReports || currentReports || []);
+        const kReports = window.getMergedKaderReports ? window.getMergedKaderReports() : (window.currentReports || []);
         const total = kReports.length;
         const inProcess = kReports.filter(r => r.status === 'NEW' || r.status === 'VALIDATED' || r.status === 'SIAGA' || (r.effective_status && r.effective_status !== 'CLOSED' && r.effective_status !== 'MONITORING')).length;
         const closed = kReports.filter(r => r.status === 'CLOSED' || r.effective_status === 'CLOSED' || r.effective_status === 'MONITORING').length;
@@ -75,7 +77,7 @@ import {
         if (elClosed) elClosed.innerText = closed;
       } else if (currentUser.role === 'GURU') {
         const reqs = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION').length;
-        const agreed = currentCases.filter(c => (c.participants || []).some(p => p.participant_role === 'GURU' && p.response === 'AGREE')).length;
+        const agreed = currentCases.filter(c => (c.participants || []).some(p => p.participant_role === 'GURU' && (p.response === 'AGREE' || p.response === 'SIAP' || p.response === 'READY'))).length;
         const done = currentCases.filter(c => c.status === 'CLOSED' || c.status === 'MONITORING').length;
 
         const elReq = document.getElementById('guruStatRequests');
@@ -86,7 +88,7 @@ import {
         if (elDone) elDone.innerText = done;
       } else if (currentUser.role === 'RATO') {
         const reqs = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION').length;
-        const ready = currentCases.filter(c => (c.participants || []).some(p => p.participant_role === 'RATO' && p.response === 'READY')).length;
+        const ready = currentCases.filter(c => (c.participants || []).some(p => p.participant_role === 'RATO' && (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE'))).length;
         const done = currentCases.filter(c => c.status === 'CLOSED' || c.status === 'MONITORING').length;
 
         const elReq = document.getElementById('ratoStatRequests');
@@ -327,7 +329,7 @@ import {
                       <span class="font-bold text-slate-800 truncate block">${reporterName}</span>
                       <span class="text-[10px] text-slate-500 block">${reporterPhone}</span>
                     </div>
-                    <a href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + reporterName + ', koordinasi Puskesmas Kokop terkait kasus pasien ' + c.patient_name)}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Kader Pelapor">
+                    <a href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + reporterName + ', koordinasi Puskesmas Kokop terkait kasus pasien ' + c.patient_name)}" onclick="event.stopPropagation();" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Kader Pelapor">
                       <i class="fa-brands fa-whatsapp"></i>
                     </a>
                   </div>
@@ -340,7 +342,7 @@ import {
                       <span class="font-bold text-slate-800 truncate block">${guruName}</span>
                       <span class="text-[10px] ${guruResponseClass} block">${guruResponseText}</span>
                     </div>
-                    <a href="https://wa.me/${cleanGuruPhone}?text=${encodeURIComponent('Assalamualaikum ' + guruName + ', koordinasi pendekatan rembuk santun pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Ghuru">
+                    <a href="https://wa.me/${cleanGuruPhone}?text=${encodeURIComponent('Assalamualaikum ' + guruName + ', koordinasi pendekatan rembuk santun pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" onclick="event.stopPropagation();" target="_blank" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Ghuru">
                       <i class="fa-brands fa-whatsapp"></i>
                     </a>
                   </div>
@@ -353,7 +355,7 @@ import {
                       <span class="font-bold text-slate-800 truncate block">${ratoName}</span>
                       <span class="text-[10px] ${ratoResponseClass} block">${ratoResponseText}</span>
                     </div>
-                    <a href="https://wa.me/${cleanRatoPhone}?text=${encodeURIComponent('Halo ' + ratoName + ', koordinasi pengamanan evakuasi pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" target="_blank" class="w-7 h-7 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Rato">
+                    <a href="https://wa.me/${cleanRatoPhone}?text=${encodeURIComponent('Halo ' + ratoName + ', koordinasi pengamanan evakuasi pasien ' + c.patient_name + ' dari Puskesmas Kokop')}" onclick="event.stopPropagation();" target="_blank" class="w-7 h-7 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-xs shrink-0 transition shadow-xs" title="Chat WhatsApp Rato">
                       <i class="fa-brands fa-whatsapp"></i>
                     </a>
                   </div>
@@ -475,12 +477,22 @@ import {
       if (tab === 'validasi') document.getElementById('nakesSubValidasi').classList.remove('hidden');
       if (tab === 'aktivasi_ews') document.getElementById('nakesSubAktivasiEWS').classList.remove('hidden');
       if (tab === 'monitoring') {
-        document.getElementById('nakesSubMonitoring').classList.remove('hidden');
-        const monCase = currentCases.find(c => c.id === activeMonitoringCaseId) || currentCases[0];
+        const monEl = document.getElementById('nakesSubMonitoring');
+        if (monEl) monEl.classList.remove('hidden');
+        const safeCases = window.currentCases || [];
+        const activeId = window.activeMonitoringCaseId || (window.activeSelectedCase ? window.activeSelectedCase.id : null);
+        const monCase = safeCases.find(c => String(c.id) === String(activeId) || (c.case_number && c.case_number === activeId)) || safeCases[0];
         if (monCase) {
-          document.getElementById('monCaseNumber').innerText = monCase.case_number;
-          updateMonitoringStepper(monCase);
-          startMonitoringWatch(monCase.activated_at || null);
+          window.activeMonitoringCaseId = monCase.id;
+          window.activeSelectedCase = monCase;
+          const monCaseEl = document.getElementById('monCaseNumber');
+          if (monCaseEl) monCaseEl.innerText = monCase.case_number || ('#' + monCase.id);
+          if (typeof window.updateMonitoringStepper === 'function') {
+            window.updateMonitoringStepper(monCase);
+          }
+          if (typeof window.startMonitoringWatch === 'function') {
+            window.startMonitoringWatch(monCase.activated_at || monCase.siaga_activated_at || null);
+          }
         }
       }
       if (tab === 'mitra') document.getElementById('nakesSubMitra').classList.remove('hidden');
@@ -550,8 +562,8 @@ import {
       const paginationContainer = document.getElementById('evacuationPaginationContainer');
       const totalBadge = document.getElementById('evacTotalBadge');
       if (!container) return;
-
-      const allEvacs = (currentCases || []).filter(c => 
+      const currentCases = window.currentCases || [];
+      const allEvacs = currentCases.filter(c => 
         c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA'
       );
 
@@ -753,6 +765,7 @@ import {
       const listContainer = document.getElementById('reminderWaPatientList');
       if (!modal || !listContainer) return;
 
+      const currentCases = window.currentCases || [];
       const activePatients = currentCases.filter(c => c.status !== 'CLOSED');
       if (activePatients.length === 0) {
         listContainer.innerHTML = `
@@ -816,10 +829,13 @@ import {
     }
 
     export function sendDirectWaReminder(targetRole, caseId) {
+      const currentCases = window.currentCases || [];
       const targetCase = currentCases.find(c => c.id === caseId);
       if (!targetCase) return;
-      activeDrugMonitoringCase = targetCase;
-      sendTargetedDrugReminder(targetRole);
+      window.activeDrugMonitoringCase = targetCase;
+      if (typeof window.sendTargetedDrugReminder === 'function') {
+        window.sendTargetedDrugReminder(targetRole);
+      }
     }
 
     // =========================================================================
@@ -848,10 +864,10 @@ import {
       }
       window.activeMonitoringCaseId = targetCase.id;
       window.activeSelectedCase = targetCase;
-      if (window.updateMonitoringStepper) {
+      if (typeof window.updateMonitoringStepper === 'function') {
         window.updateMonitoringStepper(targetCase);
       }
-      if (window.startMonitoringWatch) {
+      if (typeof window.startMonitoringWatch === 'function') {
         window.startMonitoringWatch(targetCase.activated_at || targetCase.siaga_activated_at || null);
       }
       const monCaseEl = document.getElementById('monCaseNumber');
@@ -860,6 +876,9 @@ import {
         window.switchNakesTab('monitoring');
       }
     }
+
+    export const openCaseDetail = openMonitoringFromEvac;
+    export const openMonitoringFromDashboard = openMonitoringFromEvac;
 
 // 🛡️ Global Scope Preservation (Window Bridge)
 if (typeof window !== 'undefined') {
@@ -880,6 +899,8 @@ if (typeof window !== 'undefined') {
   window.resolveCaseKader = resolveCaseKader;
   window.openAddPatientModal = openAddPatientModal;
   window.openMonitoringFromEvac = openMonitoringFromEvac;
+  window.openCaseDetail = openMonitoringFromEvac;
+  window.openMonitoringFromDashboard = openMonitoringFromEvac;
 
   window.NakesView = {
     updateNakesCounters,
@@ -895,6 +916,8 @@ if (typeof window !== 'undefined') {
     sendDirectWaReminder,
     resolveCaseKader,
     openAddPatientModal,
-    openMonitoringFromEvac
+    openMonitoringFromEvac,
+    openCaseDetail,
+    openMonitoringFromDashboard
   };
 }

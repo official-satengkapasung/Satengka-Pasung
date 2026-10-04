@@ -262,205 +262,6 @@ export function renderRatoMobileRequests(cases) {
   }
 }
 
-let mitraMonitoringTimerInterval = null;
-
-function renderMitraDetailParticipants(targetCase, containerId, timerId) {
-  if (typeof document === 'undefined') return;
-  const container = document.getElementById(containerId);
-  const timerEl = document.getElementById(timerId);
-  if (!container || !targetCase) return;
-
-  const cleanRole = window.cleanRoleAccountName || (n => n);
-  const participants = Array.isArray(targetCase.participants) ? targetCase.participants : [];
-
-  // 1. Pilar Bhuppa' Babhu' (Kader Jiwa Pelapor)
-  const repPart = participants.find(p => p.participant_role === 'BHUPA');
-  const repName = cleanRole(repPart?.name || targetCase.reporter_name || 'Kader Jiwa');
-  const repPhone = repPart?.phone || targetCase.reporter_phone || '-';
-  const cleanRepPhone = repPhone.replace(/\D/g, '').replace(/^0/, '62');
-
-  // 2. Pilar Ghuru (Kiai / Tokoh Agama)
-  let guruParts = participants.filter(p => p.participant_role === 'GURU');
-  if (guruParts.length === 0) {
-    guruParts = [{
-      name: 'Kiai H. Kholil',
-      phone: '081234567892',
-      village_name: targetCase.village_name || 'Desa Kokop',
-      response: 'PENDING'
-    }];
-  }
-
-  // 3. Pilar Rato (Kepala Desa / Linmas)
-  let ratoParts = participants.filter(p => p.participant_role === 'RATO');
-  if (ratoParts.length === 0) {
-    ratoParts = [{
-      name: 'Klebun Kokop',
-      phone: '081234567893',
-      village_name: targetCase.village_name || 'Desa Kokop',
-      response: 'PENDING'
-    }];
-  }
-
-  // Bangun Kartu Partisipan
-  let html = '';
-
-  // Kartu Kader
-  html += `
-    <div class="p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50/40 flex flex-col justify-between space-y-2.5 shadow-2xs">
-      <div class="flex items-center justify-between">
-        <span class="text-[10px] font-bold uppercase text-emerald-800 flex items-center gap-1.5 tracking-wider">
-          <img src="./assets/icons/role_bhupa.png" class="w-4 h-4 object-contain inline-block" alt="Bhuppa'">
-          Bhuppa' Babhu'
-        </span>
-        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-          ✓ Terverifikasi
-        </span>
-      </div>
-      <div>
-        <p class="font-bold text-slate-900 text-xs truncate">${repName}</p>
-        <p class="text-[11px] text-slate-500 font-mono">${repPhone}</p>
-        <p class="text-[10px] text-slate-400 mt-0.5">${targetCase.village_name || 'Desa Kokop'}</p>
-      </div>
-      ${cleanRepPhone && cleanRepPhone !== '-' ? `
-        <a href="https://wa.me/${cleanRepPhone}?text=${encodeURIComponent('Halo ' + repName + ', koordinasi pendampingan pasien ' + targetCase.patient_name)}" target="_blank"
-          class="w-full py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition shadow-2xs">
-          <i class="fa-brands fa-whatsapp text-xs"></i>
-          <span>Hubungi Kader</span>
-        </a>
-      ` : ''}
-    </div>
-  `;
-
-  // Kartu Ghuru
-  guruParts.forEach((g, idx) => {
-    const gName = cleanRole(g.name || 'Ghuru');
-    const gPhone = g.phone || '-';
-    const cleanGPhone = gPhone.replace(/\D/g, '').replace(/^0/, '62');
-    const isAgreed = g.response === 'AGREE' || g.response === 'SIAP' || g.response === 'READY';
-    const isNeedTime = g.response === 'NEED_TIME';
-
-    let badgeClass = 'bg-slate-100 text-slate-600 border-slate-200';
-    let badgeText = 'Menunggu Konfirmasi';
-    if (isAgreed) {
-      badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200 font-bold';
-      badgeText = '✓ Siap Dampingi';
-    } else if (isNeedTime) {
-      badgeClass = 'bg-amber-100 text-amber-800 border-amber-200 font-bold';
-      badgeText = '⏳ Sedang Mediasi';
-    }
-
-    html += `
-      <div class="p-3.5 rounded-2xl border ${isAgreed ? 'border-emerald-200 bg-emerald-50/30' : (isNeedTime ? 'border-amber-200 bg-amber-50/30' : 'border-teal-200 bg-teal-50/20')} flex flex-col justify-between space-y-2.5 shadow-2xs">
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-bold uppercase text-teal-800 flex items-center gap-1.5 tracking-wider">
-            <img src="./assets/icons/role_bhu-ghuru.png" class="w-4 h-4 object-contain inline-block" alt="Ghuru">
-            Ghuru${guruParts.length > 1 ? ' (' + (idx + 1) + ')' : ''}
-          </span>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border ${badgeClass}">
-            ${badgeText}
-          </span>
-        </div>
-        <div>
-          <p class="font-bold text-slate-900 text-xs truncate">${gName}</p>
-          <p class="text-[11px] text-slate-500 font-mono">${gPhone}</p>
-          <p class="text-[10px] text-teal-600 mt-0.5">${g.village_name || targetCase.village_name || 'Desa Kokop'}</p>
-        </div>
-        ${cleanGPhone && cleanGPhone !== '-' ? `
-          <a href="https://wa.me/${cleanGPhone}?text=${encodeURIComponent('Assalamualaikum ' + gName + ', koordinasi pendampingan rembuk santun pasien ' + targetCase.patient_name)}" target="_blank"
-            class="w-full py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition shadow-2xs">
-            <i class="fa-brands fa-whatsapp text-xs"></i>
-            <span>Hubungi Ghuru</span>
-          </a>
-        ` : ''}
-      </div>
-    `;
-  });
-
-  // Kartu Rato
-  ratoParts.forEach((r, idx) => {
-    const rName = cleanRole(r.name || 'Rato');
-    const rPhone = r.phone || '-';
-    const cleanRPhone = rPhone.replace(/\D/g, '').replace(/^0/, '62');
-    const isReady = r.response === 'READY' || r.response === 'SIAP' || r.response === 'AGREE';
-
-    let badgeClass = 'bg-slate-100 text-slate-600 border-slate-200';
-    let badgeText = 'Menunggu Linmas';
-    if (isReady) {
-      badgeClass = 'bg-indigo-100 text-indigo-800 border-indigo-200 font-bold';
-      badgeText = '✓ Siap Kawal';
-    }
-
-    html += `
-      <div class="p-3.5 rounded-2xl border ${isReady ? 'border-indigo-200 bg-indigo-50/30' : 'border-indigo-100 bg-white'} flex flex-col justify-between space-y-2.5 shadow-2xs">
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-bold uppercase text-indigo-800 flex items-center gap-1.5 tracking-wider">
-            <img src="./assets/icons/role_rato.png" class="w-4 h-4 object-contain inline-block" alt="Rato">
-            Rato${ratoParts.length > 1 ? ' (' + (idx + 1) + ')' : ''}
-          </span>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border ${badgeClass}">
-            ${badgeText}
-          </span>
-        </div>
-        <div>
-          <p class="font-bold text-slate-900 text-xs truncate">${rName}</p>
-          <p class="text-[11px] text-slate-500 font-mono">${rPhone}</p>
-          <p class="text-[10px] text-indigo-600 mt-0.5">${r.village_name || targetCase.village_name || 'Desa Kokop'}</p>
-        </div>
-        ${cleanRPhone && cleanRPhone !== '-' ? `
-          <a href="https://wa.me/${cleanRPhone}?text=${encodeURIComponent('Halo ' + rName + ', koordinasi pengamanan evakuasi pasien ' + targetCase.patient_name)}" target="_blank"
-            class="w-full py-1.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition shadow-2xs">
-            <i class="fa-brands fa-whatsapp text-xs"></i>
-            <span>Hubungi Rato</span>
-          </a>
-        ` : ''}
-      </div>
-    `;
-  });
-
-  // Kartu Nakes / Ambulans
-  html += `
-    <div class="p-3.5 rounded-2xl border border-sky-200 bg-sky-50/30 flex flex-col justify-between space-y-2.5 shadow-2xs">
-      <div class="flex items-center justify-between">
-        <span class="text-[10px] font-bold uppercase text-sky-800 flex items-center gap-1.5 tracking-wider">
-          <i class="fa-solid fa-truck-medical text-sky-600"></i>
-          Puskesmas Kokop
-        </span>
-        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-sky-100 text-sky-800 border border-sky-200">
-          ✓ Ambulans Siaga
-        </span>
-      </div>
-      <div>
-        <p class="font-bold text-slate-900 text-xs truncate">Tim Evakuasi Medis</p>
-        <p class="text-[11px] text-slate-500 font-mono">081234567890</p>
-        <p class="text-[10px] text-sky-600 mt-0.5">Kecamatan Kokop</p>
-      </div>
-      <a href="https://wa.me/6281234567890?text=${encodeURIComponent('Halo Tim Puskesmas Kokop, koordinasi evakuasi medis pasien ' + targetCase.patient_name)}" target="_blank"
-        class="w-full py-1.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition shadow-2xs">
-        <i class="fa-brands fa-whatsapp text-xs"></i>
-        <span>Hubungi Nakes</span>
-      </a>
-    </div>
-  `;
-
-  container.innerHTML = html;
-
-  // Stopwatch Waktu Respons
-  if (timerEl) {
-    if (mitraMonitoringTimerInterval) clearInterval(mitraMonitoringTimerInterval);
-    const startTime = new Date(targetCase.activated_at || targetCase.created_at || Date.now()).getTime();
-
-    const updateTimer = () => {
-      const diff = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
-      const h = String(Math.floor(diff / 3600)).padStart(2, '0');
-      const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
-      const s = String(diff % 60).padStart(2, '0');
-      timerEl.innerHTML = `<i class="fa-solid fa-stopwatch text-emerald-600 mr-1"></i> Waktu Berjalan: <b>${h}:${m}:${s}</b>`;
-    };
-    updateTimer();
-    mitraMonitoringTimerInterval = setInterval(updateTimer, 1000);
-  }
-}
-
 export function openGuruDetailScreen(caseId) {
   if (typeof document === 'undefined') return;
   const currentCases = window.currentCases || [];
@@ -500,9 +301,6 @@ export function openGuruDetailScreen(caseId) {
     `;
   }
 
-  // Render Kesiapan 4 Pilar Partisipan & Timer Monitoring Evakuasi
-  renderMitraDetailParticipants(targetCase, 'mGuruParticipantsList', 'mGuruMonitoringTimer');
-
   setTimeout(() => {
     const lat = parseFloat(targetCase.latitude) || -7.0145;
     const lng = parseFloat(targetCase.longitude) || 113.0234;
@@ -520,7 +318,6 @@ export function openGuruDetailScreen(caseId) {
 
 export function closeGuruDetailScreen() {
   if (typeof document === 'undefined') return;
-  if (mitraMonitoringTimerInterval) clearInterval(mitraMonitoringTimerInterval);
   document.getElementById('mobileGuruSubDetail')?.classList.add('hidden');
   document.getElementById('mobileScreenGuru')?.classList.remove('hidden');
   const syncNav = window.syncNavHighlight || (() => {});
@@ -561,9 +358,6 @@ export function openRatoDetailScreen(caseId) {
     `;
   }
 
-  // Render Kesiapan 4 Pilar Partisipan & Timer Monitoring Evakuasi
-  renderMitraDetailParticipants(targetCase, 'mRatoParticipantsList', 'mRatoMonitoringTimer');
-
   setTimeout(() => {
     const lat = parseFloat(targetCase.latitude) || -7.0145;
     const lng = parseFloat(targetCase.longitude) || 113.0234;
@@ -581,7 +375,6 @@ export function openRatoDetailScreen(caseId) {
 
 export function closeRatoDetailScreen() {
   if (typeof document === 'undefined') return;
-  if (mitraMonitoringTimerInterval) clearInterval(mitraMonitoringTimerInterval);
   document.getElementById('mobileRatoSubDetail')?.classList.add('hidden');
   document.getElementById('mobileScreenRato')?.classList.remove('hidden');
   const syncNav = window.syncNavHighlight || (() => {});
