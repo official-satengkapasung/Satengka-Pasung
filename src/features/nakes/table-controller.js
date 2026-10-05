@@ -126,7 +126,15 @@ export function handleCasesFilterSort(resetPage = false) {
   }
 
   if (statusFilter) {
-    list = list.filter(c => c.status === statusFilter);
+    if (statusFilter === 'SEDANG_KOORDINASI' || statusFilter === 'COORDINATION') {
+      list = list.filter(c => c.status === 'COORDINATION' || c.status === 'VALIDATED' || c.status === 'REPORTED');
+    } else if (statusFilter === 'SIAGA_EVAC' || statusFilter === 'READY_FOR_EVACUATION') {
+      list = list.filter(c => c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA');
+    } else if (statusFilter === 'TERKONTROL' || statusFilter === 'CONTROLLED' || statusFilter === 'MONITORING' || statusFilter === 'CLOSED') {
+      list = list.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED');
+    } else {
+      list = list.filter(c => c.status === statusFilter);
+    }
   }
 
   if (priorityFilter) {
@@ -176,12 +184,16 @@ export function handleCasesFilterSort(resetPage = false) {
           <td class="p-3.5 text-slate-600">${c.village_name || 'Kokop'}</td>
           <td class="p-3.5">
             <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${
-              c.status === 'SIAGA' ? 'bg-amber-100 text-amber-800' :
-              c.status === 'READY_FOR_EVACUATION' ? 'bg-emerald-100 text-emerald-800' :
-              c.status === 'EVACUATION' ? 'bg-blue-100 text-blue-800' :
-              c.status === 'CLOSED' ? 'bg-slate-100 text-slate-700' :
-              'bg-teal-100 text-[#145861]'
-            }">${formatStatus(c.status)}</span>
+              (c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA') ? 'bg-amber-100 text-amber-900 border border-amber-200' :
+              (c.status === 'COORDINATION' || c.status === 'VALIDATED' || c.status === 'REPORTED') ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' :
+              (c.status === 'MONITORING' || c.status === 'CLOSED') ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+              'bg-slate-100 text-slate-700'
+            }">${
+              (c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA') ? 'Siaga Evakuasi' :
+              (c.status === 'COORDINATION' || c.status === 'VALIDATED' || c.status === 'REPORTED') ? 'Sedang Koordinasi' :
+              (c.status === 'MONITORING' || c.status === 'CLOSED') ? 'Terkontrol' :
+              formatStatus(c.status)
+            }</span>
           </td>
           <td class="p-3.5 font-bold text-slate-700">${formatPriority(c.priority)}</td>
           <td class="p-3.5 text-center">

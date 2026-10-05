@@ -1293,7 +1293,7 @@
         <div id="nakesSubKasus" class="space-y-6 hidden">
           <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
-              <h2 class="text-xl font-bold text-slate-900">Daftar Semua Kasus EWS</h2>
+              <h2 class="text-xl font-bold text-slate-900">Daftar Semua Kasus</h2>
               <p class="text-xs text-slate-500">Kelola dan telusuri seluruh rekam kasus pasung di wilayah Puskesmas Kokop</p>
             </div>
             <button aria-label="Kembali ke dashboard" onclick="switchNakesTab('dashboard')"
@@ -1314,12 +1314,9 @@
               <select id="filterCasesStatus" onchange="handleCasesFilterSort(true)"
                 class="px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-slate-700 font-semibold outline-none focus:border-emerald-600 transition">
                 <option value="">Semua Status Kasus</option>
-                <option value="SIAGA">Siaga Evakuasi</option>
-                <option value="COORDINATION">Sedang Koordinasi</option>
-                <option value="READY_FOR_EVACUATION">Siap Evakuasi</option>
-                <option value="EVACUATION">Proses Evakuasi</option>
-                <option value="MONITORING">Pemantauan / Kontrol</option>
-                <option value="CLOSED">Terkontrol</option>
+                <option value="SEDANG_KOORDINASI">Sedang Koordinasi</option>
+                <option value="SIAGA_EVAC">Siaga Evakuasi</option>
+                <option value="TERKONTROL">Terkontrol</option>
               </select>
               <select id="filterCasesPriority" onchange="handleCasesFilterSort(true)"
                 class="px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-slate-700 font-semibold outline-none focus:border-emerald-600 transition">
@@ -3777,7 +3774,7 @@
   </div>
 
   <!-- VITE CENTRAL APPLICATION ENTRY POINT (ES6 NATIVE MODULE) -->
-  <script type="module" src="./src/main.js?v=68"></script>
+  <script type="module" src="./src/main.js?v=70"></script>
 
 </body>
 
