@@ -63,18 +63,19 @@ export function updateMapFilterCounters() {
   const cAll = document.getElementById('mapCount_ALL');
   const cEvac = document.getElementById('mapCount_EVAC_NEEDED');
   const cCoord = document.getElementById('mapCount_COORDINATION');
-  const cReady = document.getElementById('mapCount_READY_EVAC');
   const cMon = document.getElementById('mapCount_MONITORING');
 
-  const evacCount = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED').length;
-  const coordCount = currentCases.filter(c => c.status === 'COORDINATION' || c.status === 'VALIDATED').length;
-  const readyCount = currentCases.filter(c => c.status === 'READY_FOR_EVACUATION').length;
-  const monCount = currentCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED').length;
+  const safeReports = (typeof window !== 'undefined' && Array.isArray(window.currentReports)) ? window.currentReports : [];
+  const newReportsCount = safeReports.filter(r => r.status === 'NEW').length;
 
-  if (cAll) cAll.innerText = currentCases.length;
+  const evacCount = currentCases.filter(c => c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA').length;
+  const coordCount = currentCases.filter(c => c.status === 'COORDINATION' || c.status === 'VALIDATED' || c.status === 'REPORTED').length + newReportsCount;
+  const monCount = currentCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED').length;
+  const totalCount = currentCases.length + newReportsCount;
+
+  if (cAll) cAll.innerText = totalCount;
   if (cEvac) cEvac.innerText = evacCount;
   if (cCoord) cCoord.innerText = coordCount;
-  if (cReady) cReady.innerText = readyCount;
   if (cMon) cMon.innerText = monCount;
 }
 
@@ -160,11 +161,9 @@ export function initOrUpdateLeafletMap() {
     if (activeMapCategoryFilter !== 'FASKES') {
       let casesToDisplay = currentCases;
       if (activeMapCategoryFilter === 'EVAC_NEEDED') {
-        casesToDisplay = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED');
+        casesToDisplay = currentCases.filter(c => c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA');
       } else if (activeMapCategoryFilter === 'COORDINATION') {
-        casesToDisplay = currentCases.filter(c => c.status === 'COORDINATION' || c.status === 'VALIDATED');
-      } else if (activeMapCategoryFilter === 'READY_EVAC') {
-        casesToDisplay = currentCases.filter(c => c.status === 'READY_FOR_EVACUATION');
+        casesToDisplay = currentCases.filter(c => c.status === 'COORDINATION' || c.status === 'VALIDATED' || c.status === 'REPORTED');
       } else if (activeMapCategoryFilter === 'MONITORING') {
         casesToDisplay = currentCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED');
       }
@@ -209,15 +208,12 @@ export function initOrUpdateLeafletMap() {
 
         let pinColor = 'bg-amber-500';
         let statusLabel = 'Sedang Koordinasi';
-        if (c.status === 'SIAGA' || c.status === 'REPORTED') {
+        if (c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA') {
           pinColor = 'bg-red-600 animate-bounce';
           statusLabel = 'Butuh Evakuasi';
-        } else if (c.status === 'READY_FOR_EVACUATION') {
-          pinColor = 'bg-emerald-600';
-          statusLabel = 'Siap Evakuasi';
         } else if (c.status === 'MONITORING' || c.status === 'CLOSED') {
-          pinColor = 'bg-blue-600';
-          statusLabel = 'Kontrol Obat';
+          pinColor = 'bg-emerald-600';
+          statusLabel = 'Terkontrol';
         }
 
         const caseIcon = L.divIcon({

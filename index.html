@@ -495,14 +495,14 @@
                   Laporan Baru
                 </button>
                 <button type="button" onclick="setNakesAksiStatusFilter('EVACUATION')" id="btnAksiFilter_EVACUATION"
-                  class="px-2.5 py-1 rounded-xl font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 shrink-0 transition flex items-center gap-1">
-                  <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                  Siap Evakuasi
+                  class="px-2.5 py-1 rounded-xl font-semibold bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-700 shrink-0 transition flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-red-600"></span>
+                  Butuh Evakuasi
                 </button>
                 <button type="button" onclick="setNakesAksiStatusFilter('COORDINATION')" id="btnAksiFilter_COORDINATION"
                   class="px-2.5 py-1 rounded-xl font-semibold bg-slate-100 hover:bg-amber-50 text-slate-700 hover:text-amber-800 shrink-0 transition flex items-center gap-1">
                   <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                  Koordinasi Pilar
+                  Sedang Koordinasi
                 </button>
               </div>
 
@@ -548,16 +548,10 @@
                   <span>Sedang Koordinasi</span>
                   <span id="mapCount_COORDINATION" class="px-1.5 py-0.2 rounded-full bg-slate-200 text-[10px]">0</span>
                 </button>
-                <button type="button" id="mapFilter_READY_EVAC" onclick="setMapCategoryFilter('READY_EVAC')"
+                <button type="button" id="mapFilter_MONITORING" onclick="setMapCategoryFilter('MONITORING')"
                   class="px-3 py-1.5 rounded-xl font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition shrink-0 flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                  <span>Siap Evakuasi</span>
-                  <span id="mapCount_READY_EVAC" class="px-1.5 py-0.2 rounded-full bg-slate-200 text-[10px]">0</span>
-                </button>
-                <button type="button" id="mapFilter_MONITORING" onclick="setMapCategoryFilter('MONITORING')"
-                  class="px-3 py-1.5 rounded-xl font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-800 transition shrink-0 flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                  <span>Kontrol Obat</span>
+                  <span>Terkontrol</span>
                   <span id="mapCount_MONITORING" class="px-1.5 py-0.2 rounded-full bg-slate-200 text-[10px]">0</span>
                 </button>
                 <button type="button" id="mapFilter_FASKES" onclick="setMapCategoryFilter('FASKES')"
@@ -584,7 +578,7 @@
                   </div>
                   <div class="flex items-center space-x-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                    <span>Siap Evakuasi</span>
+                    <span>Terkontrol</span>
                   </div>
                 </div>
                 <p class="text-[10px] text-slate-400 pt-1 text-center">
@@ -3774,7 +3768,7 @@
   </div>
 
   <!-- VITE CENTRAL APPLICATION ENTRY POINT (ES6 NATIVE MODULE) -->
-  <script type="module" src="./src/main.js?v=70"></script>
+  <script type="module" src="./src/main.js?v=71"></script>
 
 </body>
 

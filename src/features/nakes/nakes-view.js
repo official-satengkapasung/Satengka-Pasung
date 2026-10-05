@@ -188,7 +188,7 @@ import {
       const villageFilter = document.getElementById('nakesAksiVillageFilter')?.value || 'ALL';
       let combinedItems = [];
 
-      if (nakesAksiStatusFilter === 'ALL' || nakesAksiStatusFilter === 'NEW') {
+      if (nakesAksiStatusFilter === 'ALL' || nakesAksiStatusFilter === 'NEW' || nakesAksiStatusFilter === 'COORDINATION') {
         const matchedPendingReports = pendingReports.filter(r => {
           if (villageFilter !== 'ALL') {
             return String(r.village_id) === String(villageFilter);
@@ -201,25 +201,26 @@ import {
             type: 'REPORT',
             data: r,
             html: `
-              <div onclick="openReportDetail('${r.id}')" class="p-3.5 rounded-2xl border-2 border-red-300 bg-red-50/50 hover:bg-red-50 cursor-pointer transition flex justify-between items-center shadow-xs">
+              <div onclick="openReportDetail('${r.id}')" class="p-3.5 rounded-2xl border-2 border-amber-300 bg-amber-50/50 hover:bg-amber-50 cursor-pointer transition flex justify-between items-center shadow-xs">
                 <div class="flex items-center space-x-3">
-                  <div class="w-9 h-9 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm shrink-0">
-                    <i class="fa-solid fa-bell animate-bounce"></i>
+                  <div class="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm shrink-0">
+                    <i class="fa-solid fa-users-gear animate-bounce"></i>
                   </div>
                   <div>
                     <div class="flex items-center space-x-2">
                       <h4 class="font-bold text-slate-900 text-sm">${r.patient_name_input}</h4>
-                      <span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-red-200 text-red-800 font-bold">${r.report_number}</span>
+                      <span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-200 text-amber-800 font-bold">${r.report_number}</span>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Sedang Koordinasi</span>
                     </div>
-                    <p class="text-xs text-slate-500">${r.address_input || 'Desa Kokop'} • <span class="text-red-600 font-semibold">Laporan Kader (Belum Divalidasi)</span></p>
+                    <p class="text-xs text-slate-500">${r.address_input || 'Desa Kokop'} • <span class="text-amber-700 font-semibold">Laporan Baru (Perlu Validasi & Rembuk)</span></p>
                   </div>
                 </div>
                 <div class="flex items-center space-x-1.5 shrink-0">
                   <button onclick="event.stopPropagation(); openReportDetail('${r.id}');" class="px-2.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 font-bold text-xs rounded-xl shadow-xs">
                     <i class="fa-solid fa-eye mr-1 text-slate-400"></i> Detail
                   </button>
-                  <button onclick="event.stopPropagation(); openSiagaFromReport('${r.id}');" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow">
-                    Validasi Satengka
+                  <button onclick="event.stopPropagation(); openSiagaFromReport('${r.id}');" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow">
+                    Validasi & Rembuk
                   </button>
                 </div>
               </div>
@@ -234,22 +235,22 @@ import {
           if (villageFilter !== 'ALL' && String(c.village_id) !== String(villageFilter)) return false;
 
           if (nakesAksiStatusFilter === 'EVACUATION') {
-            return c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION';
+            return c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA';
           }
           if (nakesAksiStatusFilter === 'COORDINATION') {
-            return c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'REPORTED';
+            return c.status === 'COORDINATION' || c.status === 'VALIDATED' || c.status === 'REPORTED';
           }
           return true;
         });
 
         activeCases.forEach(c => {
           let badgeHtml = '';
-          if (c.status === 'SIAGA' || c.status === 'REPORTED') {
-            badgeHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-700 flex items-center"><i class="fa-solid fa-triangle-exclamation mr-1 text-[10px]"></i> Butuh Evakuasi</span>`;
-          } else if (c.status === 'READY_FOR_EVACUATION') {
-            badgeHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">Siap Evakuasi</span>`;
+          if (c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA') {
+            badgeHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-700 border border-red-200 flex items-center"><i class="fa-solid fa-triangle-exclamation mr-1 text-[10px]"></i> Butuh Evakuasi</span>`;
+          } else if (c.status === 'MONITORING' || c.status === 'CLOSED') {
+            badgeHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Terkontrol</span>`;
           } else {
-            badgeHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">Sedang Koordinasi</span>`;
+            badgeHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Sedang Koordinasi</span>`;
           }
 
           const parts = c.participants || [];
@@ -429,7 +430,7 @@ import {
 
     export function setMapCategoryFilter(category) {
       activeMapCategoryFilter = category;
-      const categories = ['ALL', 'EVAC_NEEDED', 'COORDINATION', 'READY_EVAC', 'MONITORING', 'FASKES'];
+      const categories = ['ALL', 'EVAC_NEEDED', 'COORDINATION', 'MONITORING', 'FASKES'];
       categories.forEach(c => {
         const btn = document.getElementById(`mapFilter_${c}`);
         if (!btn) return;
