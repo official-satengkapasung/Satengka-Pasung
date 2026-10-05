@@ -115,8 +115,21 @@ export function getMergedKaderReports(baseReports = null) {
     }
   });
 
+  // Enrich setiap laporan dengan matched_case dan status efektif terkini dari alur kasus
+  const enrichedReports = currentReports.map(r => {
+    const matchedCase = r.matched_case || currentCases.find(c => String(c.report_id) === String(r.id) || String(c.id) === String(r.case_id));
+    const resolvedStatus = r.status === 'REJECTED' ? 'REJECTED' : (matchedCase ? matchedCase.status : (r.status || 'NEW'));
+    const resolvedCaseNumber = matchedCase ? matchedCase.case_number : (r.case_number || r.report_number);
+    return {
+      ...r,
+      effective_status: resolvedStatus,
+      matched_case: matchedCase,
+      resolved_case_number: resolvedCaseNumber
+    };
+  });
+
   // Urutkan laporan dari yang paling baru dilaporkan ke yang terlama
-  return currentReports.sort((a, b) => {
+  return enrichedReports.sort((a, b) => {
     const timeA = extractReportTimestamp(a);
     const timeB = extractReportTimestamp(b);
     return timeB - timeA;

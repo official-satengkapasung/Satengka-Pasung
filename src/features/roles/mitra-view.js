@@ -656,6 +656,8 @@ export function renderGuruRiwayatList() {
   const uid = currentUser ? currentUser.id : null;
 
   const accompaniedCases = currentCases.filter(c => {
+    const isDone = c.status === 'CLOSED' || c.status === 'MONITORING';
+    if (!isDone) return false;
     if (!c.participants) return false;
     return c.participants.some(p => p.participant_role === 'GURU' && (String(p.user_id) === String(uid) || !uid || p.response));
   });
@@ -755,6 +757,8 @@ export function renderRatoRiwayatList() {
   const uid = currentUser ? currentUser.id : null;
 
   const escortedCases = currentCases.filter(c => {
+    const isDone = c.status === 'CLOSED' || c.status === 'MONITORING';
+    if (!isDone) return false;
     if (!c.participants) return false;
     return c.participants.some(p => p.participant_role === 'RATO' && (String(p.user_id) === String(uid) || !uid || p.response));
   });

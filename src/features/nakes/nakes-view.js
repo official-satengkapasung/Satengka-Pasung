@@ -17,13 +17,13 @@ import {
       const safeReports = Array.isArray(window.currentReports) ? window.currentReports : [];
       const newReportsCount = safeReports.filter(r => r.status === 'NEW').length;
 
-      // 1. Butuh Evakuasi (Kasus Siaga, Laporan Baru, atau Sedang Evakuasi)
-      const siagaCount = safeCases.filter(c => c.status === 'SIAGA' || c.status === 'REPORTED' || c.status === 'EVACUATION').length + newReportsCount;
+      // 1. Siaga Evakuasi (Sinkron 100% dengan Menu Evakuasi: Siap Evakuasi, Proses Evakuasi, & Siaga)
+      const siagaCount = safeCases.filter(c => c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA').length;
 
-      // 2. Sedang Koordinasi (Rembuk Tokoh, Validasi Faskes, & Siap Evakuasi)
-      const koordinasiCount = safeCases.filter(c => c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION' || c.status === 'VALIDATED').length;
+      // 2. Sedang Koordinasi (Laporan Masuk Baru, Validasi Faskes, & Rembuk Santun Pilar Desa)
+      const koordinasiCount = safeCases.filter(c => c.status === 'COORDINATION' || c.status === 'VALIDATED' || c.status === 'REPORTED').length + newReportsCount;
 
-      // 3. Terkontrol (Monitoring Obat & Selesai Bebas Pasung)
+      // 3. Terkontrol (Sinkron 100% dengan Menu Kontrol Obat: Monitoring Pemantauan Obat & Bebas Pasung)
       const selesaiCount = safeCases.filter(c => c.status === 'MONITORING' || c.status === 'CLOSED').length;
 
       // 4. Total Kasus: Konsisten hasil penjumlahan kartu status dan seluruh rekam kasus aktif
@@ -66,8 +66,14 @@ import {
       if (currentUser.role === 'KADER') {
         const kReports = window.getMergedKaderReports ? window.getMergedKaderReports() : (window.currentReports || []);
         const total = kReports.length;
-        const inProcess = kReports.filter(r => r.status === 'NEW' || r.status === 'VALIDATED' || r.status === 'SIAGA' || (r.effective_status && r.effective_status !== 'CLOSED' && r.effective_status !== 'MONITORING')).length;
-        const closed = kReports.filter(r => r.status === 'CLOSED' || r.effective_status === 'CLOSED' || r.effective_status === 'MONITORING').length;
+        const closed = kReports.filter(r => {
+          const s = r.effective_status || r.status;
+          return s === 'CLOSED' || s === 'MONITORING';
+        }).length;
+        const inProcess = kReports.filter(r => {
+          const s = r.effective_status || r.status;
+          return s !== 'CLOSED' && s !== 'MONITORING' && s !== 'REJECTED';
+        }).length;
 
         const elTotal = document.getElementById('kaderStatTotalReports');
         if (elTotal) elTotal.innerText = total;
@@ -76,9 +82,10 @@ import {
         const elClosed = document.getElementById('kaderStatClosed');
         if (elClosed) elClosed.innerText = closed;
       } else if (currentUser.role === 'GURU') {
+        const uid = currentUser.id;
         const reqs = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION').length;
         const agreed = currentCases.filter(c => (c.participants || []).some(p => p.participant_role === 'GURU' && (p.response === 'AGREE' || p.response === 'SIAP' || p.response === 'READY'))).length;
-        const done = currentCases.filter(c => c.status === 'CLOSED' || c.status === 'MONITORING').length;
+        const done = currentCases.filter(c => (c.status === 'CLOSED' || c.status === 'MONITORING') && (c.participants || []).some(p => p.participant_role === 'GURU' && (String(p.user_id) === String(uid) || !uid || p.response))).length;
 
         const elReq = document.getElementById('guruStatRequests');
         if (elReq) elReq.innerText = reqs;
@@ -87,9 +94,10 @@ import {
         const elDone = document.getElementById('guruStatDone');
         if (elDone) elDone.innerText = done;
       } else if (currentUser.role === 'RATO') {
+        const uid = currentUser.id;
         const reqs = currentCases.filter(c => c.status === 'SIAGA' || c.status === 'COORDINATION' || c.status === 'READY_FOR_EVACUATION').length;
         const ready = currentCases.filter(c => (c.participants || []).some(p => p.participant_role === 'RATO' && (p.response === 'READY' || p.response === 'SIAP' || p.response === 'AGREE'))).length;
-        const done = currentCases.filter(c => c.status === 'CLOSED' || c.status === 'MONITORING').length;
+        const done = currentCases.filter(c => (c.status === 'CLOSED' || c.status === 'MONITORING') && (c.participants || []).some(p => p.participant_role === 'RATO' && (String(p.user_id) === String(uid) || !uid || p.response))).length;
 
         const elReq = document.getElementById('ratoStatRequests');
         if (elReq) elReq.innerText = reqs;
