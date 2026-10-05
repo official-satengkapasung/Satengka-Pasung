@@ -114,7 +114,7 @@ import {
     export function setNakesAksiStatusFilter(status) {
       nakesAksiStatusFilter = status;
       nakesAksiPaginationState.page = 1;
-      const buttons = ['ALL', 'NEW', 'EVACUATION', 'COORDINATION'];
+      const buttons = ['ALL', 'NEW', 'EVACUATION', 'COORDINATION', 'CONTROLLED'];
       buttons.forEach(b => {
         const btn = document.getElementById('btnAksiFilter_' + b);
         if (btn) {
@@ -231,15 +231,18 @@ import {
 
       if (nakesAksiStatusFilter !== 'NEW' && cases && cases.length > 0) {
         const activeCases = cases.filter(c => {
-          if (c.status === 'CLOSED' || c.status === 'RESOLVED') return false;
           if (villageFilter !== 'ALL' && String(c.village_id) !== String(villageFilter)) return false;
 
+          if (nakesAksiStatusFilter === 'CONTROLLED') {
+            return c.status === 'MONITORING' || c.status === 'CLOSED';
+          }
           if (nakesAksiStatusFilter === 'EVACUATION') {
             return c.status === 'READY_FOR_EVACUATION' || c.status === 'EVACUATION' || c.status === 'SIAGA';
           }
           if (nakesAksiStatusFilter === 'COORDINATION') {
             return c.status === 'COORDINATION' || c.status === 'VALIDATED' || c.status === 'REPORTED';
           }
+          if (c.status === 'RESOLVED') return false;
           return true;
         });
 
