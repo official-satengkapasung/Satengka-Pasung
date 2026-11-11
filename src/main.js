@@ -27,6 +27,7 @@ import './features/profile/profile-controller.js';
 import './services/data-sync.js';
 import './features/pwa/pwa-controller.js';
 import './features/auth/auth-controller.js';
+import './features/admin/database-reset-controller.js';
 import './services/mock-engine.js';
 
 // Setup Global State jika belum ada
@@ -52,7 +53,7 @@ if (typeof window !== 'undefined') {
     window.firebaseReadyPromise = (async () => {
       if (window.location.protocol.startsWith('http')) {
         try {
-          const fbModule = await import('../js/firebase-adapter.js?v=66');
+          const fbModule = await import('../js/firebase-adapter.js?v=67');
           if (fbModule) {
             window.firebaseAdapter = Object.assign(window.firebaseAdapter || {}, fbModule);
             console.log("🔥 [SATENGKA PASUNG] Cloud Firestore aktif di Dashboard!");

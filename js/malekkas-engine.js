@@ -110,13 +110,24 @@
     isFirebaseActive: false,
 
     resetDatabase: function() {
+      let rawUsers = [];
+      try { rawUsers = JSON.parse(localStorage.getItem("malekkas_users") || "[]"); } catch(e) {}
+      let adminOnly = rawUsers.filter(u => u && (u.role === 'ADMIN' || u.is_superadmin));
+      let curUser = null;
+      try { curUser = JSON.parse(localStorage.getItem("malekkas_user") || "null"); } catch(e) {}
+      if (curUser && (curUser.role === 'ADMIN' || curUser.is_superadmin) && !adminOnly.some(a => String(a.id) === String(curUser.id))) {
+        adminOnly.push(curUser);
+      }
       localStorage.setItem("malekkas_cases", JSON.stringify([]));
       localStorage.setItem("malekkas_reports", JSON.stringify([]));
       localStorage.setItem("malekkas_chats", JSON.stringify({}));
+      localStorage.setItem("malekkas_pending_sync", JSON.stringify([]));
+      localStorage.setItem("malekkas_sync_queue", JSON.stringify([]));
+      localStorage.setItem("malekkas_deleted_phones", JSON.stringify([]));
       localStorage.setItem("malekkas_villages", JSON.stringify(DEFAULT_SEED.villages));
-      localStorage.setItem("malekkas_users", JSON.stringify(DEFAULT_SEED.users));
-      console.log("🧹 [SATENGKA PASUNG] Database di-reset menjadi 0 kasus & 0 laporan!");
-      return { success: true, message: "Database berhasil di-reset menjadi 0 kasus!" };
+      localStorage.setItem("malekkas_users", JSON.stringify(adminOnly));
+      console.log("🧹 [SATENGKA PASUNG] Database di-reset menjadi 0 kasus, 0 laporan, hanya menyisakan Administrator!");
+      return { success: true, message: "Database berhasil di-reset! Seluruh data terhapus kecuali akun Administrator." };
     },
 
     loadProductionDemoData: function() {

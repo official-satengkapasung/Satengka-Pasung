@@ -240,8 +240,18 @@
         </nav>
       </div>
 
-      <!-- Footer Sidebar: Logout -->
-      <div class="p-4 border-t border-white/10 space-y-1">
+      <!-- Footer Sidebar: Reset Database (Khusus Superadmin / Administrator) & Logout -->
+      <div class="p-4 border-t border-white/10 space-y-2">
+        <div id="adminResetDbSidebarContainer" class="hidden">
+          <button type="button" onclick="openResetDatabaseModal()"
+            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 hover:text-white border border-rose-500/30 hover:border-rose-400 font-bold text-xs transition group cursor-pointer shadow-sm">
+            <div class="flex items-center space-x-2.5">
+              <i class="fa-solid fa-triangle-exclamation text-rose-400 group-hover:scale-110 transition-transform"></i>
+              <span class="tracking-wide">Reset Database</span>
+            </div>
+            <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-rose-950/80 text-rose-300 border border-rose-800/60">ADMIN</span>
+          </button>
+        </div>
         <button onclick="handleLogout()"
           class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-rose-300 hover:text-white hover:bg-rose-900/30 font-semibold text-sm transition">
           <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i>
@@ -952,17 +962,17 @@
                     <option value="ALL">Semua Desa</option>
                     <option value="1">Desa Ampara'an</option>
                     <option value="2">Desa Bandang Laok</option>
-                    <option value="3">Desa Dupok</option>
-                    <option value="4">Desa Geger</option>
-                    <option value="5">Desa Katol Barat</option>
-                    <option value="6">Desa Kokop</option>
-                    <option value="7">Desa Lembung Gunong</option>
-                    <option value="8">Desa Mandung</option>
-                    <option value="9">Desa Mano'an</option>
-                    <option value="10">Desa Tlokoh</option>
-                    <option value="11">Desa Tramok</option>
-                    <option value="12">Desa Bandang Dajah</option>
-                    <option value="13">Desa Batokaban</option>
+                    <option value="3">Desa Bandasoleh</option>
+                    <option value="4">Desa Batokorogan</option>
+                    <option value="5">Desa Dupok</option>
+                    <option value="6">Desa Durjan</option>
+                    <option value="7">Desa Katol Timur</option>
+                    <option value="8">Desa Kokop</option>
+                    <option value="9">Desa Lembung Gunong</option>
+                    <option value="10">Desa Mandung</option>
+                    <option value="11">Desa Mano'an</option>
+                    <option value="12">Desa Tlokoh</option>
+                    <option value="13">Desa Tramok</option>
                   </select>
                 </div>
               </div>
@@ -1002,17 +1012,17 @@
                     <option value="ALL">Semua Desa</option>
                     <option value="1">Desa Ampara'an</option>
                     <option value="2">Desa Bandang Laok</option>
-                    <option value="3">Desa Dupok</option>
-                    <option value="4">Desa Geger</option>
-                    <option value="5">Desa Katol Barat</option>
-                    <option value="6">Desa Kokop</option>
-                    <option value="7">Desa Lembung Gunong</option>
-                    <option value="8">Desa Mandung</option>
-                    <option value="9">Desa Mano'an</option>
-                    <option value="10">Desa Tlokoh</option>
-                    <option value="11">Desa Tramok</option>
-                    <option value="12">Desa Bandang Dajah</option>
-                    <option value="13">Desa Batokaban</option>
+                    <option value="3">Desa Bandasoleh</option>
+                    <option value="4">Desa Batokorogan</option>
+                    <option value="5">Desa Dupok</option>
+                    <option value="6">Desa Durjan</option>
+                    <option value="7">Desa Katol Timur</option>
+                    <option value="8">Desa Kokop</option>
+                    <option value="9">Desa Lembung Gunong</option>
+                    <option value="10">Desa Mandung</option>
+                    <option value="11">Desa Mano'an</option>
+                    <option value="12">Desa Tlokoh</option>
+                    <option value="13">Desa Tramok</option>
                   </select>
                 </div>
               </div>
@@ -3730,6 +3740,110 @@
     </div>
   </div>
 
+  <!-- MODAL: RESET DATABASE TOTAL (KHUSUS ADMINISTRATOR FASKES) -->
+  <div id="modalResetDatabaseConfirm" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-rose-200 overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+      <!-- Header Peringatan -->
+      <div class="px-5 sm:px-6 py-4 bg-gradient-to-r from-rose-900 via-rose-800 to-red-900 text-white flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-rose-500/30 border border-rose-400/40 text-rose-200 flex items-center justify-center text-lg font-bold shrink-0 shadow-inner">
+            <i class="fa-solid fa-triangle-exclamation text-amber-300 animate-pulse"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-extrabold text-white text-sm sm:text-base tracking-tight">Reset Database Operasional</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-400 text-amber-950 shadow-sm">SUPERADMIN</span>
+            </div>
+            <p class="text-[11px] text-rose-200/90 font-medium">Pembersihan data total di Aplikasi & Cloud Server</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeResetDatabaseModal()" title="Tutup"
+          class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Body / Detail Peringatan -->
+      <div class="p-5 sm:p-6 space-y-4 overflow-y-auto max-h-[60vh] text-slate-700 text-xs sm:text-sm">
+        <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-900 space-y-1.5">
+          <p class="font-bold flex items-center gap-1.5 text-rose-800">
+            <i class="fa-solid fa-circle-exclamation text-rose-600"></i>
+            Perhatian: Tindakan ini bersifat permanen!
+          </p>
+          <p class="text-[11px] leading-relaxed text-rose-700">
+            Seluruh data operasional yang terinput akan dihapus secara menyeluruh dari <b>penyimpanan lokal browser</b> dan <b>server Cloud Firestore</b>.
+          </p>
+        </div>
+
+        <!-- Daftar Dampak Penghapusan -->
+        <div class="space-y-2">
+          <p class="font-bold text-slate-900 text-xs uppercase tracking-wider text-[11px]">Rincian Pembersihan Data:</p>
+          <div class="space-y-1.5">
+            <div class="flex items-start space-x-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <i class="fa-solid fa-trash text-rose-600 mt-0.5 text-xs"></i>
+              <div class="text-[11px] text-slate-600">
+                <span class="font-bold text-slate-800">Semua Data Kasus & Evakuasi:</span> Dihapus total menjadi 0 kasus.
+              </div>
+            </div>
+            <div class="flex items-start space-x-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <i class="fa-solid fa-trash text-rose-600 mt-0.5 text-xs"></i>
+              <div class="text-[11px] text-slate-600">
+                <span class="font-bold text-slate-800">Semua Laporan Temuan Lapangan:</span> Dihapus total menjadi 0 laporan.
+              </div>
+            </div>
+            <div class="flex items-start space-x-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <i class="fa-solid fa-trash text-rose-600 mt-0.5 text-xs"></i>
+              <div class="text-[11px] text-slate-600">
+                <span class="font-bold text-slate-800">Riwayat Pesan & Chat:</span> Seluruh log chat terapeutik dibersihkan.
+              </div>
+            </div>
+            <div class="flex items-start space-x-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <i class="fa-solid fa-user-xmark text-rose-600 mt-0.5 text-xs"></i>
+              <div class="text-[11px] text-slate-600">
+                <span class="font-bold text-slate-800">Akun Pengguna Non-Admin:</span> Seluruh akun mitra, pendaftaran baru, dan akun nakes dihapus.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pengecualian Khusus (Safeguard) -->
+        <div class="p-3.5 bg-emerald-50/80 border-2 border-emerald-300 rounded-2xl text-emerald-950 space-y-1">
+          <p class="font-bold text-emerald-900 flex items-center gap-1.5 text-xs">
+            <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+            Pengecualian Khusus (Proteksi Aman):
+          </p>
+          <ul class="text-[11px] list-disc list-inside space-y-0.5 text-emerald-800 pl-1">
+            <li><b>Data Akun Administrator TIDAK AKAN DIHAPUS</b> dan tetap aktif untuk login.</li>
+            <li>Data master 13 wilayah desa di Kecamatan Kokop tetap dipertahankan.</li>
+          </ul>
+        </div>
+
+        <!-- Form Input Konfirmasi Keamanan -->
+        <div class="pt-2 border-t border-slate-100 space-y-1.5">
+          <label for="resetDatabaseConfirmInput" class="block font-bold text-slate-800 text-xs">
+            Ketik kata <span class="text-rose-700 underline font-black">RESET</span> untuk mengonfirmasi:
+          </label>
+          <input type="text" id="resetDatabaseConfirmInput" placeholder="Ketik RESET"
+            class="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 text-slate-900 font-bold text-xs uppercase tracking-widest outline-none transition" />
+          <p id="resetDatabaseErrorMsg" class="hidden text-[11px] font-bold text-rose-600"></p>
+        </div>
+      </div>
+
+      <!-- Footer Tombol Aksi -->
+      <div class="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-end space-x-2.5">
+        <button type="button" onclick="closeResetDatabaseModal()"
+          class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 transition cursor-pointer">
+          Batal
+        </button>
+        <button type="button" id="btnConfirmResetDatabase" onclick="executeResetDatabase()"
+          class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-extrabold text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-trash-can mr-1"></i>
+          <span>Hapus & Reset Database Sekarang</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: LIGHTBOX / PREVIEW FOTO LAPANGAN RESMI (ANTI-BLANK TOP-FRAME CHROME) -->
   <div id="modalPhotoLightbox" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 hidden">
     <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
@@ -3773,8 +3887,9 @@
   </div>
 
   <!-- VITE CENTRAL APPLICATION ENTRY POINT (ES6 NATIVE MODULE) -->
-  <script type="module" src="./src/main.js?v=72"></script>
+  <script type="module" src="./src/main.js?v=74"></script>
 
 </body>
+
 
 </html>

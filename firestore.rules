@@ -78,7 +78,7 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create: if isStaff() && noSecretFields();
       allow update: if (signedIn() || isStaff() || isActive()) && noSecretFields();
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() || isStaff();
 
       match /messages/{messageId} {
         allow read: if signedIn();

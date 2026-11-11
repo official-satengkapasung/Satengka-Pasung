@@ -145,17 +145,185 @@ getLocalStore("reports", DEFAULT_SEED.reports);
 getLocalStore("chats", DEFAULT_SEED.chats);
 
 /**
- * Fungsi Reset Total Data Kasus, Laporan, dan Chat menjadi 0
+ * Fungsi Reset Total Data Kasus, Laporan, Chat, dan Akun Non-Admin
+ * Menghapus data dari Aplikasi (LocalStorage/Cache) dan Server (Cloud Firestore)
+ * DENGAN PENGECUALIAN DATA AKUN ADMINISTRATOR (role === 'ADMIN')
  */
-export function resetDatabase() {
+export async function resetDatabase() {
+  console.log("🧹 [SATENGKA PASUNG] Memulai proses reset database total (Aplikasi & Server)...");
+
+  const serverResults = {
+    casesDeleted: 0,
+    reportsDeleted: 0,
+    chatsDeleted: 0,
+    usersDeleted: 0
+  };
+
+  // 1. Identifikasi dan amankan data akun Administrator saat ini
+  let rawLocalUsers = [];
+  try {
+    rawLocalUsers = JSON.parse(localStorage.getItem("malekkas_users") || "[]");
+  } catch (e) {
+    rawLocalUsers = [];
+  }
+
+  // Filter akun admin yang ada di lokal
+  let preservedAdmins = rawLocalUsers.filter(u => u && (u.role === 'ADMIN' || u.is_superadmin));
+
+  // Pastikan sesi admin saat ini juga terjaga jika ada
+  let currentSessionUser = null;
+  try {
+    currentSessionUser = JSON.parse(localStorage.getItem("malekkas_user") || "null");
+    if (currentSessionUser && (currentSessionUser.role === 'ADMIN' || currentSessionUser.is_superadmin)) {
+      if (!preservedAdmins.some(a => String(a.id) === String(currentSessionUser.id))) {
+        preservedAdmins.push(currentSessionUser);
+      }
+    }
+  } catch (e) {}
+
+  // Kumpulan ID, telepon, dan UID yang dilindungi (EXCLUDED / TIDAK BOLEH DIHAPUS)
+  const protectedAdminIds = new Set(preservedAdmins.map(a => String(a.id)));
+  const protectedAdminPhones = new Set(preservedAdmins.map(a => (a.phone || '').replace(/\D/g, '')).filter(Boolean));
+  const protectedAdminUids = new Set(preservedAdmins.map(a => a.uid).filter(Boolean));
+
+  // 2. Jika Firebase Cloud Firestore aktif, bersihkan seluruh koleksi di Server
+  if (isFirebaseActive && db) {
+    try {
+      // a. Hapus semua KASUS di server (termasuk subkoleksi messages)
+      try {
+        const casesSnap = await getDocs(collection(db, "cases"));
+        for (const cDoc of casesSnap.docs) {
+          try {
+            const subMsgsSnap = await getDocs(collection(db, "cases", cDoc.id, "messages"));
+            for (const mDoc of subMsgsSnap.docs) {
+              await deleteDoc(doc(db, "cases", cDoc.id, "messages", mDoc.id));
+            }
+          } catch (subErr) {}
+          await deleteDoc(doc(db, "cases", cDoc.id));
+          serverResults.casesDeleted++;
+        }
+      } catch (errCases) {
+        console.warn("Gagal membersihkan koleksi cases di server:", errCases);
+      }
+
+      // b. Hapus semua LAPORAN di server
+      try {
+        const reportsSnap = await getDocs(collection(db, "reports"));
+        for (const rDoc of reportsSnap.docs) {
+          await deleteDoc(doc(db, "reports", rDoc.id));
+          serverResults.reportsDeleted++;
+        }
+      } catch (errReports) {
+        console.warn("Gagal membersihkan koleksi reports di server:", errReports);
+      }
+
+      // c. Hapus semua CHAT di server
+      try {
+        const chatsSnap = await getDocs(collection(db, "chats"));
+        for (const chDoc of chatsSnap.docs) {
+          await deleteDoc(doc(db, "chats", chDoc.id));
+          serverResults.chatsDeleted++;
+        }
+      } catch (errChats) {
+        console.warn("Gagal membersihkan koleksi chats di server:", errChats);
+      }
+
+      // d. Hapus USERS NON-ADMIN di server (KECUALIKAN AKUN ADMINISTRATOR)
+      try {
+        const usersSnap = await getDocs(collection(db, "users"));
+        for (const uDoc of usersSnap.docs) {
+          const uData = uDoc.data() || {};
+          const isDocAdmin = uData.role === 'ADMIN' || 
+                             uData.is_superadmin === true || 
+                             protectedAdminIds.has(String(uDoc.id)) || 
+                             (uData.uid && protectedAdminUids.has(uData.uid)) ||
+                             (uData.phone && protectedAdminPhones.has((uData.phone || '').replace(/\D/g, '')));
+
+          if (!isDocAdmin) {
+            await deleteDoc(doc(db, "users", uDoc.id));
+            serverResults.usersDeleted++;
+          } else {
+            // Catat identitas admin agar juga terlindungi di phone_index
+            protectedAdminIds.add(String(uDoc.id));
+            if (uData.phone) protectedAdminPhones.add((uData.phone || '').replace(/\D/g, ''));
+            if (uData.uid) protectedAdminUids.add(uData.uid);
+            if (!preservedAdmins.some(a => String(a.id) === String(uDoc.id))) {
+              preservedAdmins.push({ id: uDoc.id, ...uData });
+            }
+          }
+        }
+      } catch (errUsers) {
+        console.warn("Gagal membersihkan koleksi users di server:", errUsers);
+      }
+
+      // e. Hapus phone_index milik akun non-admin
+      try {
+        const phoneSnap = await getDocs(collection(db, "phone_index"));
+        for (const pDoc of phoneSnap.docs) {
+          const cleanPhoneKey = pDoc.id.replace(/\D/g, '');
+          if (!protectedAdminPhones.has(cleanPhoneKey)) {
+            await deleteDoc(doc(db, "phone_index", pDoc.id));
+          }
+        }
+      } catch (errPhones) {}
+
+      // f. Hapus user_credentials milik akun non-admin
+      try {
+        const credSnap = await getDocs(collection(db, "user_credentials"));
+        for (const cDoc of credSnap.docs) {
+          if (!protectedAdminIds.has(String(cDoc.id)) && !protectedAdminUids.has(String(cDoc.id))) {
+            await deleteDoc(doc(db, "user_credentials", cDoc.id));
+          }
+        }
+      } catch (errCreds) {}
+
+      // g. Bersihkan daftar deleted_phones
+      try {
+        const delPhoneSnap = await getDocs(collection(db, "deleted_phones"));
+        for (const dpDoc of delPhoneSnap.docs) {
+          await deleteDoc(doc(db, "deleted_phones", dpDoc.id));
+        }
+      } catch (errDelPhones) {}
+
+    } catch (serverMainErr) {
+      console.error("🔥 [SATENGKA PASUNG] Kendala saat mereset data server Firestore:", serverMainErr);
+    }
+  }
+
+  // 3. Bersihkan Penyimpanan Lokal Aplikasi (LocalStorage & Cache Client)
   localStorage.setItem("malekkas_cases", JSON.stringify([]));
   localStorage.setItem("malekkas_reports", JSON.stringify([]));
   localStorage.setItem("malekkas_chats", JSON.stringify({}));
-  localStorage.setItem("malekkas_villages", JSON.stringify(DEFAULT_SEED.villages));
-  localStorage.setItem("malekkas_users", JSON.stringify(DEFAULT_SEED.users));
-  console.log("🧹 [SATENGKA PASUNG] Database berhasil di-reset total menjadi 0 data operasional!");
-  return { success: true, message: "Database berhasil di-reset menjadi 0 kasus dan 0 laporan!" };
+  localStorage.setItem("malekkas_pending_sync", JSON.stringify([]));
+  localStorage.setItem("malekkas_sync_queue", JSON.stringify([]));
+  localStorage.setItem("malekkas_deleted_phones", JSON.stringify([]));
+  localStorage.setItem("satengka_clean_real_testing_v1", "true");
+  localStorage.setItem("satengka_clean_real_testing_v2", "true");
+
+  // HANYA SISAKAN DATA AKUN ADMINISTRATOR DI LOKAL
+  if (preservedAdmins.length === 0 && currentSessionUser) {
+    preservedAdmins = [currentSessionUser];
+  }
+  localStorage.setItem("malekkas_users", JSON.stringify(preservedAdmins));
+
+  // 4. Perbarui State Memori Global
+  if (typeof window !== 'undefined') {
+    window.currentCases = [];
+    window.currentReports = [];
+    window.currentUsers = preservedAdmins;
+    window.cachedUsersData = preservedAdmins;
+  }
+
+  console.log("🧹 [SATENGKA PASUNG] Database berhasil di-reset total dari aplikasi & server! Akun Administrator tetap dipertahankan.");
+  return { 
+    success: true, 
+    message: "Database berhasil di-reset total! Seluruh data operasional di aplikasi dan server telah dihapus, menyisakan data akun Administrator.",
+    serverResults,
+    adminCount: preservedAdmins.length
+  };
 }
+
+export const resetDatabaseCompletely = resetDatabase;
 
 // =========================================================================
 // API REPLACEMENT FUNCTIONS (MENGGANTIKAN SEMUA CALL PHP)

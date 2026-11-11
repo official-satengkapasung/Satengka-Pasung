@@ -172,6 +172,17 @@ export function renderRoleInterface() {
     }
   }
 
+  // Atur visibilitas tombol Reset Database Total (KHUSUS AKUN ADMINISTRATOR)
+  const adminResetSidebarBtn = document.getElementById('adminResetDbSidebarContainer');
+  const adminResetMobileBtn = document.getElementById('adminResetDbMobileContainer');
+  if (isSuperadmin) {
+    if (adminResetSidebarBtn) adminResetSidebarBtn.classList.remove('hidden');
+    if (adminResetMobileBtn) adminResetMobileBtn.classList.remove('hidden');
+  } else {
+    if (adminResetSidebarBtn) adminResetSidebarBtn.classList.add('hidden');
+    if (adminResetMobileBtn) adminResetMobileBtn.classList.add('hidden');
+  }
+
   const viewNakes = document.getElementById('viewNakes');
   const viewMobilePwa = document.getElementById('viewMobilePwa');
   if (!viewNakes || !viewMobilePwa) return;
