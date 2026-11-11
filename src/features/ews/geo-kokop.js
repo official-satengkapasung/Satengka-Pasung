@@ -14,14 +14,14 @@ export const PUSKESMAS_KOKOP = {
 
 // 13 Desa Binaan di Wilayah Kerja Puskesmas Kokop
 export const KOKOP_VILLAGES = [
-  { id: 1, name: "Kokop", latitude: -7.014523, longitude: 113.023412 },
-  { id: 2, name: "Amparaan", latitude: -7.025100, longitude: 113.041200 },
-  { id: 3, name: "Bandang Laok", latitude: -7.038200, longitude: 113.018900 },
-  { id: 4, name: "Banda Soleh", latitude: -7.009400, longitude: 113.053100 },
-  { id: 5, name: "Batokorogan", latitude: -7.042100, longitude: 113.036500 },
-  { id: 6, name: "Dupok", latitude: -7.018900, longitude: 113.012300 },
-  { id: 7, name: "Durjan", latitude: -7.031500, longitude: 112.998400 },
-  { id: 8, name: "Katol Timur", latitude: -6.998200, longitude: 113.034500 },
+  { id: 1, name: "Ampara'an", latitude: -7.025100, longitude: 113.041200 },
+  { id: 2, name: "Bandang Laok", latitude: -7.038200, longitude: 113.018900 },
+  { id: 3, name: "Bandasoleh", latitude: -7.009400, longitude: 113.053100 },
+  { id: 4, name: "Batokorogan", latitude: -7.042100, longitude: 113.036500 },
+  { id: 5, name: "Dupok", latitude: -7.018900, longitude: 113.012300 },
+  { id: 6, name: "Durjan", latitude: -7.031500, longitude: 112.998400 },
+  { id: 7, name: "Katol Timur", latitude: -6.998200, longitude: 113.034500 },
+  { id: 8, name: "Kokop", latitude: -7.014523, longitude: 113.023412 },
   { id: 9, name: "Lembung Gunong", latitude: -7.047800, longitude: 113.007600 },
   { id: 10, name: "Mandung", latitude: -7.029400, longitude: 113.061200 },
   { id: 11, name: "Mano'an", latitude: -7.004100, longitude: 113.015600 },

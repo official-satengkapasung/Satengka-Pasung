@@ -9,14 +9,14 @@
 
   const DEFAULT_SEED = {
     villages: [
-      { id: 1, name: "Kokop", district: "Kokop", regency: "Bangkalan" },
-      { id: 2, name: "Amparaan", district: "Kokop", regency: "Bangkalan" },
-      { id: 3, name: "Bandang Laok", district: "Kokop", regency: "Bangkalan" },
-      { id: 4, name: "Banda Soleh", district: "Kokop", regency: "Bangkalan" },
-      { id: 5, name: "Batokorogan", district: "Kokop", regency: "Bangkalan" },
-      { id: 6, name: "Dupok", district: "Kokop", regency: "Bangkalan" },
-      { id: 7, name: "Durjan", district: "Kokop", regency: "Bangkalan" },
-      { id: 8, name: "Katol Timur", district: "Kokop", regency: "Bangkalan" },
+      { id: 1, name: "Ampara'an", district: "Kokop", regency: "Bangkalan" },
+      { id: 2, name: "Bandang Laok", district: "Kokop", regency: "Bangkalan" },
+      { id: 3, name: "Bandasoleh", district: "Kokop", regency: "Bangkalan" },
+      { id: 4, name: "Batokorogan", district: "Kokop", regency: "Bangkalan" },
+      { id: 5, name: "Dupok", district: "Kokop", regency: "Bangkalan" },
+      { id: 6, name: "Durjan", district: "Kokop", regency: "Bangkalan" },
+      { id: 7, name: "Katol Timur", district: "Kokop", regency: "Bangkalan" },
+      { id: 8, name: "Kokop", district: "Kokop", regency: "Bangkalan" },
       { id: 9, name: "Lembung Gunong", district: "Kokop", regency: "Bangkalan" },
       { id: 10, name: "Mandung", district: "Kokop", regency: "Bangkalan" },
       { id: 11, name: "Mano'an", district: "Kokop", regency: "Bangkalan" },
